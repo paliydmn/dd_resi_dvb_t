@@ -1,0 +1,23 @@
+# FastAPI framework and ASGI server
+fastapi
+uvicorn
+
+# Pydantic for data validation and serialization
+pydantic
+
+# Tools for working with subprocesses
+subprocess32
+
+# Parsing JSON data
+jsonschema
+
+# Optional: For handling environment variables (if using .env file)
+python-dotenv
+
+# Optional: If you plan to use SQL databases in the future
+sqlalchemy
+databases
+
+# For testing
+pytest
+httpx
