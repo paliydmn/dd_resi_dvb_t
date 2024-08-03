@@ -1,12 +1,9 @@
 <!-- app/templates/index.html -->
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Adapter Management</title>
-    <link rel="stylesheet" href="/static/style/styles.css">
-</head>
-<body>
+{% extends "base.html" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
     <h1>Adapter Management</h1>
     <button onclick="window.location.href='/adapters/'">Dashboard</button>
-</body>
-</html>
+{% endblock %}

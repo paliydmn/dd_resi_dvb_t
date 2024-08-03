@@ -1,0 +1,22 @@
+<!-- base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Application{% endblock %}</title>
+    <link rel="stylesheet" href="/static/style/styles.css">
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="/">Home</a></li>
+            <li><a href="/adapters">Adapters</a></li>
+            <li><a href="/modulator">Modulator</a></li>
+        </ul>
+    </nav>
+    <div class="content">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

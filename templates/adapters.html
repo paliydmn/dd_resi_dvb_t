@@ -1,12 +1,8 @@
-<!DOCTYPE html>
-<html>
+{% extends "base.html" %}
 
-<head>
-    <title>Adapter Management</title>
-    <link rel="stylesheet" type="text/css" href="/static/style/styles.css">
-</head>
+{% block title %}Adapters{% endblock %}
 
-<body>
+{% block content %}
     <h1>Adapter Management</h1>
     <button onclick="showNewAdapterForm()">New Adapter</button>
     <div id="adapter-container">
@@ -40,6 +36,4 @@
     </div>
 
     <script src="/static/js/adapters.js"></script>
-</body>
-
-</html>
+{% endblock %}
