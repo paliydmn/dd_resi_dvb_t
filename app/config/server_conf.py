@@ -9,6 +9,7 @@ CONFIG_FILE_PATH = Path("app/config/adapters_config.json")
 
 adapters = {}
 
+
 def save_adapters_to_file():
     """Save the current state of adapters to a JSON file."""
     logger.info("Saving adapters configuration to file.")

@@ -25,6 +25,7 @@ if os.path.exists(CONFIG_FILE_PATH):
         adapters = json.load(f)
         logger.info(f"Loaded adapters configuration from {CONFIG_FILE_PATH}")
 
+
 @app.on_event("startup")
 def startup_event():
     logger.info("App startup event triggered.")
@@ -35,7 +36,8 @@ def startup_event():
 def shutdown_event():
     logger.info("App shutdown event triggered.")
     stop_ffmpeg_processes()
-    #save_adapters_to_file()
+    # save_adapters_to_file()
+
 
 if __name__ == "__main__":
     register_signal_handlers()

@@ -8,7 +8,8 @@ from typing import Union, Dict, Any
 logger = logging.getLogger(__name__)
 # Ensure no handlers are already attached to avoid duplication
 if not logger.hasHandlers():
-    log_formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
+    log_formatter = logging.Formatter(
+        '%(asctime)s [%(levelname)s] %(message)s')
 
     # Specify the log file path
     log_file_path = 'app.log'  # Change this path as needed
@@ -21,6 +22,7 @@ if not logger.hasHandlers():
     logger.setLevel(logging.INFO)
     logger.addHandler(log_handler)
     logger.propagate = False  # Prevent propagation to the root logger
+
 
 def get_ffprobe_data(udp_link: str) -> Union[Dict[str, Any], str]:
     """
@@ -63,6 +65,7 @@ def get_ffprobe_data(udp_link: str) -> Union[Dict[str, Any], str]:
         logger.exception(f"Unexpected error occurred: {e}")
         return f"Error: An unexpected error occurred: {str(e)}"
 
+
 def construct_programs_dict(ffprobe_data: dict) -> dict:
     """
     Construct a dictionary of programs and their streams from ffprobe data.
@@ -96,6 +99,7 @@ def construct_programs_dict(ffprobe_data: dict) -> dict:
         }
     logger.info(f"Constructed programs dictionary with {len(programs)} programs.")
     return programs
+
 
 def construct_ffmpeg_command(udp_link: str, programs: dict, adapter_num: int, modulator_num: int, log_file: str) -> str:
     """

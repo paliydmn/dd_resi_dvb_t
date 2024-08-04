@@ -6,6 +6,7 @@ import atexit
 from app.config.server_conf import adapters
 from app.utils import logger
 
+
 def stop_ffmpeg_processes():
     """Stop all running ffmpeg processes."""
     try:
@@ -16,11 +17,13 @@ def stop_ffmpeg_processes():
     except subprocess.CalledProcessError as e:
         logger.error(f"Error stopping ffmpeg processes: {e}")
 
+
 def signal_handler(sig, frame):
     """Handle termination signals."""
     logger.info(f"Received signal {sig}. Stopping all ffmpeg processes.")
     stop_ffmpeg_processes()
     sys.exit(0)
+
 
 def register_signal_handlers():
     signal.signal(signal.SIGTERM, signal_handler)

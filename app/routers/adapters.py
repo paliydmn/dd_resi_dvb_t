@@ -16,16 +16,18 @@ templates = Jinja2Templates(directory="app/templates")
 
 running_processes = {}
 
+
 @router.get("/adapters/", response_class=HTMLResponse)
 async def adapters_page(request: Request):
     logger.info("Get Adapters page")
     return templates.TemplateResponse("adapters.html", {"request": request, "adapters": adapters})
 
+
 @router.get("/available", response_model=AvailableResources)
 def get_available_adapters():
     """Fetch available adapters and modulators from the system."""
     logger.info(f"Loading available adapters from {CONFIG_FILE_PATH} file.")
-    
+
     try:
         output = subprocess.check_output(
             "find /dev/dvb/ -type c -name 'mod*'", shell=True).decode('utf-8')
@@ -41,6 +43,7 @@ def get_available_adapters():
         logger.error(f"Error fetching available adapters: {e}")
         return {"adapters": [], "modulators": []}
 
+
 @router.post("/adapters/")
 def create_adapter(adapterConf: AdapterConfig):
     adapter_id = len(adapters) + 1
@@ -48,6 +51,7 @@ def create_adapter(adapterConf: AdapterConfig):
     save_adapters_to_file()
     logger.info(f"Adapter created: {adapterConf}")
     return {"id": adapter_id, "message": "Adapter created successfully"}
+
 
 @router.get("/{adapter_id}/scan")
 def scan_adapter(adapter_id: int):
@@ -66,10 +70,12 @@ def scan_adapter(adapter_id: int):
     logger.info(f"Scanned adapter {adapter_id}: {len(programs)} programs found.")
     return {"programs": programs}
 
+
 @router.post("/{adapter_id}/start")
 def start_ffmpeg(adapter_id: int):
     if adapter_id in running_processes:
-        logger.warning(f"FFmpeg process is already running for adapter {adapter_id}.")
+        logger.warning(
+            f"FFmpeg process is already running for adapter {adapter_id}.")
         raise HTTPException(
             status_code=400, detail="FFmpeg process is already running for this adapter")
     if adapter_id not in adapters:
@@ -93,6 +99,7 @@ def start_ffmpeg(adapter_id: int):
         adapter.running = True
     return {"message": "FFmpeg started"}
 
+
 @router.post("/{adapter_id}/stop")
 def stop_ffmpeg(adapter_id: int):
     if adapter_id not in running_processes:
@@ -110,11 +117,13 @@ def stop_ffmpeg(adapter_id: int):
     logger.info(f"Stopped FFmpeg for adapter {adapter_id}.")
     return {"message": "FFmpeg stopped"}
 
+
 @router.delete("/{adapter_id}/")
 def delete_adapter(adapter_id: int):
     if adapter_id in running_processes:
         logger.warning(f"Attempt to delete adapter {adapter_id} while FFmpeg is running.")
-        raise HTTPException(status_code=400, detail="Stop FFmpeg process before deleting the adapter")
+        raise HTTPException(
+            status_code=400, detail="Stop FFmpeg process before deleting the adapter")
     if adapter_id not in adapters:
         logger.warning(f"Adapter {adapter_id} not found.")
         raise HTTPException(status_code=404, detail="Adapter not found")
@@ -122,6 +131,7 @@ def delete_adapter(adapter_id: int):
     del adapters[adapter_id]
     logger.info(f"Deleted adapter {adapter_id}.")
     return {"message": "Adapter deleted"}
+
 
 @router.post("/{adapter_id}/save")
 def save_selection(adapter_id: int, selection: SaveSelection):
