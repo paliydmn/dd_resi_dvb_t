@@ -1,2 +1,2 @@
 venv
-app.log
+app/logs/app.log
