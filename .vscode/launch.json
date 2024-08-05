@@ -1,0 +1,12 @@
+{
+    "configurations": [
+        {
+            "type": "python",
+            "name": "debug main.py",
+            "request": "launch",
+            "justMyCode": false,
+            "args": [],
+            "program": "d:\\Work\\dd projects\\utility_python\\app2\\dd_resi_dvb_t\\app\\main.py"
+        }
+    ]
+}
