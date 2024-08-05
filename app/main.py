@@ -5,6 +5,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 
 import uvicorn
 from app.utils import logger
+#from app.utils.logger import setup_main_logger
 from app.routers.index import router as index_router
 from app.routers.adapters import router as adapter_router
 from app.utils.signal_handler import register_signal_handlers, stop_ffmpeg_processes

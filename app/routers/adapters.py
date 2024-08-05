@@ -3,10 +3,13 @@ from fastapi.templating import Jinja2Templates
 from fastapi import HTTPException, Form, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from app.utils import logger
+from app.utils.logger import get_ffmpeg_logger
 from app.config.server_conf import adapters, save_adapters_to_file
 from app.utils.ffmpeg_utils import get_ffprobe_data, construct_programs_dict, construct_ffmpeg_command
 from app.models.models import AdapterConfig, Program, Stream, AvailableResources, SaveSelection
 from app.config.server_conf import CONFIG_LOG_FILE, CONFIG_FILE_PATH
+import threading
+import logging
 import subprocess
 import os
 import signal
@@ -88,18 +91,34 @@ def start_ffmpeg(adapter_id: int):
         program_id: program.dict() for program_id, program in adapter.programs.items() if program.selected
     }
 
-    adapter_log_file = f"app/logs/{CONFIG_LOG_FILE}_a{adapter_id}.log"
+    # #ToDo: add logger for each ffmpeg adapter start
+    # adapter_log_file = f"app/logs/{CONFIG_LOG_FILE}_a{adapter_id}.log"
     ffmpeg_cmd = construct_ffmpeg_command(
-        adapter.udp_url, selected_programs, adapter.adapter_number, adapter.modulator_number, adapter_log_file)
-    logger.info(f"Starting FFmpeg for adapter {adapter_id} with command: {ffmpeg_cmd}")
+        adapter.udp_url, selected_programs, adapter.adapter_number, adapter.modulator_number)
+    # logger.info(f"Starting FFmpeg for adapter {adapter_id} with command: {ffmpeg_cmd}")
     
-    with open(adapter_log_file, 'w') as log_file:
-        process = subprocess.Popen(
-            ffmpeg_cmd, shell=True, stdout=log_file, stderr=subprocess.STDOUT, preexec_fn=os.setsid)
-        running_processes[adapter_id] = process
-        adapter.running = process is not None
-    # process = subprocess.Popen(ffmpeg_cmd, shell=True, preexec_fn=os.setsid)
-    # running_processes[adapter_id] = process
+    # ff_logger = get_ffmpeg_logger(adapter_id)
+    # with open(adapter_log_file, 'w') as log_file:
+    #     process = subprocess.Popen(
+    #         ffmpeg_cmd, shell=True, stdout=log_file, stderr=subprocess.STDOUT, preexec_fn=os.setsid)
+    #     running_processes[adapter_id] = process
+    #     adapter.running = process is not None
+    # # process = subprocess.Popen(ffmpeg_cmd, shell=True, preexec_fn=os.setsid)
+    # # running_processes[adapter_id] = process
+    process = subprocess.Popen(
+        ffmpeg_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
+
+    # Redirect FFmpeg stdout and stderr to the logger
+    def log_output(pipe, level):
+        for line in iter(pipe.readline, b''):
+            logger.log(level, line.decode().strip())
+        pipe.close()
+
+    # Start logging in separate threads to avoid blocking
+    threading.Thread(target=log_output, args=(process.stdout, logging.INFO)).start()
+    threading.Thread(target=log_output, args=(process.stderr, logging.ERROR)).start()
+
+    running_processes[adapter_id] = process
     # ToDo: check
     if process:
         adapter.running = True

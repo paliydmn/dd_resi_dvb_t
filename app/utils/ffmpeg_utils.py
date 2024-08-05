@@ -101,7 +101,7 @@ def construct_programs_dict(ffprobe_data: dict) -> dict:
     return programs
 
 
-def construct_ffmpeg_command(udp_link: str, programs: dict, adapter_num: int, modulator_num: int, log_file: str) -> str:
+def construct_ffmpeg_command(udp_link: str, programs: dict, adapter_num: int, modulator_num: int) -> str:
     """
     Construct the ffmpeg command based on the selected programs and streams.
     """
