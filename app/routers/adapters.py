@@ -105,14 +105,26 @@ def start_ffmpeg(adapter_id: int):
     #     adapter.running = process is not None
     # # process = subprocess.Popen(ffmpeg_cmd, shell=True, preexec_fn=os.setsid)
     # # running_processes[adapter_id] = process
+    # process = subprocess.Popen(
+    #     ffmpeg_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
     process = subprocess.Popen(
-        ffmpeg_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
+        ffmpeg_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        text=True, preexec_fn=os.setsid
+    )
 
     # Redirect FFmpeg stdout and stderr to the logger
+    # def log_output(pipe, level):
+    #     for line in iter(pipe.readline, b''):
+    #         ff_logger.log(level, line.decode().strip())
+    #     pipe.close()
+    # Function to log output from a pipe
     def log_output(pipe, level):
-        for line in iter(pipe.readline, b''):
-            ff_logger.log(level, line.decode().strip())
-        pipe.close()
+        while True:
+            line = pipe.readline()
+            if not line:
+                break
+            print(f"[{level}] {line.strip()}")  # Debug print
+            ff_logger.log(level, line.strip())
 
     # Start logging in separate threads to avoid blocking
     threading.Thread(target=log_output, args=(process.stdout, logging.INFO)).start()
