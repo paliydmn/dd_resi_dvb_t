@@ -4,7 +4,7 @@ from app.models.models import AdapterConfig
 import json
 
 # Server configuration paths
-CONFIG_LOG_FILE = "/var/log/ffmpeg_resi"
+CONFIG_LOG_FILE = "ffmpeg_"
 CONFIG_FILE_PATH = Path("app/config/adapters_config.json")
 
 adapters = {}

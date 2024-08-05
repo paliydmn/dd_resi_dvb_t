@@ -88,12 +88,18 @@ def start_ffmpeg(adapter_id: int):
         program_id: program.dict() for program_id, program in adapter.programs.items() if program.selected
     }
 
-    adapter_log_file = f"{CONFIG_LOG_FILE}{adapter_id}.log"
+    adapter_log_file = f"app/logs/{CONFIG_LOG_FILE}_a{adapter_id}.log"
     ffmpeg_cmd = construct_ffmpeg_command(
         adapter.udp_url, selected_programs, adapter.adapter_number, adapter.modulator_number, adapter_log_file)
     logger.info(f"Starting FFmpeg for adapter {adapter_id} with command: {ffmpeg_cmd}")
-    process = subprocess.Popen(ffmpeg_cmd, shell=True, preexec_fn=os.setsid)
-    running_processes[adapter_id] = process
+    
+    with open(adapter_log_file, 'w') as log_file:
+        process = subprocess.Popen(
+            ffmpeg_cmd, shell=True, stdout=log_file, stderr=subprocess.STDOUT, preexec_fn=os.setsid)
+        running_processes[adapter_id] = process
+        adapter.running = process is not None
+    # process = subprocess.Popen(ffmpeg_cmd, shell=True, preexec_fn=os.setsid)
+    # running_processes[adapter_id] = process
     # ToDo: check
     if process:
         adapter.running = True
