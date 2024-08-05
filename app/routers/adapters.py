@@ -23,7 +23,7 @@ async def adapters_page(request: Request):
     return templates.TemplateResponse("adapters.html", {"request": request, "adapters": adapters})
 
 
-@router.get("/available", response_model=AvailableResources)
+@router.get(" /adapters/available", response_model=AvailableResources)
 def get_available_adapters():
     """Fetch available adapters and modulators from the system."""
     logger.info(f"Loading available adapters from {CONFIG_FILE_PATH} file.")
