@@ -97,7 +97,7 @@ def start_ffmpeg(adapter_id: int):
         adapter.udp_url, selected_programs, adapter.adapter_number, adapter.modulator_number)
     # logger.info(f"Starting FFmpeg for adapter {adapter_id} with command: {ffmpeg_cmd}")
     
-    # ff_logger = get_ffmpeg_logger(adapter_id)
+    ff_logger = get_ffmpeg_logger(adapter_id)
     # with open(adapter_log_file, 'w') as log_file:
     #     process = subprocess.Popen(
     #         ffmpeg_cmd, shell=True, stdout=log_file, stderr=subprocess.STDOUT, preexec_fn=os.setsid)
@@ -111,7 +111,7 @@ def start_ffmpeg(adapter_id: int):
     # Redirect FFmpeg stdout and stderr to the logger
     def log_output(pipe, level):
         for line in iter(pipe.readline, b''):
-            logger.log(level, line.decode().strip())
+            ff_logger.log(level, line.decode().strip())
         pipe.close()
 
     # Start logging in separate threads to avoid blocking
