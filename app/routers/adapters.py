@@ -53,7 +53,7 @@ def create_adapter(adapterConf: AdapterConfig):
     return {"id": adapter_id, "message": "Adapter created successfully"}
 
 
-@router.get("/{adapter_id}/scan")
+@router.get("/adapters/{adapter_id}/scan")
 def scan_adapter(adapter_id: int):
     if adapter_id not in adapters:
         raise HTTPException(status_code=404, detail="Adapter not found")
@@ -71,7 +71,7 @@ def scan_adapter(adapter_id: int):
     return {"programs": programs}
 
 
-@router.post("/{adapter_id}/start")
+@router.post("/adapters/{adapter_id}/start")
 def start_ffmpeg(adapter_id: int):
     if adapter_id in running_processes:
         logger.warning(
@@ -100,7 +100,7 @@ def start_ffmpeg(adapter_id: int):
     return {"message": "FFmpeg started"}
 
 
-@router.post("/{adapter_id}/stop")
+@router.post("/adapters/{adapter_id}/stop")
 def stop_ffmpeg(adapter_id: int):
     if adapter_id not in running_processes:
         logger.warning(f"FFmpeg process not found for adapter {adapter_id}.")
@@ -118,7 +118,7 @@ def stop_ffmpeg(adapter_id: int):
     return {"message": "FFmpeg stopped"}
 
 
-@router.delete("/{adapter_id}/")
+@router.delete("/adapters/{adapter_id}/")
 def delete_adapter(adapter_id: int):
     if adapter_id in running_processes:
         logger.warning(f"Attempt to delete adapter {adapter_id} while FFmpeg is running.")
@@ -133,7 +133,7 @@ def delete_adapter(adapter_id: int):
     return {"message": "Adapter deleted"}
 
 
-@router.post("/{adapter_id}/save")
+@router.post("/adapters/{adapter_id}/save")
 def save_selection(adapter_id: int, selection: SaveSelection):
     if adapter_id not in adapters:
         logger.warning(f"Adapter {adapter_id} not found.")
