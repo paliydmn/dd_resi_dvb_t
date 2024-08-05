@@ -150,6 +150,3 @@ __pycache__/
 - Ensure that your virtual environment is activated before running any Python commands.
 - If you make changes to the project, commit and push them as necessary.
 
----
-
-Feel free to adjust the README based on any additional details or specific instructions relevant to your project.
