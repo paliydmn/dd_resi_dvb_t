@@ -1,6 +1,7 @@
 # FastAPI framework and ASGI server
 fastapi
 uvicorn
+jinja2
 
 # Pydantic for data validation and serialization
 pydantic
