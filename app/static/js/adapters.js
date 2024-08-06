@@ -238,8 +238,8 @@ function loadAdapters() {
             const status = adapter.running ? '<span style="color: green;">Running</span>' : '<span style="color: red;">Stopped</span>';
 
             adapterDiv.innerHTML = `
-                <h3>Adapter: (Adapter${adapter.adapter_number}/mod${adapter.modulator_number})  ${status}</h3>
-                <p>UDP link: ${adapter.udp_url}</p>
+                <h3>Adapter ${adapterId}: (Adapter${adapter.adapter_number}/mod${adapter.modulator_number})  ${status}</h3>
+                <p>UDP link:<div id="udp-url"> ${adapter.udp_url}</div></p>
                 <div class="selected-channels">
                     <p>Selected channels:</p>
                     <ul id="selected-channels-list">
