@@ -8,14 +8,6 @@ router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
 
-@router.get("/", response_class=HTMLResponse)
-async def root(request: Request):
-    logger.info("Get Root Request")
-    return templates.TemplateResponse("index.html", {"request": request})
-
-
 @router.get("/modulator", response_class=HTMLResponse)
 async def modulator(request: Request):
     return templates.TemplateResponse("modulator.html", {"request": request})
-
-
