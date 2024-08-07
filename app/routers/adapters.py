@@ -162,8 +162,7 @@ def stop_ffmpeg(adapter_id: int):
 @router.delete("/adapters/{adapter_id}/")
 def delete_adapter(adapter_id: int):
     if adapter_id in running_processes:
-        logger.warning(f"Attempt to delete adapter {
-                       adapter_id} while FFmpeg is running.")
+        logger.warning(f"Attempt to delete adapter {adapter_id} while FFmpeg is running.")
         raise HTTPException(
             status_code=400, detail="Stop FFmpeg process before deleting the adapter")
     if adapter_id not in adapters:
