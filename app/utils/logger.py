@@ -8,6 +8,8 @@ LOG_BACKUP_COUNT = 5  # Number of backup log files to keep
 
 def setup_main_logger(log_file="app.log", level=logging.INFO):
     log_path = os.path.join(LOG_DIRECTORY, log_file)
+    # Ensure the directory exists
+    os.makedirs(os.path.dirname(log_path), exist_ok=True)
 
     log_formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
     log_handler = RotatingFileHandler(log_path, maxBytes=LOG_FILE_SIZE, backupCount=LOG_BACKUP_COUNT)
