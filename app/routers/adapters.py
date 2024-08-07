@@ -7,7 +7,7 @@ from app.utils.logger import get_ffmpeg_logger
 from app.config.server_conf import adapters, save_adapters_to_file
 from app.utils.ffmpeg_utils import get_ffprobe_data, construct_programs_dict, construct_ffmpeg_command
 from app.models.models import AdapterConfig, Program, Stream, AvailableResources, SaveSelection
-from app.config.server_conf import CONFIG_LOG_FILE, CONFIG_FILE_PATH
+from app.config.server_conf import CONFIG_LOG_FILE, ADAPTER_CONF_FILE
 import threading
 import logging
 import subprocess
@@ -29,7 +29,7 @@ async def adapters_page(request: Request):
 @router.get("/adapters/available", response_model=AvailableResources)
 def get_available_adapters():
     """Fetch available adapters and modulators from the system."""
-    logger.info(f"Loading available adapters from {CONFIG_FILE_PATH} file.")
+    logger.info(f"Loading available adapters from {ADAPTER_CONF_FILE} file.")
 
     try:
         output = subprocess.check_output(
@@ -71,6 +71,7 @@ def scan_adapter(adapter_id: int):
     programs = construct_programs_dict(ffprobe_data)
     adapters[adapter_id].programs = programs
     logger.info(f"Scanned adapter {adapter_id}: {len(programs)} programs found.")
+    save_adapters_to_file()
     return {"programs": programs}
 
 
@@ -95,7 +96,7 @@ def start_ffmpeg(adapter_id: int):
     # adapter_log_file = f"app/logs/{CONFIG_LOG_FILE}_a{adapter_id}.log"
     ffmpeg_cmd = construct_ffmpeg_command(
         adapter.udp_url, selected_programs, adapter.adapter_number, adapter.modulator_number)
-    # logger.info(f"Starting FFmpeg for adapter {adapter_id} with command: {ffmpeg_cmd}")
+    logger.info(f"Starting FFmpeg for adapter {adapter_id} with command: {ffmpeg_cmd}")
     
     ff_logger = get_ffmpeg_logger(adapter_id)
     # with open(adapter_log_file, 'w') as log_file:
@@ -112,12 +113,6 @@ def start_ffmpeg(adapter_id: int):
         text=True, preexec_fn=os.setsid
     )
 
-    # Redirect FFmpeg stdout and stderr to the logger
-    # def log_output(pipe, level):
-    #     for line in iter(pipe.readline, b''):
-    #         ff_logger.log(level, line.decode().strip())
-    #     pipe.close()
-    # Function to log output from a pipe
     def log_output(pipe, level):
         while True:
             line = pipe.readline()
@@ -134,6 +129,7 @@ def start_ffmpeg(adapter_id: int):
     # ToDo: check
     if process:
         adapter.running = True
+    save_adapters_to_file()
     return {"message": "FFmpeg started"}
 
 
@@ -151,7 +147,8 @@ def stop_ffmpeg(adapter_id: int):
     os.killpg(os.getpgid(process.pid), signal.SIGTERM)
     del running_processes[adapter_id]
     adapters[adapter_id].running = False
-    logger.info(f"Stopped FFmpeg for adapter {adapter_id}.")
+    logger.info(f"Stopped FFmpeg for adapter {adapter_id}.")    
+    save_adapters_to_file()
     return {"message": "FFmpeg stopped"}
 
 
@@ -167,6 +164,7 @@ def delete_adapter(adapter_id: int):
 
     del adapters[adapter_id]
     logger.info(f"Deleted adapter {adapter_id}.")
+    save_adapters_to_file()
     return {"message": "Adapter deleted"}
 
 

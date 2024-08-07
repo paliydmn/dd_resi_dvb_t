@@ -328,3 +328,112 @@ form button {
     font-size: 1.2em;
     vertical-align: middle;
 }
+
+/* Specific styles for modulator.html */
+
+/* General page container */
+.modulator-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Title and heading styles */
+.modulator-container h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.modulator-container h2 {
+    color: #444;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+/* Form styling */
+.modulator-container form {
+    display: flex;
+    flex-direction: column;
+}
+
+.modulator-container form div {
+    margin-bottom: 15px;
+}
+
+.modulator-container label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.modulator-container input[type="number"],
+.modulator-container select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.modulator-container input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+.modulator-container input[type="number"]::-webkit-inner-spin-button,
+.modulator-container input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.modulator-container button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.modulator-container button:hover {
+    background-color: #0056b3;
+}
+
+/* Channel slots display */
+.channel-slots {
+    margin-top: 20px;
+}
+
+.channel-slots .slot {
+    padding: 10px;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 5px;
+}
+
+.channel-slots .slot:nth-child(odd) {
+    background-color: #e9ecef;
+}
+
+/* Stream assignment */
+.stream-assignment {
+    margin-top: 20px;
+}
+
+.stream-assignment label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.stream-assignment select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
