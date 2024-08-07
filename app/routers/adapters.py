@@ -75,8 +75,7 @@ def scan_adapter(adapter_id: int):
 
     programs = construct_programs_dict(ffprobe_data)
     adapters[adapter_id].programs = programs
-    logger.info(f"Scanned adapter {adapter_id}: {
-                len(programs)} programs found.")
+    logger.info(f"Scanned adapter {adapter_id}: {len(programs)} programs found.")
     save_adapters_to_file()
     return {"programs": programs}
 
@@ -102,9 +101,8 @@ def start_ffmpeg(adapter_id: int):
     # adapter_log_file = f"app/logs/{CONFIG_LOG_FILE}_a{adapter_id}.log"
     ffmpeg_cmd = construct_ffmpeg_command(
         adapter.udp_url, selected_programs, adapter.adapter_number, adapter.modulator_number)
-    logger.info(f"Starting FFmpeg for adapter {
-                adapter_id} with command: {ffmpeg_cmd}")
-
+    logger.info(f"Starting FFmpeg for adapter {adapter_id} with command: {ffmpeg_cmd}")
+    
     ff_logger = get_ffmpeg_logger(adapter_id)
     # with open(adapter_log_file, 'w') as log_file:
     #     process = subprocess.Popen(
@@ -156,7 +154,7 @@ def stop_ffmpeg(adapter_id: int):
     os.killpg(os.getpgid(process.pid), signal.SIGTERM)
     del running_processes[adapter_id]
     adapters[adapter_id].running = False
-    logger.info(f"Stopped FFmpeg for adapter {adapter_id}.")
+    logger.info(f"Stopped FFmpeg for adapter {adapter_id}.")    
     save_adapters_to_file()
     return {"message": "FFmpeg stopped"}
 
