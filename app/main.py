@@ -26,10 +26,7 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 # Load adapters from file
 if os.path.exists(ADAPTER_CONF_FILE):
     with open(ADAPTER_CONF_FILE, "r") as f:
-if os.path.exists(ADAPTER_CONF_FILE):
-    with open(ADAPTER_CONF_FILE, "r") as f:
         adapters = json.load(f)
-        logger.info(f"Loaded adapters configuration from {ADAPTER_CONF_FILE}")
         logger.info(f"Loaded adapters configuration from {ADAPTER_CONF_FILE}")
 
 
