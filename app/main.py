@@ -5,12 +5,12 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 
 import uvicorn
 from app.utils import logger
-#from app.utils.logger import setup_main_logger
 from app.routers.index import router as index_router
 from app.routers.adapters import router as adapter_router
 from app.routers.modulator import router as modulator_router
+
 from app.utils.signal_handler import register_signal_handlers, stop_ffmpeg_processes
-from app.config.server_conf import ADAPTER_CONF_FILE, load_adapters_from_file
+from app.config.server_conf import ADAPTER_CONF_FILE, load_adapters_from_file, save_adapters_to_file
 
 import os
 import json
@@ -39,7 +39,7 @@ def startup_event():
 def shutdown_event():
     logger.info("App shutdown event triggered.")
     stop_ffmpeg_processes()
-    # save_adapters_to_file()
+    save_adapters_to_file()
 
 
 if __name__ == "__main__":

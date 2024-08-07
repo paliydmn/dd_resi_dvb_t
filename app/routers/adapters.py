@@ -26,6 +26,11 @@ async def adapters_page(request: Request):
     return templates.TemplateResponse("adapters.html", {"request": request, "adapters": adapters})
 
 
+@router.get("/get_adapters/")
+def get_adapters():
+    return adapters
+
+
 @router.get("/adapters/available", response_model=AvailableResources)
 def get_available_adapters():
     """Fetch available adapters and modulators from the system."""
@@ -70,7 +75,8 @@ def scan_adapter(adapter_id: int):
 
     programs = construct_programs_dict(ffprobe_data)
     adapters[adapter_id].programs = programs
-    logger.info(f"Scanned adapter {adapter_id}: {len(programs)} programs found.")
+    logger.info(f"Scanned adapter {adapter_id}: {
+                len(programs)} programs found.")
     save_adapters_to_file()
     return {"programs": programs}
 
@@ -96,8 +102,9 @@ def start_ffmpeg(adapter_id: int):
     # adapter_log_file = f"app/logs/{CONFIG_LOG_FILE}_a{adapter_id}.log"
     ffmpeg_cmd = construct_ffmpeg_command(
         adapter.udp_url, selected_programs, adapter.adapter_number, adapter.modulator_number)
-    logger.info(f"Starting FFmpeg for adapter {adapter_id} with command: {ffmpeg_cmd}")
-    
+    logger.info(f"Starting FFmpeg for adapter {
+                adapter_id} with command: {ffmpeg_cmd}")
+
     ff_logger = get_ffmpeg_logger(adapter_id)
     # with open(adapter_log_file, 'w') as log_file:
     #     process = subprocess.Popen(
@@ -118,12 +125,14 @@ def start_ffmpeg(adapter_id: int):
             line = pipe.readline()
             if not line:
                 break
-            #print(f"[{level}] {line.strip()}")  # Debug print
+            # print(f"[{level}] {line.strip()}")  # Debug print
             ff_logger.log(level, line.strip())
 
     # Start logging in separate threads to avoid blocking
-    threading.Thread(target=log_output, args=(process.stdout, logging.INFO)).start()
-    threading.Thread(target=log_output, args=(process.stderr, logging.INFO)).start()
+    threading.Thread(target=log_output, args=(
+        process.stdout, logging.INFO)).start()
+    threading.Thread(target=log_output, args=(
+        process.stderr, logging.INFO)).start()
 
     running_processes[adapter_id] = process
     # ToDo: check
@@ -147,7 +156,7 @@ def stop_ffmpeg(adapter_id: int):
     os.killpg(os.getpgid(process.pid), signal.SIGTERM)
     del running_processes[adapter_id]
     adapters[adapter_id].running = False
-    logger.info(f"Stopped FFmpeg for adapter {adapter_id}.")    
+    logger.info(f"Stopped FFmpeg for adapter {adapter_id}.")
     save_adapters_to_file()
     return {"message": "FFmpeg stopped"}
 
@@ -155,7 +164,8 @@ def stop_ffmpeg(adapter_id: int):
 @router.delete("/adapters/{adapter_id}/")
 def delete_adapter(adapter_id: int):
     if adapter_id in running_processes:
-        logger.warning(f"Attempt to delete adapter {adapter_id} while FFmpeg is running.")
+        logger.warning(f"Attempt to delete adapter {
+                       adapter_id} while FFmpeg is running.")
         raise HTTPException(
             status_code=400, detail="Stop FFmpeg process before deleting the adapter")
     if adapter_id not in adapters:
