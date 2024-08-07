@@ -14,11 +14,4 @@ async def root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
-@router.get("/modulator", response_class=HTMLResponse)
-async def modulator(request: Request):
-    return templates.TemplateResponse("modulator.html", {"request": request})
 
-
-@router.get("/get_adapters/")
-def get_adapters():
-    return adapters

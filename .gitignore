@@ -1,5 +1,5 @@
 venv
-app/logs/app.log
+*.log
 
 **/__pycache__/
 __pycache__/
