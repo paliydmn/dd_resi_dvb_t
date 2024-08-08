@@ -108,9 +108,9 @@ async def apply_modulator_config(adapter_id: int):
     if not os.path.isfile(config_path):
         return {"status": "Configuration file not found"}
     try:
-        # Run the command line tool `./modinfo`
+        # Run the command line tool `./modconfig`
         result = subprocess.run(
-            ["./modinfo", "-c", config_path],
+            ["./modconfig", "-c", config_path],
             capture_output=True,
             text=True,
             check=True
@@ -118,7 +118,7 @@ async def apply_modulator_config(adapter_id: int):
         # If successful, return the command output
         return {"stdout": result.stdout, "stderr": result.stderr}
     except subprocess.CalledProcessError as e:
-        return {"status": f"Error running modinfo: {e.stderr}"}
+        return {"status": f"Error running modconfig: {e.stderr}"}
 
 
 @router.post("/save_modulator_config/{adapter_id}")
