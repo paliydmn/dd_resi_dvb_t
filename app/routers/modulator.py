@@ -13,68 +13,47 @@ import subprocess
 import json
 import os
 
-#Todo: move to configs
+# Todo: move to configs
 CONFIG_DIR = ""
 
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
-output = '''
-/dev/dvb/adapter0/mod13
-/dev/dvb/adapter0/mod12
-/dev/dvb/adapter0/mod11
-/dev/dvb/adapter0/mod10
-/dev/dvb/adapter0/mod9
-/dev/dvb/adapter0/mod8
-/dev/dvb/adapter0/mod7
-/dev/dvb/adapter0/mod6
-/dev/dvb/adapter0/mod5
-/dev/dvb/adapter0/mod4
-/dev/dvb/adapter0/mod3
-/dev/dvb/adapter0/mod2
-/dev/dvb/adapter0/mod1
-/dev/dvb/adapter0/mod0
-/dev/dvb/adapter1/mod7
-/dev/dvb/adapter1/mod6
-/dev/dvb/adapter1/mod5
-/dev/dvb/adapter1/mod4
-/dev/dvb/adapter1/mod3
-/dev/dvb/adapter1/mod2
-/dev/dvb/adapter1/mod1
-/dev/dvb/adapter1/mod0
-'''
+
+
 @router.get("/modulator", response_class=HTMLResponse)
 async def modulator(request: Request):
     return templates.TemplateResponse("modulator.html", {"request": request})
 
+
 def get_adapters_and_modulators():
     try:
-        # output = subprocess.check_output(
-        #     "find /dev/dvb/ -type c -name 'mod*'", shell=True).decode('utf-8')
-        output = '''
-/dev/dvb/adapter0/mod13
-/dev/dvb/adapter0/mod12
-/dev/dvb/adapter0/mod11
-/dev/dvb/adapter0/mod10
-/dev/dvb/adapter0/mod9
-/dev/dvb/adapter0/mod8
-/dev/dvb/adapter0/mod7
-/dev/dvb/adapter0/mod6
-/dev/dvb/adapter0/mod5
-/dev/dvb/adapter0/mod4
-/dev/dvb/adapter0/mod3
-/dev/dvb/adapter0/mod2
-/dev/dvb/adapter0/mod1
-/dev/dvb/adapter0/mod0
-/dev/dvb/adapter1/mod7
-/dev/dvb/adapter1/mod6
-/dev/dvb/adapter1/mod5
-/dev/dvb/adapter1/mod4
-/dev/dvb/adapter1/mod3
-/dev/dvb/adapter1/mod2
-/dev/dvb/adapter1/mod1
-/dev/dvb/adapter1/mod0
-'''
+        output = subprocess.check_output(
+            "find /dev/dvb/ -type c -name 'mod*'", shell=True).decode('utf-8')
+#         output = '''
+# /dev/dvb/adapter0/mod13
+# /dev/dvb/adapter0/mod12
+# /dev/dvb/adapter0/mod11
+# /dev/dvb/adapter0/mod10
+# /dev/dvb/adapter0/mod9
+# /dev/dvb/adapter0/mod8
+# /dev/dvb/adapter0/mod7
+# /dev/dvb/adapter0/mod6
+# /dev/dvb/adapter0/mod5
+# /dev/dvb/adapter0/mod4
+# /dev/dvb/adapter0/mod3
+# /dev/dvb/adapter0/mod2
+# /dev/dvb/adapter0/mod1
+# /dev/dvb/adapter0/mod0
+# /dev/dvb/adapter1/mod7
+# /dev/dvb/adapter1/mod6
+# /dev/dvb/adapter1/mod5
+# /dev/dvb/adapter1/mod4
+# /dev/dvb/adapter1/mod3
+# /dev/dvb/adapter1/mod2
+# /dev/dvb/adapter1/mod1
+# /dev/dvb/adapter1/mod0
+# '''
         if output:
             lines = output.strip().split('\n')
             adapter_mods = {}
@@ -96,19 +75,17 @@ def get_adapters_and_modulators():
         return {}
 
 
-
-@router.get("/api/modulator_config/{adapter_id}")
+@router.get("/modulator_config/{adapter_id}")
 def get_modulator_config(adapter_id: int):
     config_path = os.path.join(CONFIG_DIR, f"mod_a_{adapter_id}.conf")
     if os.path.exists(config_path):
-        with open(config_path, "r") as config_file:
-            config = json.load(config_file)
+        config = parse_config(config_path)
         return config
-    
+
     # Retrieve the number of mods for the given adapter
     adapter_data = get_adapters_and_modulators()
     num_mods = len(adapter_data.get(adapter_id, []))
-    
+
     # Default configuration
     default_config = {
         "connector": "F",
@@ -116,12 +93,38 @@ def get_modulator_config(adapter_id: int):
         "power": 90.0,
         "frequency": 114.0,
         "standard": "DVBT_8",
-        "streams": [f"Stream {i+1}" for i in range(num_mods)]  # Generate default stream names
+        # Generate default stream mappings
+        "streams": [{"channel": i, "stream": i} for i in range(num_mods)]
     }
-    
+
     return default_config
 
-@router.post("/api/save_modulator_config/{adapter_id}")
+# @router.get("/modulator_config/{adapter_id}")
+# def get_modulator_config(adapter_id: int):
+#     config_path = os.path.join(CONFIG_DIR, f"mod_a_{adapter_id}.conf")
+#     if os.path.exists(config_path):
+#         with open(config_path, "r") as config_file:
+#             config = json.load(config_file)
+#         return config
+
+#     # Retrieve the number of mods for the given adapter
+#     adapter_data = get_adapters_and_modulators()
+#     num_mods = len(adapter_data.get(adapter_id, []))
+
+#     # Default configuration
+#     default_config = {
+#         "connector": "F",
+#         "channels": 16,
+#         "power": 90.0,
+#         "frequency": 114.0,
+#         "standard": "DVBT_8",
+#         "streams": [f"Stream {i+1}" for i in range(num_mods)]  # Generate default stream names
+#     }
+
+#     return default_config
+
+
+@router.post("/save_modulator_config/{adapter_id}")
 def save_modulator_config(adapter_id: int, config: dict):
     config_path = os.path.join(CONFIG_DIR, f"mod_a_{adapter_id}.conf")
     print(f"Modulator configuration: {config}")
@@ -133,14 +136,14 @@ unit = DBUV
 power = {config['power']}
 #
 """
-    
+
     channels_section = f"""[channels]
 frequency = {config['frequency']}
 standard = {config['standard']}
 channels = {config['channels']}
 #
 """
-    
+
     streams_section = """[streams]
 stream_format = TS
 standard = DVBT_8
@@ -151,7 +154,7 @@ constellation = qam64
 cell_identifier = 0
 #
 """
-    
+
     # Add channel and stream assignments
     stream_assignments = ""
     saved_streams = config['streamAssignments']
@@ -160,102 +163,62 @@ cell_identifier = 0
             channel = saved_streams[f"channel{i}"]
             stream = saved_streams[f"stream{i}"]
             if stream == '':
-                continue  
+                continue
             stream_assignments += f"channel = {channel}\nstream = {stream}\n#\n"
-    
+
     # Combine all sections into final configuration content
-    config_content = output_section + channels_section + streams_section + stream_assignments
-    
+    config_content = output_section + channels_section + \
+        streams_section + stream_assignments
+
     # Write the configuration to the file
     with open(config_path, "w") as config_file:
         config_file.write(config_content)
-    
-    return {"status": "success"}
 
+    return {"status": "success"}
 
 
 @router.get("/modulator/data")
 def adapters_and_modulators():
     return get_adapters_and_modulators()
 
-# @router.post("/modulator/configure")
-# async def configure_modulator(connector: str = Form(...),
-#                               channels: int = Form(...),
-#                               power: float = Form(...),
-#                               frequency: float = Form(...),
-#                               standard: str = Form(...),
-#                               stream: dict = Form(...)):
-#     modulator_config = f"""
-#     [output]
-#     connector = {connector}
-#     channels = {channels}
-#     unit = DBUV
-#     power = {power}
 
-#     [channels]
-#     frequency = {frequency}
-#     standard = {standard}
-#     channels = {channels}
-    
-#     [streams]
-#     stream_format = TS
-#     standard = {standard}
-#     guard_interval = 0
-#     fft_size = 1
-#     puncture_rate = 7/8
-#     constellation = qam64
-#     cell_identifier = 0
-#     """
-
-#     for slot, stream_value in stream.items():
-#         if stream_value:
-#             modulator_config += f"\nchannel = {slot}\nstream = {stream_value[-1]}"
-
-#     with open("modulator.conf", "w") as f:
-#         f.write(modulator_config)
-
-#     return RedirectResponse(url="/modulator", status_code=303)
-
-# class AdapterModulatorResponse(BaseModel):
-#     adapters: list[int]
-#     modulators: list[int]
-
-# def get_adapters_and_modulators() -> AdapterModulatorResponse:
-#     try:
-#         # output = subprocess.check_output(
-#         #     "find /dev/dvb/ -type c -name 'mod*'", shell=True).decode('utf-8')
-#         output = '''
-# /dev/dvb/adapter0/mod13
-# /dev/dvb/adapter0/mod12
-# /dev/dvb/adapter0/mod11
-# /dev/dvb/adapter0/mod10
-# /dev/dvb/adapter0/mod9
-# /dev/dvb/adapter0/mod8
-# /dev/dvb/adapter0/mod7
-# /dev/dvb/adapter0/mod6
-# /dev/dvb/adapter0/mod5
-# /dev/dvb/adapter0/mod4
-# /dev/dvb/adapter0/mod3
-# /dev/dvb/adapter0/mod2
-# /dev/dvb/adapter0/mod1
-# /dev/dvb/adapter0/mod0
-# '''
-#         if output:
-#             lines = output.strip().split('\n')
-#             adapters = {int(line.split('/')[3].replace("adapter", "")) for line in lines}
-#             modulators = {int(line.split('/')[4].replace("mod", "")) for line in lines}
-#             return AdapterModulatorResponse(adapters=sorted(adapters), modulators=sorted(modulators))
-#         return AdapterModulatorResponse(adapters=[], modulators=[])
-#     except subprocess.CalledProcessError as e:
-#         logger.error(f"Error fetching available adapters: {e}")
-#         return AdapterModulatorResponse(adapters=[], modulators=[])
-
-# @router.get("/api/number_of_streams")
-# def get_number_of_streams():
-#     try:
-#         output = "14"
-#         #subprocess.check_output("find /dev/dvb/ -type c -name 'mod*' | wc -l", shell=True).decode('utf-8')
-#         return {"number_of_streams": int(output.strip())}
-#     except subprocess.CalledProcessError as e:
-#         logger.error(f"Error fetching number of streams: {e}")
-#         return {"number_of_streams": 0}
+def parse_config(config_path):
+    config = {
+        "connector": "F",
+        "channels": 16,
+        "power": 90.0,
+        "frequency": 114.0,
+        "standard": "DVBT_8",
+        "streams": []
+    }
+    with open(config_path, "r") as config_file:
+        section = None
+        for line in config_file:
+            line = line.strip()
+            if line.startswith("#") or not line:
+                continue
+            if line.startswith("["):
+                section = line[1:-1]
+            else:
+                if section == "output":
+                    key, value = line.split("=")
+                    key = key.strip()
+                    value = value.strip()
+                    config[key] = value
+                elif section == "channels":
+                    key, value = line.split("=")
+                    key = key.strip()
+                    value = value.strip()
+                    config[key] = value
+                elif section == "streams":
+                    key, value = line.split("=")
+                    key = key.strip()
+                    value = value.strip()
+                    config[key] = value
+                elif section is None:
+                    if line.startswith("channel"):
+                        channel = line.split("=")[1].strip()
+                        stream = next(config_file).split("=")[1].strip()
+                        config["streams"].append(
+                            {"channel": int(channel), "stream": int(stream)})
+    return config

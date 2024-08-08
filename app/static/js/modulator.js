@@ -10,13 +10,13 @@ async function fetchAdaptersAndModulators() {
 
 // Fetch the existing configuration for a specific adapter
 async function fetchModulatorConfig(adapterId) {
-    const response = await fetch(`/api/modulator_config/${adapterId}`);
+    const response = await fetch(`/modulator_config/${adapterId}`);
     return await response.json();
 }
 
 // Fetch and set the number of mods for the selected adapter
 function fetchNumMods(adapterId) {
-    fetch(`/api/modulator_config/${adapterId}`)
+    fetch(`/modulator_config/${adapterId}`)
         .then(response => response.json())
         .then(data => {
             numMods = data.streams.length;
@@ -203,7 +203,7 @@ async function saveConfig(adapterId) {
     }, {});
 
     try {
-        const response = await fetch(`/api/save_modulator_config/${adapterId}`, {
+        const response = await fetch(`/save_modulator_config/${adapterId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
