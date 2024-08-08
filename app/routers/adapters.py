@@ -35,6 +35,7 @@ def get_adapters():
 @router.get("/adapters/stop_all")
 def stop_all_adapters():
     if stop_ffmpeg_processes():
+        running_processes.clear()
         for a in adapters.values():
             a.running = False
     save_adapters_to_file()
