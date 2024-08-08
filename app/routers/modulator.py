@@ -116,6 +116,7 @@ async def apply_modulator_config(adapter_id: int):
             check=True
         )
         # If successful, return the command output
+        print(f"\n\nstdout: {result.stdout},\n stderr : {result.stderr}")
         return {"stdout": result.stdout, "stderr": result.stderr}
     except subprocess.CalledProcessError as e:
         return {"status": f"Error running modconfig: {e.stderr}"}

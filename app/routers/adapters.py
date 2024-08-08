@@ -34,12 +34,10 @@ def get_adapters():
 
 @router.get("/adapters/stop_all")
 def stop_all_adapters():
-   # if stop_ffmpeg_processes():
-   #mock if True for tests.
-    if True:
+    if stop_ffmpeg_processes():
         for a in adapters.values():
             a.running = False
-        save_adapters_to_file()
+    save_adapters_to_file()
     return {"message": "All FFmpeg processes are stopped!"}
 
 
