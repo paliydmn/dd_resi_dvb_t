@@ -330,9 +330,9 @@ form button {
 }
 
 /* Specific styles for modulator.html */
-
+/* 
 /* General page container */
-.modulator-container {
+/* .modulator-container {
     max-width: 900px;
     margin: 0 auto;
     padding: 20px;
@@ -342,7 +342,7 @@ form button {
 }
 
 /* Title and heading styles */
-.modulator-container h1 {
+/* .modulator-container h1 {
     text-align: center;
     color: #333;
     margin-bottom: 20px;
@@ -355,6 +355,7 @@ form button {
 }
 
 /* Form styling */
+/*
 .modulator-container form {
     display: flex;
     flex-direction: column;
@@ -401,10 +402,10 @@ form button {
 
 .modulator-container button:hover {
     background-color: #0056b3;
-}
+} */ 
 
 /* Channel slots display */
-.channel-slots {
+/* .channel-slots {
     margin-top: 20px;
 }
 
@@ -418,10 +419,10 @@ form button {
 
 .channel-slots .slot:nth-child(odd) {
     background-color: #e9ecef;
-}
+} */
 
 /* Stream assignment */
-.stream-assignment {
+/* .stream-assignment {
     margin-top: 20px;
 }
 
@@ -436,4 +437,48 @@ form button {
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
+} */ 
+
+/* Container to hold both the adapter list and the settings */
+
+
+.modulator-container {
+    display: flex;
+    flex-direction: row;
+}
+
+.modulator-list {
+    flex: 1;
+    width: 25%;
+    border-right: 1px solid #ccc;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow-y: auto; 
+}
+
+.modulator-settings-container {
+    flex: 2;
+    width: 75%;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow-y: auto; 
+}
+
+.modulator-button {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #3498db;
+    color: #fff;
+    border: 1px solid #ddd;
+    cursor: pointer;
+}
+
+.modulator-button:hover {
+    background-color: #2980b9;
+}
+
+.stream-assignment {
+    margin-bottom: 10px;
 }

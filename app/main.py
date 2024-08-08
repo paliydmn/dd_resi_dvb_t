@@ -4,13 +4,13 @@ from fastapi import FastAPI, HTTPException, Form, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 
 import uvicorn
-from app.utils import logger
 from app.routers.index import router as index_router
 from app.routers.adapters import router as adapter_router
 from app.routers.modulator import router as modulator_router
 
 from app.utils.signal_handler import register_signal_handlers, stop_ffmpeg_processes
 from app.config.server_conf import ADAPTER_CONF_FILE, load_adapters_from_file, save_adapters_to_file
+from app.utils import logger
 
 import os
 import json

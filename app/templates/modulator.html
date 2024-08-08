@@ -4,13 +4,19 @@
 
 {% block content %}
 
-<h1>Modulator Configuration</h1>
+<h1>Settings for RESI DVB-T Modulator</h1>
 
-<div id="adapter-list">
-    <!-- List of available adapters will be populated here -->
+<div id="modulator-container" class="modulator-container">    
+    <div id="modulator-list" class="modulator-list">
+        <!-- List of available adapters will be populated here -->
+    </div>
+    <div id="modulator-settings-container" class="modulator-settings-container">
+        <!-- Adapter settings will be displayed here on click -->
+    </div>
 </div>
 
-<div id="adapter-settings" style="display: none;">
+
+<!-- <div id="adapter-settings" style="display: none;">
     <h2>Settings for Adapter <span id="adapter-id"></span></h2>
     <form id="modulator-form">
         <div>
@@ -48,12 +54,13 @@
 
         <h2>Stream Assignments</h2>
         <div id="stream-assignments">
+        -->
             <!-- Dynamic content for stream assignments will be inserted here by JavaScript -->
-        </div>
+        <!-- </div>
 
         <button type="button" onclick="saveConfig()">Save</button>
     </form>
-</div>
+</div> -->
 
 <script src="/static/js/modulator.js"></script>
 

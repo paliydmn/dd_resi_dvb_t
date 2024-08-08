@@ -124,10 +124,7 @@ def start_ffmpeg(adapter_id: int):
     # # running_processes[adapter_id] = process
     # process = subprocess.Popen(
     #     ffmpeg_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
-    process = subprocess.Popen(
-        ffmpeg_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-        text=True, preexec_fn=os.setsid
-    )
+    process = subprocess.Popen(ffmpeg_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, preexec_fn=os.setsid)
 
     def log_output(pipe, level):
         while True:
