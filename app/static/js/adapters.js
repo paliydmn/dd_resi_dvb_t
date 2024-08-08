@@ -6,7 +6,7 @@ function stopAllffmpegs() {
     fetch('/adapters/stop_all')
         .then(response => response.json())
         .then(data => {
-            //alert(data.message);
+            alert(data.message);
             loadAdapters(); // Reload the adapters list
         });
 }

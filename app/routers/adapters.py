@@ -40,7 +40,7 @@ def stop_all_adapters():
         for a in adapters.values():
             a.running = False
         save_adapters_to_file()
-    return adapters
+    return {"message": "All FFmpeg processes are stopped!"}
 
 
 @router.get("/adapters/available", response_model=AvailableResources)
