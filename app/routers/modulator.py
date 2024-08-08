@@ -161,8 +161,7 @@ cell_identifier = 0
             stream = saved_streams[f"stream{i}"]
             if stream == '':
                 continue
-            stream_assignments += f"channel = {
-                channel}\nstream = {stream}\n#\n"
+            stream_assignments += f"channel = {channel}\nstream = {stream}\n#\n"
 
     # Combine all sections into final configuration content
     config_content = output_section + channels_section + \
