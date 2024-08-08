@@ -28,32 +28,32 @@ async def modulator(request: Request):
 
 def get_adapters_and_modulators():
     try:
-        # output = subprocess.check_output(
-        #     "find /dev/dvb/ -type c -name 'mod*'", shell=True).decode('utf-8')
-        output = '''
-/dev/dvb/adapter0/mod13
-/dev/dvb/adapter0/mod12
-/dev/dvb/adapter0/mod11
-/dev/dvb/adapter0/mod10
-/dev/dvb/adapter0/mod9
-/dev/dvb/adapter0/mod8
-/dev/dvb/adapter0/mod7
-/dev/dvb/adapter0/mod6
-/dev/dvb/adapter0/mod5
-/dev/dvb/adapter0/mod4
-/dev/dvb/adapter0/mod3
-/dev/dvb/adapter0/mod2
-/dev/dvb/adapter0/mod1
-/dev/dvb/adapter0/mod0
-/dev/dvb/adapter1/mod7
-/dev/dvb/adapter1/mod6
-/dev/dvb/adapter1/mod5
-/dev/dvb/adapter1/mod4
-/dev/dvb/adapter1/mod3
-/dev/dvb/adapter1/mod2
-/dev/dvb/adapter1/mod1
-/dev/dvb/adapter1/mod0
-'''
+        output = subprocess.check_output(
+            "find /dev/dvb/ -type c -name 'mod*'", shell=True).decode('utf-8')
+#         output = '''
+# /dev/dvb/adapter0/mod13
+# /dev/dvb/adapter0/mod12
+# /dev/dvb/adapter0/mod11
+# /dev/dvb/adapter0/mod10
+# /dev/dvb/adapter0/mod9
+# /dev/dvb/adapter0/mod8
+# /dev/dvb/adapter0/mod7
+# /dev/dvb/adapter0/mod6
+# /dev/dvb/adapter0/mod5
+# /dev/dvb/adapter0/mod4
+# /dev/dvb/adapter0/mod3
+# /dev/dvb/adapter0/mod2
+# /dev/dvb/adapter0/mod1
+# /dev/dvb/adapter0/mod0
+# /dev/dvb/adapter1/mod7
+# /dev/dvb/adapter1/mod6
+# /dev/dvb/adapter1/mod5
+# /dev/dvb/adapter1/mod4
+# /dev/dvb/adapter1/mod3
+# /dev/dvb/adapter1/mod2
+# /dev/dvb/adapter1/mod1
+# /dev/dvb/adapter1/mod0
+# '''
         if output:
             lines = output.strip().split('\n')
             adapter_mods = {}
