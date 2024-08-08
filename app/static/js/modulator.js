@@ -131,6 +131,7 @@ function populateAdapterSettings(adapterId, adapterSettingsDiv, config) {
 }
 
 // Populate the stream assignments for the given streams
+// Populate the stream assignments for the given streams
 function populateStreamAssignments(adapterId, streams) {
     let assignmentsHTML = '';
     const streamAssignmentsDiv = document.getElementById(`stream-assignments-${adapterId}`);
@@ -165,7 +166,9 @@ function populateStreamAssignments(adapterId, streams) {
 
         let optionsHtml = `<option value="">None</option>`;
         for (let j = 0; j < numMods; j++) {
-            optionsHtml += `<option value="${j}" ${streams[i] === `mod${j}` ? 'selected' : ''}>mod ${j}</option>`;
+            // Check if the current stream is assigned to this channel
+            const isSelected = streams.some(s => s.channel === i && s.stream === j);
+            optionsHtml += `<option value="${j}" ${isSelected ? 'selected' : ''}>mod ${j}</option>`;
         }
 
         streamAssignment.innerHTML = `
@@ -180,6 +183,56 @@ function populateStreamAssignments(adapterId, streams) {
 
     streamAssignmentsDiv.innerHTML = assignmentsHTML;
 }
+
+// function populateStreamAssignments(adapterId, streams) {
+//     let assignmentsHTML = '';
+//     const streamAssignmentsDiv = document.getElementById(`stream-assignments-${adapterId}`);
+
+//     const frequencyInput = document.getElementById(`frequency-${adapterId}`);
+//     const channelsInput = document.getElementById(`channels-${adapterId}`);
+//     const standardInput = document.getElementById(`standard-${adapterId}`);
+
+//     if (!frequencyInput || !channelsInput || !standardInput) {
+//         console.error('One or more input elements are missing.');
+//         console.log('Frequency Input:', frequencyInput);
+//         console.log('Channels Input:', channelsInput);
+//         console.log('Standard Input:', standardInput);
+//         return;
+//     }
+
+//     const baseFrequency = parseFloat(frequencyInput.value);
+//     const numberOfChannels = parseInt(channelsInput.value);
+//     const standard = standardInput.value;
+//     let channelSpacing = 8; // Default for DVB-T 8MHz
+
+//     if (standard === "DVBT_7") {
+//         channelSpacing = 7;
+//     } else if (standard === "DVBT_6") {
+//         channelSpacing = 6;
+//     }
+
+//     for (let i = 0; i < numberOfChannels; i++) {
+//         const channelFrequency = baseFrequency + i * channelSpacing;
+//         const streamAssignment = document.createElement('div');
+//         streamAssignment.classList.add('stream-assignment');
+
+//         let optionsHtml = `<option value="">None</option>`;
+//         for (let j = 0; j < numMods; j++) {
+//             optionsHtml += `<option value="${j}" ${streams[i] === `mod${j}` ? 'selected' : ''}>mod ${j}</option>`;
+//         }
+
+//         streamAssignment.innerHTML = `
+//             <label>Slot ${i} (${channelFrequency.toFixed(1)} MHz)</label>
+//             <select name="stream[${i}]" data-channel="${i}">
+//                 ${optionsHtml}
+//             </select>
+//         `;
+
+//         assignmentsHTML += streamAssignment.outerHTML;
+//     }
+
+//     streamAssignmentsDiv.innerHTML = assignmentsHTML;
+// }
 
 // Update the stream assignments when frequency, channels, or standard change
 function updateStreamAssignments(adapterId) {
