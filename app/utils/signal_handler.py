@@ -9,13 +9,29 @@ from app.utils import logger
 
 def stop_ffmpeg_processes():
     """Stop all running ffmpeg processes."""
+
+    if is_ffmpeg_running():
+        try:
+            subprocess.run(['killall', 'ffmpeg'], check=True)
+            for _, adapter in adapters.items():
+                adapter.running = False
+            logger.info("All ffmpeg processes have been stopped.")
+            return True
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Error stopping ffmpeg processes: {e}")
+            return False
+    else:
+        return True
+
+
+def is_ffmpeg_running():
+    """Check if any ffmpeg process is running."""
     try:
-        subprocess.run(['killall', 'ffmpeg'], check=True)
-        for _, adapter in adapters.items():
-            adapter.running = False
-        logger.info("All ffmpeg processes have been stopped.")
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Error stopping ffmpeg processes: {e}")
+        # The pgrep command returns 0 if one or more processes match the name, and 1 if no process matches.
+        subprocess.run(['pgrep', 'ffmpeg'], check=True)
+        return True
+    except subprocess.CalledProcessError:
+        return False
 
 
 def signal_handler(sig, frame):

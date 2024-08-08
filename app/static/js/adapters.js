@@ -1,6 +1,15 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     loadAdapters();
 });
+
+function stopAllffmpegs() {
+    fetch('/adapters/stop_all')
+        .then(response => response.json())
+        .then(data => {
+            //alert(data.message);
+            loadAdapters(); // Reload the adapters list
+        });
+}
 
 function showNewAdapterForm() {
     document.getElementById('new-adapter-modal').style.display = 'block';
@@ -20,23 +29,23 @@ function createAdapter(event) {
     const udpUrl = document.getElementById('udp-url').value;
 
     fetch('/adapters/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            adapter_number: parseInt(adapterNumber),
-            modulator_number: parseInt(modulatorNumber),
-            udp_url: udpUrl
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                adapter_number: parseInt(adapterNumber),
+                modulator_number: parseInt(modulatorNumber),
+                udp_url: udpUrl
+            })
         })
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert(data.message);
-        hideNewAdapterForm();
-        loadAdapters();  // Reload the adapters list
-    })
-    .catch(error => console.error('Error:', error));
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            hideNewAdapterForm();
+            loadAdapters(); // Reload the adapters list
+        })
+        .catch(error => console.error('Error:', error));
 }
 
 function scanAdapter(adapterId) {
@@ -127,17 +136,20 @@ function toggleStream(event, streamId) {
 
 function saveSelection(adapterId) {
     const selectedChannels = {};
-    
+
     // Collect selected streams
     const streamCheckboxes = document.querySelectorAll('input[type="checkbox"][data-id]');
     streamCheckboxes.forEach(cb => {
         if (cb.checked) {
             const streamId = cb.dataset.id;
-            if (!cb.dataset.channel) 
+            if (!cb.dataset.channel)
                 return;
             const channelId = cb.dataset.channel;
             if (!selectedChannels[channelId]) {
-                selectedChannels[channelId] = { video: [], audio: [] };
+                selectedChannels[channelId] = {
+                    video: [],
+                    audio: []
+                };
             }
             if (cb.id.startsWith('video-')) {
                 selectedChannels[channelId].video.push(streamId);
@@ -149,20 +161,20 @@ function saveSelection(adapterId) {
 
     console.log(`SELECTED: \n${selectedChannels}`)
     fetch(`/adapters/${adapterId}/save`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(
-            {channels: selectedChannels}
-        )
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert(data.message);
-        loadAdapters();  // Reload the adapters list
-    })
-    .catch(error => console.error('Error:', error));
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                channels: selectedChannels
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            loadAdapters(); // Reload the adapters list
+        })
+        .catch(error => console.error('Error:', error));
 }
 
 function cancelSelection(adapterId) {
@@ -181,63 +193,63 @@ function cancelSelection(adapterId) {
 
 function startFFmpeg(adapterId) {
     fetch(`/adapters/${adapterId}/start`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert(data.message);
-        loadAdapters();  // Reload the adapters list
-    })
-    .catch(error => console.error('Error:', error));
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            loadAdapters(); // Reload the adapters list
+        })
+        .catch(error => console.error('Error:', error));
 }
 
 function stopFFmpeg(adapterId) {
     fetch(`/adapters/${adapterId}/stop`, {
-        method: 'POST'
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert(data.message);
-        loadAdapters();  // Reload the adapters list
-    })
-    .catch(error => console.error('Error:', error));
+            method: 'POST'
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            loadAdapters(); // Reload the adapters list
+        })
+        .catch(error => console.error('Error:', error));
 }
 
 function deleteAdapter(adapterId) {
     fetch(`/adapters/${adapterId}/`, {
-        method: 'DELETE'
-    })
-    .then(response => response.json())
-    .then(data => {
-        alert(data.message);
-        loadAdapters();  // Reload the adapters list
-    })
-    .catch(error => console.error('Error:', error));
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            loadAdapters(); // Reload the adapters list
+        })
+        .catch(error => console.error('Error:', error));
 }
 
 function loadAdapters() {
     fetch('/get_adapters/')
-    .then(response => response.json())
-    .then(data => {
-        const adapterContainer = document.getElementById('existing-adapters');
-        adapterContainer.innerHTML = '';  // Clear the container
-        
-        Object.entries(data).forEach(([adapterId, adapter]) => {
-            const adapterDiv = document.createElement('div');
-            adapterDiv.id = `adapter-${adapterId}`;
+        .then(response => response.json())
+        .then(data => {
+            const adapterContainer = document.getElementById('existing-adapters');
+            adapterContainer.innerHTML = ''; // Clear the container
 
-            // Display selected channels
-            const selectedPrograms = adapter.programs ? 
-                Object.values(adapter.programs)
+            Object.entries(data).forEach(([adapterId, adapter]) => {
+                const adapterDiv = document.createElement('div');
+                adapterDiv.id = `adapter-${adapterId}`;
+
+                // Display selected channels
+                const selectedPrograms = adapter.programs ?
+                    Object.values(adapter.programs)
                     .filter(program => program.selected)
                     .map(program => program.title) : [];
-            
-            const status = adapter.running ? '<span style="color: green;">Running</span>' : '<span style="color: red;">Stopped</span>';
 
-            adapterDiv.innerHTML = `
+                const status = adapter.running ? '<span style="color: green;">Running</span>' : '<span style="color: red;">Stopped</span>';
+
+                adapterDiv.innerHTML = `
                 <h3>Adapter ${adapterId}: (Adapter${adapter.adapter_number}/mod${adapter.modulator_number})  ${status}</h3>
                 <p>UDP link:<div id="udp-url"> ${adapter.udp_url}</div></p>
                 <div class="selected-channels">
@@ -260,10 +272,10 @@ function loadAdapters() {
                     <button type="button" onclick="deleteAdapter(${adapterId})">Delete</button>
                 </form>
             `;
-            adapterContainer.appendChild(adapterDiv);
-        });
-    })
-    .catch(error => console.error('Error:', error));
+                adapterContainer.appendChild(adapterDiv);
+            });
+        })
+        .catch(error => console.error('Error:', error));
 }
 
 

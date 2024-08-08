@@ -6,6 +6,7 @@ from app.utils import logger
 from app.utils.logger import get_ffmpeg_logger
 from app.config.server_conf import adapters, save_adapters_to_file
 from app.utils.ffmpeg_utils import get_ffprobe_data, construct_programs_dict, construct_ffmpeg_command
+from app.utils.signal_handler import stop_ffmpeg_processes
 from app.models.models import AdapterConfig, Program, Stream, AvailableResources, SaveSelection
 from app.config.server_conf import CONFIG_LOG_FILE, ADAPTER_CONF_FILE
 import threading
@@ -28,6 +29,17 @@ async def adapters_page(request: Request):
 
 @router.get("/get_adapters/")
 def get_adapters():
+    return adapters
+
+
+@router.get("/adapters/stop_all")
+def stop_all_adapters():
+   # if stop_ffmpeg_processes():
+   #mock if True for tests.
+    if True:
+        for a in adapters.values():
+            a.running = False
+        save_adapters_to_file()
     return adapters
 
 
@@ -98,7 +110,6 @@ def start_ffmpeg(adapter_id: int):
     }
 
     # #ToDo: add logger for each ffmpeg adapter start
-    # adapter_log_file = f"app/logs/{CONFIG_LOG_FILE}_a{adapter_id}.log"
     ffmpeg_cmd = construct_ffmpeg_command(
         adapter.udp_url, selected_programs, adapter.adapter_number, adapter.modulator_number)
     logger.info(f"Starting FFmpeg for adapter {adapter_id} with command: {ffmpeg_cmd}")
