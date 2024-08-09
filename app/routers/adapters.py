@@ -27,13 +27,12 @@ async def adapters_page(request: Request):
     logger.info("Get Adapters page")
     return templates.TemplateResponse("adapters.html", {"request": request, "adapters": adapters})
 
-def set_description(adapters, modulators):
-
+def set_description():
     # Update AdapterConfig with description
     for adapter_key, adapter_config in adapters.items():
         adapter_number = adapter_config.adapter_number
         modulator_number = adapter_config.modulator_number
-        
+        modulators = get_modulators_config(id=adapter_number)
         # Check if adapter_number matches a key in modulator_data
         if adapter_number in modulators:
             modulator_settings = modulators[adapter_number]
@@ -51,8 +50,9 @@ def set_description(adapters, modulators):
 
 @router.get("/get_adapters/")
 def get_adapters():
-    m_configs = get_modulators_config()
-    set_description(adapters=adapters, modulators=m_configs)
+#    m_configs = get_modulators_config(adapters)
+#    set_description(adapters=adapters, modulators=m_configs)
+    set_description()
     return adapters
 
 

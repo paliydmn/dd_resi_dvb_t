@@ -229,5 +229,9 @@ def parse_config(config_path, id):
     modulators_config[id] = modulator_config
     return modulator_config
 
-def get_modulators_config():
+def get_modulators_config(path = None, id=0):
+    if path is None:
+        config_path = os.path.join(CONFIG_DIR, f"mod_a_{id}.conf")
+
+    parse_config(config_path, id)
     return modulators_config
