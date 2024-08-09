@@ -16,7 +16,9 @@ body {
     padding: 20px;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
     margin-top: 0;
 }
 
@@ -40,6 +42,7 @@ header {
 header h1 {
     margin: 0;
 }
+
 /* styles.css */
 nav {
     background-color: #333;
@@ -75,7 +78,8 @@ nav ul li a:hover {
 
 /* General modal styles */
 #new-adapter-modal {
-    display: none; /* Change to 'none' to hide the modal by default */
+    display: none;
+    /* Change to 'none' to hide the modal by default */
     position: fixed;
     top: 50%;
     left: 50%;
@@ -86,7 +90,8 @@ nav ul li a:hover {
     padding: 20px;
     width: 80%;
     max-width: 500px;
-    z-index: 1000; /* Ensures modal is on top */
+    z-index: 1000;
+    /* Ensures modal is on top */
 }
 
 /* Modal overlay */
@@ -97,8 +102,10 @@ nav ul li a:hover {
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.5);
-    z-index: 999; /* Behind the modal */
+    z-index: 999;
+    /* Behind the modal */
 }
+
 /* Label styling */
 #new-adapter-modal label {
     margin-bottom: 8px;
@@ -148,11 +155,13 @@ nav ul li a:hover {
 
 
 #new-adapter-modal button[type="button"] {
-    background-color: #dc3545; /* Red for the cancel button */
+    background-color: #dc3545;
+    /* Red for the cancel button */
 }
 
 #new-adapter-modal button:hover {
-    background-color: #0056b3; /* Darker blue on hover */
+    background-color: #0056b3;
+    /* Darker blue on hover */
 }
 
 #new-adapter-modal button[type="submit"]:hover {
@@ -160,7 +169,8 @@ nav ul li a:hover {
 }
 
 #new-adapter-modal button[type="button"]:hover {
-    background-color: #c82333; /* Darker red on hover */
+    background-color: #c82333;
+    /* Darker red on hover */
 }
 
 /* Form styling */
@@ -181,37 +191,11 @@ nav ul li a:hover {
     border-radius: 4px;
 }
 
-/* #adapter-form button {
-    padding: 10px;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    cursor: pointer;
-    margin-right: 10px;
-}
-
-#adapter-form button[type="submit"] {
-    background-color: #007bff;
-    color: #fff;
-}
-
-#adapter-form button[type="submit"]:hover {
-    background-color: #0056b3;
-}
-
-#adapter-form button[type="button"] {
-    background-color: #6c757d;
-    color: #fff;
-}
-
-#adapter-form button[type="button"]:hover {
-    background-color: #5a6268;
-} */
-
 #udp-url {
     font-family: Arial, Helvetica, sans-serif;
     font-weight: bold;
 }
+
 /* Adapters Section */
 #existing-adapters {
     display: flex;
@@ -219,10 +203,10 @@ nav ul li a:hover {
     gap: 20px;
 }
 
-#existing-adapters > div {
+#existing-adapters>div {
     background-color: #fff;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     padding: 20px;
     flex: 1;
     min-width: 300px;
@@ -243,7 +227,7 @@ button {
     border: none;
     border-radius: 4px;
     padding: 10px 15px;
-	margin-bottom: 10px;
+    margin-bottom: 10px;
     font-size: 1em;
     cursor: pointer;
     transition: background-color 0.3s ease;
@@ -300,81 +284,62 @@ form button {
     border-radius: 8px;
     padding: 15px;
     margin-top: 10px;
-	margin-bottom: 10px;
+    margin-bottom: 10px;
     font-size: 1em;
     color: #333;
 }
 
 .selected-channels p {
-    margin: 0 0 10px 0; /* Margin below the paragraph */
+    margin: 0 0 10px 0;
+    /* Margin below the paragraph */
     font-weight: bold;
 }
 
 #selected-channels-list {
-	list-style-type: none;
+    list-style-type: none;
     margin: 0;
-    padding-left: 20px; /* Indents the list */
+    padding-left: 20px;
+    /* Indents the list */
 }
 
 #selected-channels-list li {
     padding: 5px;
-    background-color: #f9f9f9; /* Slightly lighter background for list items */
-    border: 1px solid #dcdcdc; /* Border for each item */
-    border-radius: 4px; /* Rounded corners for list items */
+    background-color: #f9f9f9;
+    /* Slightly lighter background for list items */
+    border: 1px solid #dcdcdc;
+    /* Border for each item */
+    border-radius: 4px;
+    /* Rounded corners for list items */
 }
 
 .selected-channels p::before {
-    content: "📺 "; /* Optional: Add an icon or emoji before the text */
+    content: "📺 ";
+    /* Optional: Add an icon or emoji before the text */
     font-size: 1.2em;
     vertical-align: middle;
 }
 
 /* Specific styles for modulator.html */
-/* 
-/* General page container */
-/* .modulator-container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+/* Flexbox for stream-assignment */
+.stream-assignments-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
 }
 
-/* Title and heading styles */
-/* .modulator-container h1 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 20px;
-}
-
-.modulator-container h2 {
-    color: #444;
-    font-size: 18px;
-    margin-bottom: 10px;
-}
-
-/* Form styling */
-/*
-.modulator-container form {
+.stream-assignment {
+    flex: 1;
+    min-width: 200px;
     display: flex;
     flex-direction: column;
 }
 
-.modulator-container form div {
-    margin-bottom: 15px;
-}
-
-.modulator-container label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
-}
-
+/* General form styling */
 .modulator-container input[type="number"],
 .modulator-container select {
-    width: 100%;
+    width: 98%;
     padding: 10px;
+    margin-bottom: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
 }
@@ -383,65 +348,56 @@ form button {
     -moz-appearance: textfield;
 }
 
-.modulator-container input[type="number"]::-webkit-inner-spin-button,
-.modulator-container input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
-
-.modulator-container button {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 10px 15px;
-    font-size: 16px;
-    cursor: pointer;
-    border-radius: 4px;
-    margin-top: 10px;
-}
-
-.modulator-container button:hover {
-    background-color: #0056b3;
-} */ 
-
-/* Channel slots display */
-/* .channel-slots {
-    margin-top: 20px;
-}
-
-.channel-slots .slot {
-    padding: 10px;
-    background-color: #f8f9fa;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    margin-bottom: 5px;
-}
-
-.channel-slots .slot:nth-child(odd) {
-    background-color: #e9ecef;
-} */
-
-/* Stream assignment */
-/* .stream-assignment {
-    margin-top: 20px;
-}
-
-.stream-assignment label {
+.modulator-container label {
     display: block;
     font-size: 14px;
     margin-bottom: 5px;
 }
 
-.stream-assignment select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
+/* Make the entire select bold when an option other than 'None' is selected */
+.mod-select {
+    font-weight: normal;
+    /* Default to normal */
+}
+
+.mod-select option[value=""]:checked {
+    font-weight: normal;
+    /* Ensure the 'None' option stays normal */
+}
+
+.mod-select option:not([value="None"]):checked {
+    font-weight: bold;
+    /* Bold any selected option that isn't 'None' */
+}
+
+/* Keep the select element's text normal if the default 'None' option is selected */
+.mod-select[value=""] {
+    font-weight: normal;
+}
+
+.mod-select:not([value=""]) {
+    font-weight: bold;
+    /* Make select bold when any option other than 'None' is selected */
+}
+
+/* Channel slots display */
+.stream-assignments {
+    margin-top: 20px;
+}
+
+/* Stream assignment */
+.stream-assignment {
+    padding: 10px;
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
     border-radius: 4px;
-} */ 
+}
+
+.stream-assignment label {
+    font-weight: bold;
+}
 
 /* Container to hold both the adapter list and the settings */
-
-
 .modulator-container {
     display: flex;
     flex-direction: row;
@@ -453,7 +409,7 @@ form button {
     border-right: 1px solid #ccc;
     padding: 10px;
     box-sizing: border-box;
-    overflow-y: auto; 
+    overflow-y: auto;
 }
 
 .modulator-settings-container {
@@ -461,7 +417,7 @@ form button {
     width: 75%;
     padding: 10px;
     box-sizing: border-box;
-    overflow-y: auto; 
+    overflow-y: auto;
 }
 
 .modulator-button {
@@ -477,8 +433,4 @@ form button {
 
 .modulator-button:hover {
     background-color: #2980b9;
-}
-
-.stream-assignment {
-    margin-bottom: 10px;
 }

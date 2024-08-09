@@ -101,7 +101,7 @@ function populateAdapterSettings(adapterId, adapterSettingsDiv, config) {
                 </select>
             </div>
             <h2>Stream Assignments</h2>
-            <div id="stream-assignments-${adapterId}">
+            <div id="stream-assignments-${adapterId}" class="stream-assignments-container">
                 ${populateStreamAssignments(adapterId, streams)}
             </div>
             <button type="button" id="save-button-${adapterId}" disabled onclick="saveConfig(${adapterId})">Save</button>
@@ -171,7 +171,7 @@ function populateStreamAssignments(adapterId, streams) {
 
         streamAssignment.innerHTML = `
             <label>Slot ${i} (${channelFrequency.toFixed(1)} MHz)</label>
-            <select name="stream[${i}]" class="select-item-${adapterId}" data-channel="${i}">
+            <select name="stream[${i}]" class="select-item-${adapterId} mod-select" data-channel="${i}">
                 ${optionsHtml}
             </select>
         `;
@@ -187,7 +187,8 @@ function populateStreamAssignments(adapterId, streams) {
             document.getElementById(`apply-button-${adapterId}`).disabled = true;
         });
     });
-
+    // Detect if any changes have been made to the stream assignments
+    selectDetector()
 }
 
 // Update the stream assignments when frequency, channels, or standard change
@@ -257,5 +258,21 @@ async function applyConfig(adapterId) {
     }
 }
 
+
+function selectDetector() {
+    const streamAssignments = document.querySelectorAll('.mod-select');
+    streamAssignments.forEach(select => {
+        select.addEventListener("change", function () {
+            const selectedValue = this.value;
+            if (selectedValue) {
+                document.querySelectorAll("select").forEach(otherSelect => {
+                    if (otherSelect !== this && otherSelect.value === selectedValue) {
+                        otherSelect.value = "";
+                    }
+                });
+            }
+        });
+    });
+}
 // Initialize the page on load
 document.addEventListener('DOMContentLoaded', init);
