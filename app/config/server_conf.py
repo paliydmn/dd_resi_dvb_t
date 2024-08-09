@@ -32,7 +32,8 @@ def load_adapters_from_file():
                         modulator_number=adapter_data["modulator_number"],
                         udp_url=adapter_data["udp_url"],
                         programs=programs,
-                        running=adapter_data.get("running", False)
+                        running=adapter_data.get("running", False),
+                        description=adapter_data.get("description", None),
                     )
             logger.info("Loaded adapters configuration from file.")
         except (FileNotFoundError, json.JSONDecodeError) as e:

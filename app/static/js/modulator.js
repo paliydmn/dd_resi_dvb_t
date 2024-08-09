@@ -1,12 +1,6 @@
 // modulator.js
 let adapterData;
-//let numMods = 0; // This will be dynamically set based on the selected adapter's mods
 let streams;
-
-// let saveButton;
-// // = document.getElementById(`save-button-${adapterId}`);
-// let applyButton;
-// // = document.getElementById(`apply-button-${adapterId}`);
 
 // Fetch the list of adapters and their modulators from the backend
 async function fetchAdaptersAndModulators() {
@@ -19,17 +13,6 @@ async function fetchModulatorConfig(adapterId) {
     const response = await fetch(`/modulator_config/${adapterId}`);
     return await response.json();
 }
-
-// Fetch and set the number of mods for the selected adapter
-//function fetchNumMods(adapterId) {
-//    fetch(`/modulator_config/${adapterId}`)
-//        .then(response => response.json())
-//        .then(data => {
-//            numMods = data.streams.length;
-//            updateStreamAssignments(adapterId);
-//        })
-//        .catch(error => console.error('Error fetching mods:', error));
-//}
 
 // Initialize the page by loading the adapters and setting up event handlers
 async function init() {
@@ -142,8 +125,6 @@ function populateAdapterSettings(adapterId, adapterSettingsDiv, config) {
     } else {
         console.error('Error: Required inputs are missing during event listener setup.');
     }
-
-    //  fetchNumMods(adapterId); // Fetch the number of mods
     updateStreamAssignments(adapterId)
 }
 
@@ -199,21 +180,18 @@ function populateStreamAssignments(adapterId, streams) {
 
     streamAssignmentsDiv.innerHTML = assignmentsHTML;
     const selectInput = streamAssignmentsDiv.querySelectorAll(`.select-item-${adapterId}`);
-    
+
     selectInput.forEach(select => {
         select.addEventListener('change', () => {
             document.getElementById(`save-button-${adapterId}`).disabled = false;
             document.getElementById(`apply-button-${adapterId}`).disabled = true;
         });
     });
-    
+
 }
 
 // Update the stream assignments when frequency, channels, or standard change
 function updateStreamAssignments(adapterId, isChange) {
-    const form = document.getElementById(`modulator-form-${adapterId}`);
-    //const formData = new FormData(form);
-    //    const streams = Array.from(form.querySelectorAll('select[name^="stream"]')).map(select => select.value);
     const saveButton = document.getElementById(`save-button-${adapterId}`);
     const applyButton = document.getElementById(`apply-button-${adapterId}`);
     if (isChange) {
@@ -270,9 +248,6 @@ async function applyConfig(adapterId) {
 
         if (response.ok) {
             alert('Configuration Applied successfully!');
-            // document.getElementById(`save-button-${adapterId}`).disabled = true;
-            // document.getElementById(`apply-button-${adapterId}`).disabled = false;
-
         } else {
             alert('Failed to Apply configuration.');
         }

@@ -251,7 +251,8 @@ function loadAdapters() {
 
                 adapterDiv.innerHTML = `
                 <h3>Adapter ${adapterId}: (Adapter${adapter.adapter_number}/mod${adapter.modulator_number})  ${status}</h3>
-                <p>UDP link:<div id="udp-url"> ${adapter.udp_url}</div></p>
+                <div id="udp-url">UDP link: ${adapter.udp_url}</div>
+                <div id="udp-url">Frequency: ${adapter.description}</div>
                 <div class="selected-channels">
                     <p>Selected channels:</p>
                     <ul id="selected-channels-list">

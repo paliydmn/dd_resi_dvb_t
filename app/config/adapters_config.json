@@ -98,6 +98,15 @@
                 }
             }
         },
-        "running": false
+        "running": false,
+        "description": null
+    },
+    "3": {
+        "adapter_number": 0,
+        "modulator_number": 1,
+        "udp_url": "udp://192.168.0.20:1236",
+        "programs": {},
+        "running": false,
+        "description": null
     }
 }

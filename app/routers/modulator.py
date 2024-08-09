@@ -20,7 +20,9 @@ CONFIG_DIR = ""
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
-
+#config = {}
+modulators_config = {}
+    
 @router.get("/modulator", response_class=HTMLResponse)
 async def modulator(request: Request):
     return templates.TemplateResponse("modulator.html", {"request": request})
@@ -28,32 +30,32 @@ async def modulator(request: Request):
 
 def get_adapters_and_modulators():
     try:
-        # output = subprocess.check_output(
-        #     "find /dev/dvb/ -type c -name 'mod*'", shell=True).decode('utf-8')
-        output = '''
-/dev/dvb/adapter0/mod13
-/dev/dvb/adapter0/mod12
-/dev/dvb/adapter0/mod11
-/dev/dvb/adapter0/mod10
-/dev/dvb/adapter0/mod9
-/dev/dvb/adapter0/mod8
-/dev/dvb/adapter0/mod7
-/dev/dvb/adapter0/mod6
-/dev/dvb/adapter0/mod5
-/dev/dvb/adapter0/mod4
-/dev/dvb/adapter0/mod3
-/dev/dvb/adapter0/mod2
-/dev/dvb/adapter0/mod1
-/dev/dvb/adapter0/mod0
-/dev/dvb/adapter1/mod7
-/dev/dvb/adapter1/mod6
-/dev/dvb/adapter1/mod5
-/dev/dvb/adapter1/mod4
-/dev/dvb/adapter1/mod3
-/dev/dvb/adapter1/mod2
-/dev/dvb/adapter1/mod1
-/dev/dvb/adapter1/mod0
-'''
+        output = subprocess.check_output(
+            "find /dev/dvb/ -type c -name 'mod*'", shell=True).decode('utf-8')
+#         output = '''
+# /dev/dvb/adapter0/mod13
+# /dev/dvb/adapter0/mod12
+# /dev/dvb/adapter0/mod11
+# /dev/dvb/adapter0/mod10
+# /dev/dvb/adapter0/mod9
+# /dev/dvb/adapter0/mod8
+# /dev/dvb/adapter0/mod7
+# /dev/dvb/adapter0/mod6
+# /dev/dvb/adapter0/mod5
+# /dev/dvb/adapter0/mod4
+# /dev/dvb/adapter0/mod3
+# /dev/dvb/adapter0/mod2
+# /dev/dvb/adapter0/mod1
+# /dev/dvb/adapter0/mod0
+# /dev/dvb/adapter1/mod7
+# /dev/dvb/adapter1/mod6
+# /dev/dvb/adapter1/mod5
+# /dev/dvb/adapter1/mod4
+# /dev/dvb/adapter1/mod3
+# /dev/dvb/adapter1/mod2
+# /dev/dvb/adapter1/mod1
+# /dev/dvb/adapter1/mod0
+# '''
         if output:
             lines = output.strip().split('\n')
             adapter_mods = {}
@@ -79,7 +81,7 @@ def get_adapters_and_modulators():
 def get_modulator_config(adapter_id: int):
     config_path = os.path.join(CONFIG_DIR, f"mod_a_{adapter_id}.conf")
     if os.path.exists(config_path):
-        config = parse_config(config_path)
+        config = parse_config(config_path, adapter_id)
         return config
 
     # Retrieve the number of mods for the given adapter
@@ -184,8 +186,8 @@ def adapters_and_modulators():
     return get_adapters_and_modulators()
 
 
-def parse_config(config_path):
-    config = {
+def parse_config(config_path, id):
+    modulator_config = {
         "connector": "F",
         "channels": 16,
         "power": 90.0,
@@ -206,22 +208,26 @@ def parse_config(config_path):
                     key, value = line.split("=")
                     key = key.strip()
                     value = value.strip()
-                    config[key] = value
+                    modulator_config[key] = value
                 elif section == "channels":
                     key, value = line.split("=")
                     key = key.strip()
                     value = value.strip()
-                    config[key] = value
+                    modulator_config[key] = value
                 elif section == "streams":
                     if line.startswith("channel"):
                         channel = line.split("=")[1].strip()
                         stream = next(config_file).split("=")[1].strip()
-                        config["streams"].append(
+                        modulator_config["streams"].append(
                             {"channel": int(channel), "stream": int(stream)})
                     else:
                         key, value = line.split("=")
                         key = key.strip()
                         value = value.strip()
-                        config[key] = value
-    print(config["streams"])
-    return config
+                        modulator_config[key] = value
+    print(modulator_config["streams"])
+    modulators_config[id] = modulator_config
+    return modulator_config
+
+def get_modulators_config():
+    return modulators_config

@@ -9,6 +9,7 @@ from app.utils.ffmpeg_utils import get_ffprobe_data, construct_programs_dict, co
 from app.utils.signal_handler import stop_ffmpeg_processes
 from app.models.models import AdapterConfig, Program, Stream, AvailableResources, SaveSelection
 from app.config.server_conf import CONFIG_LOG_FILE, ADAPTER_CONF_FILE
+from app.routers.modulator import get_modulators_config
 import threading
 import logging
 import subprocess
@@ -26,9 +27,32 @@ async def adapters_page(request: Request):
     logger.info("Get Adapters page")
     return templates.TemplateResponse("adapters.html", {"request": request, "adapters": adapters})
 
+def set_description(adapters, modulators):
+
+    # Update AdapterConfig with description
+    for adapter_key, adapter_config in adapters.items():
+        adapter_number = adapter_config.adapter_number
+        modulator_number = adapter_config.modulator_number
+        
+        # Check if adapter_number matches a key in modulator_data
+        if adapter_number in modulators:
+            modulator_settings = modulators[adapter_number]
+            frequency = float(modulator_settings['frequency'])
+            
+            # Find the stream in modulator_data where stream value matches modulator_number
+            for stream in modulator_settings['streams']:
+                if stream['stream'] == modulator_number:
+                    channel_value = stream['channel']
+                    description = frequency + (channel_value * 8)
+                    adapter_config.description = f"{description:.1f} MHz."  # Format to 2 decimal places
+                    break
+
+    print(f"Adapters {adapters} ")
 
 @router.get("/get_adapters/")
 def get_adapters():
+    m_configs = get_modulators_config()
+    set_description(adapters=adapters, modulators=m_configs)
     return adapters
 
 
