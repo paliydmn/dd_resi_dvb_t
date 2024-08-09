@@ -24,7 +24,7 @@ class AdapterConfig(BaseModel):
     programs: Dict[int, Program] = Field(
         default_factory=dict, description="Selected programs and streams")
     running: bool = False  # Track if FFmpeg is currently running for this adapter
-    description: Optional[float] = Field(None, description="Optional description value, frequency etc.")
+    description: Optional[str] = Field(None, description="Optional description value, frequency etc.")
 
 
 class AvailableResources(BaseModel):
