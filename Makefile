@@ -16,14 +16,47 @@ ACTIVATE_CMD = $(shell if [ "$$(uname)" = "Linux" ] || [ "$$(uname)" = "Darwin" 
 
 # Create and activate the virtual environment, and install requirements
 install:
+	@echo "Checking for Python..."
+	@if ! command -v python3 &> /dev/null; then \
+		echo "Python is not installed. Installing Python..."; \
+		if [ "$$(uname)" = "Linux" ]; then \
+			sudo apt-get update && sudo apt-get install -y python3 python3-venv; \
+		elif [ "$$(uname)" = "Darwin" ]; then \
+			brew install python3; \
+		else \
+			echo "Please install Python manually."; \
+			exit 1; \
+		fi \
+	else \
+		echo "Python is installed."; \
+	fi
+
+	@echo "Checking for FFmpeg..."
+	@if ! command -v ffmpeg &> /dev/null; then \
+		echo "FFmpeg is not installed. Installing FFmpeg..."; \
+		if [ "$$(uname)" = "Linux" ]; then \
+			sudo apt-get update && sudo apt-get install -y ffmpeg; \
+		elif [ "$$(uname)" = "Darwin" ]; then \
+			brew install ffmpeg; \
+		else \
+			echo "Please install FFmpeg manually."; \
+			exit 1; \
+		fi \
+	else \
+		echo "FFmpeg is installed."; \
+	fi
+
 	@echo "Creating virtual environment..."
-	python -m venv $(VENV_NAME)
+	python3 -m venv $(VENV_NAME)
+
 	@echo "Activating virtual environment..."
 	@bash -c '$(ACTIVATE_CMD) && pip install --upgrade pip'
+
 	@echo "Installing dependencies..."
 	@bash -c '$(ACTIVATE_CMD) && pip install -r $(REQUIREMENTS_FILE)'
-	@echo "Virtual environment setup and dependencies installed."
 
+	@echo "Virtual environment setup and dependencies installed."
+	
 # Run the FastAPI server
 run:
 	@echo "Starting FastAPI server..."
