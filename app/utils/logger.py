@@ -3,8 +3,8 @@ import os
 from logging.handlers import RotatingFileHandler
 
 LOG_DIRECTORY = "app/logs/"
-LOG_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
-LOG_BACKUP_COUNT = 5  # Number of backup log files to keep
+LOG_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
+LOG_BACKUP_COUNT = 3  # Number of backup log files to keep
 
 def setup_main_logger(log_file="app.log", level=logging.INFO):
     log_path = os.path.join(LOG_DIRECTORY, log_file)
