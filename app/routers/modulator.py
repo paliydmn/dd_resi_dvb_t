@@ -20,9 +20,9 @@ CONFIG_DIR = ""
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
-#config = {}
 modulators_config = {}
-    
+
+
 @router.get("/modulator", response_class=HTMLResponse)
 async def modulator(request: Request):
     return templates.TemplateResponse("modulator.html", {"request": request})
@@ -33,13 +33,6 @@ def get_adapters_and_modulators():
         output = subprocess.check_output(
             "find /dev/dvb/ -type c -name 'mod*'", shell=True).decode('utf-8')
 #         output = '''
-# /dev/dvb/adapter0/mod13
-# /dev/dvb/adapter0/mod12
-# /dev/dvb/adapter0/mod11
-# /dev/dvb/adapter0/mod10
-# /dev/dvb/adapter0/mod9
-# /dev/dvb/adapter0/mod8
-# /dev/dvb/adapter0/mod7
 # /dev/dvb/adapter0/mod6
 # /dev/dvb/adapter0/mod5
 # /dev/dvb/adapter0/mod4
@@ -47,11 +40,6 @@ def get_adapters_and_modulators():
 # /dev/dvb/adapter0/mod2
 # /dev/dvb/adapter0/mod1
 # /dev/dvb/adapter0/mod0
-# /dev/dvb/adapter1/mod7
-# /dev/dvb/adapter1/mod6
-# /dev/dvb/adapter1/mod5
-# /dev/dvb/adapter1/mod4
-# /dev/dvb/adapter1/mod3
 # /dev/dvb/adapter1/mod2
 # /dev/dvb/adapter1/mod1
 # /dev/dvb/adapter1/mod0
@@ -79,41 +67,50 @@ def get_adapters_and_modulators():
 
 @router.get("/modulator_config/{adapter_id}")
 def get_modulator_config(adapter_id: int):
-    config_path = os.path.join(CONFIG_DIR, f"mod_a_{adapter_id}.conf")
-    if os.path.exists(config_path):
-        config = parse_config(config_path, adapter_id)
-        return config
+    try:
+        config_path = os.path.join(CONFIG_DIR, f"mod_a_{adapter_id}.conf")
+        if os.path.exists(config_path):
+            config = parse_config(config_path, adapter_id)
+            return config
 
-    # Retrieve the number of mods for the given adapter
-    adapter_data = get_adapters_and_modulators()
-    num_mods = len(adapter_data.get(adapter_id, []))
+        # Retrieve the number of mods for the given adapter
+        adapter_data = get_adapters_and_modulators()
+        num_mods = len(adapter_data.get(adapter_id, []))
 
-    # Default configuration
-    default_config = {
-        "connector": "F",
-        "channels": 16,
-        "power": 90.0,
-        "frequency": 114.0,
-        "standard": "DVBT_8",
-        # Generate default stream mappings
-        "streams": [{"channel": i, "stream": i} for i in range(num_mods)]
-    }
+        # Default configuration
+        default_config = {
+            "connector": "F",
+            "channels": 16,
+            "power": 90.0,
+            "frequency": 114.0,
+            "standard": "DVBT_8",
+            # Generate default stream mappings
+            "streams": [{"channel": i, "stream": i} for i in range(num_mods)]
+        }
 
-    return default_config
+        return default_config
+    except Exception as e:
+        logger.error(f"Error in get_modulator_config for adapter_id {adapter_id}: {e}")
+        return {"error": "Failed to retrieve modulator configuration"}
 
 
 @router.post("/apply_modulator_config/{adapter_id}")
 async def apply_modulator_config(adapter_id: int):
-    return apply_m_config(adapter_id)
+    try:
+        return apply_m_config(adapter_id)
+    except Exception as e:
+        logger.error(f"Error applying modulator config for adapter_id {adapter_id}: {e}")
+        return {"error": "Failed to apply modulator configuration"}
 
 
 def apply_m_config(adapter_id: int):
-    config_path = os.path.join(CONFIG_DIR, f"mod_a_{adapter_id}.conf")
-
-    # Ensure the config_path is valid and file exists (add your own validation if needed)
-    if not os.path.isfile(config_path):
-        return {"status": "Configuration file not found"}
     try:
+        config_path = os.path.join(CONFIG_DIR, f"mod_a_{adapter_id}.conf")
+
+        # Ensure the config_path is valid and file exists (add your own validation if needed)
+        if not os.path.isfile(config_path):
+            return {"status": "Configuration file not found"}
+
         # ToDo: move to config
         # Run the command line tool `./modconfig`
         result = subprocess.run(
@@ -126,14 +123,20 @@ def apply_m_config(adapter_id: int):
         # print(f"\n\nstdout: {result.stdout},\n stderr : {result.stderr}")
         return {"stdout": result.stdout, "stderr": result.stderr}
     except subprocess.CalledProcessError as e:
+        logger.error(f"Error running modconfig for adapter_id {adapter_id}: {e.stderr}")
         return {"status": f"Error running modconfig: {e.stderr}"}
+    except Exception as e:
+        logger.error(f"Unexpected error in apply_m_config for adapter_id {adapter_id}: {e}")
+        return {"status": "Unexpected error occurred"}
+
 
 @router.post("/save_modulator_config/{adapter_id}")
 def save_modulator_config(adapter_id: int, config: dict):
-    config_path = os.path.join(CONFIG_DIR, f"mod_a_{adapter_id}.conf")
-    print(f"Modulator configuration: {config}")
-    # Create the configuration content
-    output_section = f"""[output]
+    try:
+        config_path = os.path.join(CONFIG_DIR, f"mod_a_{adapter_id}.conf")
+        print(f"Modulator configuration: {config}")
+        # Create the configuration content
+        output_section = f"""[output]
 connector = {config['connector']}
 channels = {config['channels']}
 unit = DBUV
@@ -141,14 +144,14 @@ power = {config['power']}
 #
 """
 
-    channels_section = f"""[channels]
+        channels_section = f"""[channels]
 frequency = {config['frequency']}
 standard = {config['standard']}
 channels = {config['channels']}
 #
 """
 
-    streams_section = """[streams]
+        streams_section = """[streams]
 stream_format = TS
 standard = DVBT_8
 guard_interval = 0
@@ -159,79 +162,97 @@ cell_identifier = 0
 #
 """
 
-    # Add channel and stream assignments
-    stream_assignments = ""
-    saved_streams = config['streamAssignments']
-    for i in range(int(config['channels'])):
-        if f"channel{i}" in saved_streams and f"stream{i}" in saved_streams:
-            channel = saved_streams[f"channel{i}"]
-            stream = saved_streams[f"stream{i}"]
-            if stream == '':
-                continue
-            stream_assignments += f"channel = {channel}\nstream = {stream}\n#\n"
+        # Add channel and stream assignments
+        stream_assignments = ""
+        saved_streams = config['streamAssignments']
+        for i in range(int(config['channels'])):
+            if f"channel{i}" in saved_streams and f"stream{i}" in saved_streams:
+                channel = saved_streams[f"channel{i}"]
+                stream = saved_streams[f"stream{i}"]
+                if stream == '':
+                    continue
+                stream_assignments += f"channel = {channel}\nstream = {stream}\n#\n"
 
-    # Combine all sections into final configuration content
-    config_content = output_section + channels_section + \
-        streams_section + stream_assignments
+        # Combine all sections into final configuration content
+        config_content = output_section + channels_section + \
+            streams_section + stream_assignments
 
-    # Write the configuration to the file
-    with open(config_path, "w") as config_file:
-        config_file.write(config_content)
+        # Write the configuration to the file
+        with open(config_path, "w") as config_file:
+            config_file.write(config_content)
 
-    return {"status": "success"}
+        return {"status": "success"}
+    except Exception as e:
+        logger.error(f"Error saving modulator config for adapter_id {adapter_id}: {e}")
+        return {"error": "Failed to save modulator configuration"}
 
 
 @router.get("/modulator/data")
 def adapters_and_modulators():
-    return get_adapters_and_modulators()
+    try:
+        return get_adapters_and_modulators()
+    except Exception as e:
+        logger.error(f"Error retrieving adapters and modulators data: {e}")
+        return {"error": "Failed to retrieve adapters and modulators data"}
 
 
 def parse_config(config_path, id):
-    modulator_config = {
-        "connector": "F",
-        "channels": 16,
-        "power": 90.0,
-        "frequency": 114.0,
-        "standard": "DVBT_8",
-        "streams": []
-    }
-    with open(config_path, "r") as config_file:
-        section = None
-        for line in config_file:
-            line = line.strip()
-            if line.startswith("#") or not line:
-                continue
-            if line.startswith("["):
-                section = line[1:-1]
-            else:
-                if section == "output":
-                    key, value = line.split("=")
-                    key = key.strip()
-                    value = value.strip()
-                    modulator_config[key] = value
-                elif section == "channels":
-                    key, value = line.split("=")
-                    key = key.strip()
-                    value = value.strip()
-                    modulator_config[key] = value
-                elif section == "streams":
-                    if line.startswith("channel"):
-                        channel = line.split("=")[1].strip()
-                        stream = next(config_file).split("=")[1].strip()
-                        modulator_config["streams"].append(
-                            {"channel": int(channel), "stream": int(stream)})
-                    else:
+    try:
+        modulator_config = {
+            "connector": "F",
+            "channels": 16,
+            "power": 90.0,
+            "frequency": 474.0,
+            "standard": "DVBT_8",
+            "streams": []
+        }
+        with open(config_path, "r") as config_file:
+            section = None
+            for line in config_file:
+                line = line.strip()
+                if line.startswith("#") or not line:
+                    continue
+                if line.startswith("["):
+                    section = line[1:-1]
+                else:
+                    if section == "output":
                         key, value = line.split("=")
                         key = key.strip()
                         value = value.strip()
                         modulator_config[key] = value
-    print(modulator_config["streams"])
-    modulators_config[id] = modulator_config
-    return modulator_config
+                    elif section == "channels":
+                        key, value = line.split("=")
+                        key = key.strip()
+                        value = value.strip()
+                        modulator_config[key] = value
+                    elif section == "streams":
+                        if line.startswith("channel"):
+                            channel = line.split("=")[1].strip()
+                            stream = next(config_file).split("=")[1].strip()
+                            modulator_config["streams"].append(
+                                {"channel": int(channel), "stream": int(stream)})
+                        else:
+                            key, value = line.split("=")
+                            key = key.strip()
+                            value = value.strip()
+                            modulator_config[key] = value
+        print(modulator_config["streams"])
+        modulators_config[id] = modulator_config
+        return modulator_config
+    except Exception as e:
+        logger.error(f"Error parsing config for id {id}: {e}")
+        return {"error": "Failed to parse configuration"}
 
-def get_modulators_config(path = None, id=0):
-    if path is None:
-        config_path = os.path.join(CONFIG_DIR, f"mod_a_{id}.conf")
 
-    parse_config(config_path, id)
-    return modulators_config
+def get_modulators_config(path=None, id=0):
+    try:
+        if path is None:
+            config_path = os.path.join(CONFIG_DIR, f"mod_a_{id}.conf")
+        else:
+            config_path = path
+
+        parse_config(config_path, id)
+        return modulators_config
+    except Exception as e:
+        logger.error(f"Error retrieving modulators config for id {id}: {e}")
+        return {"error": "Failed to retrieve modulators configuration"}
