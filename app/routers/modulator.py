@@ -82,7 +82,7 @@ def get_modulator_config(adapter_id: int):
             "connector": "F",
             "channels": 16,
             "power": 90.0,
-            "frequency": 114.0,
+            "frequency": 474.0,
             "standard": "DVBT_8",
             # Generate default stream mappings
             "streams": [{"channel": i, "stream": i} for i in range(num_mods)]
