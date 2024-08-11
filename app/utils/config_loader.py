@@ -181,20 +181,20 @@ def get_modulators_config(id=0):
 def get_adapters_and_modulators():
     logger.info(f"Get Modulator adapters list: find /dev/dvb/ -type c -name 'mod*'")
     try:
-        # output = subprocess.check_output(
-        #     "find /dev/dvb/ -type c -name 'mod*'", shell=True).decode('utf-8')
-        output = '''
-/dev/dvb/adapter0/mod6
-/dev/dvb/adapter0/mod5
-/dev/dvb/adapter0/mod4
-/dev/dvb/adapter0/mod3
-/dev/dvb/adapter0/mod2
-/dev/dvb/adapter0/mod1
-/dev/dvb/adapter0/mod0
-/dev/dvb/adapter1/mod2
-/dev/dvb/adapter1/mod1
-/dev/dvb/adapter1/mod0
-'''
+        output = subprocess.check_output(
+            "find /dev/dvb/ -type c -name 'mod*'", shell=True).decode('utf-8')
+#         output = '''
+# /dev/dvb/adapter0/mod6
+# /dev/dvb/adapter0/mod5
+# /dev/dvb/adapter0/mod4
+# /dev/dvb/adapter0/mod3
+# /dev/dvb/adapter0/mod2
+# /dev/dvb/adapter0/mod1
+# /dev/dvb/adapter0/mod0
+# /dev/dvb/adapter1/mod2
+# /dev/dvb/adapter1/mod1
+# /dev/dvb/adapter1/mod0
+# '''
         if output:
             lines = output.strip().split('\n')
             adapter_mods = {}
