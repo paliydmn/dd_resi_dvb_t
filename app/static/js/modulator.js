@@ -247,10 +247,16 @@ async function applyConfig(adapterId) {
             }
         });
 
+        const data = await response.json(); // Extract JSON content from the response
+
         if (response.ok) {
-            alert('Configuration Applied successfully!');
+            if (data.status) {
+                alert(`Configuration Applied successfully! Status: ${data.status}`);
+            } else {
+                alert('Configuration Applied successfully, but no status message received.');
+            }
         } else {
-            alert('Failed to Apply configuration.');
+            alert(`Failed to Apply configuration. Status: ${data.status || 'Unknown error'}`);
         }
     } catch (error) {
         console.error('Error Applying configuration:', error);

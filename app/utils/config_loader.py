@@ -118,7 +118,7 @@ def apply_modulator_config(adapter_id: int):
         return {"status": f"Error running modconfig: {e.stderr}"}
     except Exception as e:
         logger.error(f"Unexpected error in apply_m_config for adapter_id {adapter_id}: {e}")
-        return {"status": "Unexpected error occurred"}
+        return {f"status": "Unexpected error occurred: {e}"}
 
 def parse_config(adapter_id):
     logger.info(f"Parsing config for adapter_id {adapter_id}")
