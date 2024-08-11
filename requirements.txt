@@ -5,6 +5,7 @@ jinja2
 
 # Pydantic for data validation and serialization
 pydantic
+pydantic-settings
 
 # Tools for working with subprocesses
 subprocess32

@@ -2,7 +2,6 @@ from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from app.utils import logger
-from app.config.server_conf import adapters
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")

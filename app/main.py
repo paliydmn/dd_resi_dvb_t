@@ -8,25 +8,29 @@ from app.routers.adapters import router as adapter_router
 from app.routers.modulator import router as modulator_router
 
 from app.utils.signal_handler import register_signal_handlers, stop_ffmpeg_processes
-from app.config.server_conf import ADAPTER_CONF_FILE, load_adapters_from_file, save_adapters_to_file
+
+from app.utils.config_loader import save_adapters_to_file, load_adapters_from_file
+from settings import settings
+
 from app.utils import logger
 
-import os
-import json
+# import os
+# import json
+
+ADAPTER_CONF_FILE = settings.adapter_conf_file
 
 app = FastAPI()
 app.include_router(index_router)
 app.include_router(adapter_router)
 app.include_router(modulator_router)
-app.include_router(modulator_router)
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 
-# Load adapters from file
-if os.path.exists(ADAPTER_CONF_FILE):
-    with open(ADAPTER_CONF_FILE, "r") as f:
-        adapters = json.load(f)
-        logger.info(f"Loaded adapters configuration from {ADAPTER_CONF_FILE}")
+# # Load adapters from file
+# if os.path.exists(ADAPTER_CONF_FILE):
+#     with open(ADAPTER_CONF_FILE, "r") as f:
+#         adapters = json.load(f)
+#         logger.info(f"Loaded adapters configuration from {ADAPTER_CONF_FILE}")
 
 
 @app.on_event("startup")

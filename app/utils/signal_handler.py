@@ -3,7 +3,7 @@ import signal
 import subprocess
 import sys
 import atexit
-from app.config.server_conf import adapters
+from app.utils.config_loader import adapters
 from app.utils import logger
 
 

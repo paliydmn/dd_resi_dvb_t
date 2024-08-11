@@ -1,15 +1,14 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.templating import Jinja2Templates
-from fastapi import HTTPException, Form, Request
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi import HTTPException, Request
+from fastapi.responses import HTMLResponse
 from app.utils import logger
 from app.utils.logger import get_ffmpeg_logger
-from app.config.server_conf import adapters, save_adapters_to_file
+from app.utils.config_loader import adapters, save_adapters_to_file, get_modulators_config
 from app.utils.ffmpeg_utils import get_ffprobe_data, construct_programs_dict, construct_ffmpeg_command
 from app.utils.signal_handler import stop_ffmpeg_processes
 from app.models.models import AdapterConfig, Program, Stream, AvailableResources, SaveSelection
-from app.config.server_conf import CONFIG_LOG_FILE, ADAPTER_CONF_FILE
-from app.routers.modulator import get_modulators_config
+from settings import settings
 import threading
 import logging
 import subprocess
@@ -44,9 +43,9 @@ def set_description():
                     channel_value = stream['channel']
                     description = frequency + (channel_value * 8)
                     adapter_config.description = f"{description:.1f} MHz."  # Format to 2 decimal places
+                    logger.info(f"Set description = {adapter_config.description} for stream = {modulator_number}.")
                     break
-
-    print(f"Adapters {adapters} ")
+    save_adapters_to_file()
 
 @router.get("/get_adapters/")
 def get_adapters():
@@ -69,7 +68,7 @@ def stop_all_adapters():
 @router.get("/adapters/available", response_model=AvailableResources)
 def get_available_adapters():
     """Fetch available adapters and modulators from the system."""
-    logger.info(f"Loading available adapters from {ADAPTER_CONF_FILE} file.")
+    logger.info(f"Loading available adapters from {settings.adapter_conf_file} file.")
 
     try:
         output = subprocess.check_output(
