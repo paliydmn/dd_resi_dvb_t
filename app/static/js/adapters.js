@@ -246,23 +246,6 @@ function loadAdapters() {
                 const selectedPrograms = adapter.programs ?
                     Object.entries(adapter.programs)
                     .filter(([_, program]) => program.selected)
-                        .map(([_, program]) => program) : [];
-                
-                function loadAdapters() {
-    fetch('/get_adapters/')
-        .then(response => response.json())
-        .then(data => {
-            const adapterContainer = document.getElementById('existing-adapters');
-            adapterContainer.innerHTML = ''; // Clear the container
-
-            Object.entries(data).forEach(([adapterId, adapter]) => {
-                const adapterDiv = document.createElement('div');
-                adapterDiv.id = `adapter-${adapterId}`;
-
-                // Display selected channels
-                const selectedPrograms = adapter.programs ?
-                    Object.entries(adapter.programs)
-                    .filter(([_, program]) => program.selected)
                     .map(([_, program]) => program) : [];
 
                 const status = adapter.running ? '<span style="color: green;">Running</span>' : '<span style="color: red;">Stopped</span>';
@@ -274,8 +257,18 @@ function loadAdapters() {
                                 ${program.title}
                             </a>
                             <div id="program-details-${program.title}" class="program-details" style="display:none; margin-left: 20px;">
-                                <div class="video-stream"><strong>Video:</strong> ${program.streams.video.filter(v => v.selected).map(v => `${v.codec}`).join(', ')}</div>
-                                <div class="audio-stream"><strong>Audio:</strong> ${program.streams.audio.filter(a => a.selected).map(a => `${a.codec}`).join(', ')}</div>
+                                <div class="video-stream"><strong>Video:</strong> 
+                                    ${program.streams.video
+                                        .filter(v => v.selected)
+                                        .map(v => `${v.codec}`).join(', ')
+                                    }
+                                </div>
+                                <div class="audio-stream"><strong>Audio:</strong> 
+                                    ${program.streams.audio
+                                        .filter(a => a.selected)
+                                        .map(a => `${a.codec}`).join(', ')
+                                    }
+                                </div>
                             </div>
                         </li>
                     `).join('') : '<li>None</li>';
@@ -319,59 +312,6 @@ function toggleProgramDetails(programTitle) {
     }
 }
 
-                const status = adapter.running ? '<span style="color: green;">Running</span>' : '<span style="color: red;">Stopped</span>';
-
-                const selectedChannelsHtml = selectedPrograms.length ? 
-                    selectedPrograms.map(program => `
-                        <li>
-                            <a href="javascript:void(0);" onclick="toggleProgramDetails('${program.title}')">
-                                ${program.title}
-                            </a>
-                            <div id="program-details-${program.title}" class="program-details" style="display:none; margin-left: 20px;">
-                                <div class="video-stream"><strong>Video:</strong> ${program.streams.video.map(v => `${v.codec}`).join(', ')}</div>
-                                <div class="audio-stream"><strong>Audio:</strong> ${program.streams.audio.map(a => `${a.codec}`).join(', ')}</div>
-                            </div>
-                        </li>
-                    `).join('') : '<li>None</li>';
-
-                adapterDiv.innerHTML = `
-                <h3>Adapter ${adapterId}: (Adapter${adapter.adapter_number}/mod${adapter.modulator_number})  ${status}</h3>
-                <div id="udp-url">UDP link: ${adapter.udp_url}</div>
-                <div id="udp-url">Frequency: ${adapter.description}</div>
-                <div class="selected-channels">
-                    <p>Selected channels:</p>
-                    <ul id="selected-channels-list">
-                        ${selectedChannelsHtml}
-                    </ul>
-                </div>
-                <div id="scan-section-${adapterId}">
-                    <!-- Scan results will be loaded here -->
-                </div>
-                <button onclick="scanAdapter(${adapterId})" id="scan-button-${adapterId}" ${adapter.running ? 'disabled' : ''}>Scan</button>
-                <form method="post" action="/adapters/${adapterId}/start" id="start-form-${adapterId}" style="display:inline;">
-                    <button type="button" onclick="startFFmpeg(${adapterId})" ${adapter.running ? 'disabled' : ''}>Start</button>
-                </form>
-                <form method="post" action="/adapters/${adapterId}/stop" id="stop-form-${adapterId}" style="display:inline;">
-                    <button type="button" onclick="stopFFmpeg(${adapterId})" ${adapter.running ? '' : 'disabled'}>Stop</button>
-                </form>
-                <form method="post" action="/adapters/${adapterId}/delete" id="delete-form-${adapterId}" style="display:inline;">
-                    <button type="button" onclick="deleteAdapter(${adapterId})">Delete</button>
-                </form>
-            `;
-                adapterContainer.appendChild(adapterDiv);
-            });
-        })
-        .catch(error => console.error('Error:', error));
-}
-
-function toggleProgramDetails(programTitle) {
-    const detailsDiv = document.getElementById(`program-details-${programTitle}`);
-    if (detailsDiv.style.display === "none") {
-        detailsDiv.style.display = "block";
-    } else {
-        detailsDiv.style.display = "none";
-    }
-}
 
 
 // function loadAdapters() {
