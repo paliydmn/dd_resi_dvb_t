@@ -95,10 +95,10 @@ cell_identifier = 0
         with open(get_modulator_config_path(adapter_id), "w") as config_file:
             config_file.write(config_content)
 
-        return {"status": "success"}
+        return {"status": "success", "msg" : f"Config for adapter_id {adapter_id} saved successfully"}
     except Exception as e:
         logger.error(f"Error saving modulator config for adapter_id {adapter_id}: {e}")
-        return {"error": "Failed to save modulator configuration"}
+        return {"status": "error", "msg" : "Failed to save modulator configuration"}
 
 def apply_modulator_config(adapter_id: int):
     try:
@@ -112,13 +112,13 @@ def apply_modulator_config(adapter_id: int):
             text=True,
             check=True
         )
-        return {"status": result.stdout, "stderr": result.stderr}
+        return {"status": "success", "msg" : f"stdout: {result.stdout} \n stderr: {result.stderr}"}
     except subprocess.CalledProcessError as e:
         logger.error(f"Error running modconfig for adapter_id {adapter_id}: {e.stderr}")
-        return {"status": f"Error running modconfig: {e.stderr}"}
+        return {"status": "error", "msg" :  f"Error running 'modconfig': {e.stderr}"}
     except Exception as e:
         logger.error(f"Unexpected error in apply_m_config for adapter_id {adapter_id}: {e}")
-        return {f"status": "Unexpected error occurred: {e}"}
+        return {"status": "error", "msg" : f"Unexpected error occurred: {e}"}
 
 def parse_config(adapter_id):
     logger.info(f"Parsing config for adapter_id {adapter_id}")
@@ -175,7 +175,7 @@ def get_modulators_config(id=0):
         return modulators_config
     except Exception as e:
         logger.error(f"Error retrieving modulators config for id {id}: {e}")
-        return {"error": "Failed to retrieve modulators configuration"}
+        return {"status": "error", "msg" : "Failed to retrieve modulators configuration"}
 
 
 def get_adapters_and_modulators():

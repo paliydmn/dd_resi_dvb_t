@@ -224,11 +224,13 @@ async function saveConfig(adapterId) {
             body: JSON.stringify(data)
         });
 
+        const data = await response.json(); // Extract JSON content from the response
         if (response.ok) {
-            alert('Configuration saved successfully!');
-            document.getElementById(`save-button-${adapterId}`).disabled = true;
-            document.getElementById(`apply-button-${adapterId}`).disabled = false;
-
+            if (data.status == "success") {
+                alert('Configuration saved successfully!');
+                document.getElementById(`save-button-${adapterId}`).disabled = true;
+                document.getElementById(`apply-button-${adapterId}`).disabled = false;
+            }
         } else {
             alert('Failed to save configuration.');
         }
@@ -250,11 +252,9 @@ async function applyConfig(adapterId) {
         const data = await response.json(); // Extract JSON content from the response
 
         if (response.ok) {
-            if (data.status) {
-                alert(`Configuration Applied successfully! Status: ${data.status}`);
-            } else {
-                alert('Configuration Applied successfully, but no status message received.');
-            }
+            if (data.status == "success") {
+                alert(`Configuration Applied successfully! Status: ${data.msg}`);
+            } 
         } else {
             alert(`Failed to Apply configuration. Status: ${data.status || 'Unknown error'}`);
         }
