@@ -112,7 +112,8 @@ def apply_modulator_config(adapter_id: int):
             text=True,
             check=True
         )
-        return {"status": "success", "msg" : f"stdout: {result.stdout} \n stderr: {result.stderr}"}
+        #return {"status": "success", "msg" : f"stdout: {result.stdout} \n stderr: {result.stderr}"}
+        return {"status": "success", "msg" : f"modulator configuration applied successfully for adapter: {adapter_id}"}
     except subprocess.CalledProcessError as e:
         logger.error(f"Error running modconfig for adapter_id {adapter_id}: {e.stderr}")
         return {"status": "error", "msg" :  f"Error running 'modconfig': {e.stderr}"}
