@@ -106,8 +106,9 @@ def apply_modulator_config(adapter_id: int):
         if not os.path.isfile(config_path):
             return {"status": "Configuration file not found"}
 
+        modconfig_app = settings.modconfig_app 
         result = subprocess.run(
-            ["./modconfig", "-c", config_path],
+            [modconfig_app, "-c", config_path],
             capture_output=True,
             text=True,
             check=True

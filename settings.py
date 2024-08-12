@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     log_file_size: int = 5 * 1024 * 1024  # 5 MB
     log_backup_count: int = 3  # Number of backup log files to keep
     log_ffmpeg_file: str = "ffmpeg_adapter_"
+
+    #tools
+    modconfig_app: str = "./tools/modconfig"
     
     
     class Config:
