@@ -271,7 +271,7 @@ function loadAdapters() {
                             <a href="javascript:void(0);" onclick="toggleProgramDetails('${program.title}, ${adapterId}')">
                                 ${program.title}
                             </a>
-                            <div id="program-details-${program.title}" class="program-details-${adapterId}" style="display:none; margin-left: 20px;">
+                            <div id="program-details-${program.title}-${adapterId}" class="program-details" style="display:none; margin-left: 20px;">
                                 <div class="video-stream"><strong>Video:</strong> 
                                     ${program.streams.video
                                         .filter(v => v.selected)
