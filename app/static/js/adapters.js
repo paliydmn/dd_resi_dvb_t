@@ -49,11 +49,22 @@ function createAdapter(event) {
 }
 
 function scanAdapter(adapterId) {
+    const scanSection = document.getElementById(`scan-section-${adapterId}`);
+    
+    // Add a spinner to indicate loading
+    const spinner = document.createElement('div');
+    spinner.className = 'spinner';
+    spinner.innerHTML = `<div class="loading-spinner"></div>`;
+    scanSection.appendChild(spinner);
+    
+    // Fetch scan results and display them in the scan section
     fetch(`/adapters/${adapterId}/scan`)
         .then(response => response.json())
         .then(data => {
             const programs = data.programs;
-            const scanSection = document.getElementById(`scan-section-${adapterId}`);
+            // Hide the spinner after receiving data
+            scanSection.removeChild(spinner);
+
             const adapterDiv = document.getElementById(`adapter-${adapterId}`);
 
             // Hide other controls
@@ -92,7 +103,11 @@ function scanAdapter(adapterId) {
                 <button onclick="cancelSelection(${adapterId})">Cancel</button>
             `;
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            console.error('Error:', error)
+             // Hide the spinner if an error occurs
+             scanSection.removeChild(spinner);
+        });
 }
 
 function updateChannelSelection(programId) {
