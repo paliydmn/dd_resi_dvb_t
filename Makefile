@@ -55,6 +55,8 @@ install:
 	@echo "Installing dependencies..."
 	@bash -c '$(ACTIVATE_CMD) && pip install -r $(REQUIREMENTS_FILE)'
 
+	@echo "make 'modconfig' executable..."
+	@bash  chmod +x  ./tools/modconfig
 	@echo "Virtual environment setup and dependencies installed."
 	
 # Run the FastAPI server
