@@ -45,8 +45,10 @@ def shutdown_event():
 
 
 def apply_mod_config_for_all():
-    for _, adapter in adapters.items():
-        logger.info(apply_modulator_config(adapter.adapter_number))
+    modulators = {entry["adapter_number"] for entry in adapters.values()}
+    logger.info(f"Applying modulator configs to adapters: {modulators}")
+    for adapter_number in modulators:
+        logger.info(apply_modulator_config(adapter_number))
 
 
 if __name__ == "__main__":
