@@ -224,9 +224,9 @@ async function saveConfig(adapterId) {
             body: JSON.stringify(data)
         });
 
-        const data = await response.json(); // Extract JSON content from the response
+        const r_data = await response.json(); // Extract JSON content from the response
         if (response.ok) {
-            if (data.status == "success") {
+            if (r_data.status == "success") {
                 alert('Configuration saved successfully!');
                 document.getElementById(`save-button-${adapterId}`).disabled = true;
                 document.getElementById(`apply-button-${adapterId}`).disabled = false;
@@ -249,14 +249,14 @@ async function applyConfig(adapterId) {
             }
         });
 
-        const data = await response.json(); // Extract JSON content from the response
+        const r_data = await response.json(); // Extract JSON content from the response
 
         if (response.ok) {
-            if (data.status == "success") {
-                alert(`Configuration Applied successfully! Status: ${data.msg}`);
+            if (r_data.status == "success") {
+                alert(`Configuration Applied successfully! Status: ${r_data.msg}`);
             } 
         } else {
-            alert(`Failed to Apply configuration. Status: ${data.status || 'Unknown error'}`);
+            alert(`Failed to Apply configuration. Status: ${r_data.status || 'Unknown error'}`);
         }
     } catch (error) {
         console.error('Error Applying configuration:', error);
