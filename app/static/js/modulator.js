@@ -254,6 +254,8 @@ async function applyConfig(adapterId) {
         if (response.ok) {
             if (r_data.status == "success") {
                 alert(`Configuration Applied successfully! Status: ${r_data.msg}`);
+            } else if(r_data.status == "error") {
+                alert(`Configuration saving Error: ${r_data.msg}`);
             } 
         } else {
             alert(`Failed to Apply configuration. Status: ${r_data.status || 'Unknown error'}`);
