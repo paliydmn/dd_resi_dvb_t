@@ -268,7 +268,7 @@ function loadAdapters() {
                 const selectedChannelsHtml = selectedPrograms.length ? 
                     selectedPrograms.map(program => `
                         <li>
-                            <a href="javascript:void(0);" onclick="toggleProgramDetails('${program.title}, ${adapterId}')">
+                            <a href="javascript:void(0);" onclick="toggleProgramDetails('${program.title}-${adapterId}')">
                                 ${program.title}
                             </a>
                             <div id="program-details-${program.title}-${adapterId}" class="program-details" style="display:none; margin-left: 20px;">
@@ -318,8 +318,8 @@ function loadAdapters() {
         .catch(error => console.error('Error:', error));
 }
 
-function toggleProgramDetails(programTitle, adapterId) {
-    const detailsDiv = document.getElementById(`program-details-${programTitle}-${adapterId}`);
+function toggleProgramDetails(programTitle) {
+    const detailsDiv = document.getElementById(`program-details-${programTitle}`);
     if (detailsDiv.style.display === "none") {
         detailsDiv.style.display = "block";
     } else {
