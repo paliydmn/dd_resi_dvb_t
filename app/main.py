@@ -9,13 +9,10 @@ from app.routers.modulator import router as modulator_router
 
 from app.utils.signal_handler import register_signal_handlers, stop_ffmpeg_processes
 
-from app.utils.config_loader import save_adapters_to_file, load_adapters_from_file
+from app.utils.config_loader import adapters, save_adapters_to_file, load_adapters_from_file, apply_modulator_config
 from settings import settings
 
 from app.utils import logger
-
-# import os
-# import json
 
 ADAPTER_CONF_FILE = settings.adapter_conf_file
 
@@ -37,6 +34,7 @@ app.mount("/static", StaticFiles(directory="app/static"), name="static")
 def startup_event():
     logger.info("App startup event triggered.")
     load_adapters_from_file()
+    apply_mod_config_for_all()
 
 
 @app.on_event("shutdown")
@@ -44,6 +42,11 @@ def shutdown_event():
     logger.info("App shutdown event triggered.")
     stop_ffmpeg_processes()
     save_adapters_to_file()
+
+
+def apply_mod_config_for_all():
+    for _, adapter in adapters.items():
+        logger.info(apply_modulator_config(adapter.adapter_number))
 
 
 if __name__ == "__main__":
