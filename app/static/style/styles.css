@@ -319,6 +319,34 @@ form button {
     vertical-align: middle;
 }
 
+.video-stream {
+    font-weight: normal;
+    margin: 5px 0;
+    padding-left: 15px;
+    position: relative;
+}
+
+.video-stream::before {
+    content: "📺 "; 
+    position: absolute;
+    left: -15px;
+}
+
+.audio-stream {
+    font-weight: normal;
+    margin: 5px 0;
+    padding-left: 15px;
+    position: relative;
+}
+
+.audio-stream::before {
+    content: "🔊 ";
+    position: absolute;
+    left: -15px;
+}
+
+
+
 /* Specific styles for modulator.html */
 /* Flexbox for stream-assignment */
 .stream-assignments-container {
