@@ -45,7 +45,7 @@ def shutdown_event():
 
 
 def apply_mod_config_for_all():
-    modulators = {entry["adapter_number"] for entry in adapters.values()}
+    modulators = {entry.adapter_number for entry in adapters.values()}
     logger.info(f"Applying modulator configs to adapters: {modulators}")
     for adapter_number in modulators:
         logger.info(apply_modulator_config(adapter_number))
