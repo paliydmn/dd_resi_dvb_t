@@ -314,9 +314,8 @@ form button {
 
 .selected-channels p::before {
     content: "📺 ";
-    /* Optional: Add an icon or emoji before the text */
     font-size: 1.2em;
-    vertical-align: middle;
+    /* vertical-align: middle; */
 }
 
 .video-stream {
@@ -330,6 +329,7 @@ form button {
     content: "📺 "; 
     position: absolute;
     left: -15px;
+    top: -5px;
 }
 
 .audio-stream {
@@ -343,6 +343,7 @@ form button {
     content: "🔊 ";
     position: absolute;
     left: -15px;
+    top: -5px;
 }
 
 .spinner {
