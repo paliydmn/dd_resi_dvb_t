@@ -5,6 +5,7 @@ import logging
 from typing import Union, Dict, Any
 
 # Configure logging
+#TODO: need to re-write logging here
 logger = logging.getLogger(__name__)
 # Ensure no handlers are already attached to avoid duplication
 if not logger.hasHandlers():
@@ -42,7 +43,7 @@ def get_ffprobe_data(udp_link: str) -> Union[Dict[str, Any], str]:
         result = subprocess.run(
             ffprobe_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
         )
-
+        logger.info(f"ffprobe result: {result}")
         if result.returncode != 0:
             error_message = result.stderr.strip()
             logger.error(f"ffprobe error: {error_message}")
@@ -135,5 +136,5 @@ def construct_ffmpeg_command(udp_link: str, programs: dict, adapter_num: int, mo
                  f"{' '.join(map_cmds)} {' '.join(program_cmds)} -c copy "
                  f"-muxrate 31668449 -max_interleave_delta 0 -copyts -f mpegts -y /dev/dvb/adapter{adapter_num}/mod{modulator_num}")
 
-    logger.info(f"Constructed ffmpeg command: {final_cmd}")
+    logger.info(f"Constructed ffmpeg command: \n{final_cmd}\n")
     return final_cmd
