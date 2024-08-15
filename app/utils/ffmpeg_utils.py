@@ -93,6 +93,10 @@ def construct_programs_dict(ffprobe_data: dict) -> dict:
                 streams["audio"].append(
                     {"id": stream_id, "codec": codec_name, "selected": False}
                 )
+            elif codec_type == "subtitle":
+                streams["subtitle"].append(
+                    {"id": stream_id, "codec": codec_name, "selected": False}
+                )
         programs[program_num] = {
             "title": title,
             "streams": streams,
