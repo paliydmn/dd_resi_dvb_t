@@ -50,13 +50,13 @@ function createAdapter(event) {
 
 function scanAdapter(adapterId) {
     const scanSection = document.getElementById(`scan-section-${adapterId}`);
-    
+
     // Add a spinner to indicate loading
     const spinner = document.createElement('div');
     spinner.className = 'spinner';
     spinner.innerHTML = `<div class="loading-spinner"></div>`;
     scanSection.appendChild(spinner);
-    
+
     // Fetch scan results and display them in the scan section
     fetch(`/adapters/${adapterId}/scan`)
         .then(response => response.json())
@@ -95,6 +95,12 @@ function scanAdapter(adapterId) {
                                         <label for="audio-${stream.id}" onclick="toggleStream(event, '${stream.id}')">Audio: ID: ${stream.id} (${stream.codec})</label>
                                     </li>
                                 `).join('')}
+                                ${program.streams.subtitles.map(stream => `
+                                    <li>
+                                        <input type="checkbox" id="subtitles-${stream.id}" data-channel="${programId}" data-id="${stream.id}" onchange="updateStreamSelection(${programId})"/> 
+                                        <label for="subtitles-${stream.id}" onclick="toggleStream(event, '${stream.id}')">Subtitles: ID: ${stream.id} (${stream.codec})</label>
+                                    </li>
+                                `).join('')}
                             </ul>
                         </li>
                     `).join('')}
@@ -105,8 +111,8 @@ function scanAdapter(adapterId) {
         })
         .catch(error => {
             console.error('Error:', error)
-             // Hide the spinner if an error occurs
-             scanSection.removeChild(spinner);
+            // Hide the spinner if an error occurs
+            scanSection.removeChild(spinner);
         });
 }
 
@@ -265,7 +271,7 @@ function loadAdapters() {
 
                 const status = adapter.running ? '<span style="color: green;">Running</span>' : '<span style="color: red;">Stopped</span>';
 
-                const selectedChannelsHtml = selectedPrograms.length ? 
+                const selectedChannelsHtml = selectedPrograms.length ?
                     selectedPrograms.map(program => `
                         <li>
                             <a href="javascript:void(0);" onclick="toggleProgramDetails('${program.title}-${adapterId}')">
