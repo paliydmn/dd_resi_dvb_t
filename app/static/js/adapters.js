@@ -292,6 +292,12 @@ function loadAdapters() {
                                         .map(a => `${a.codec}`).join(', ')
                                     }
                                 </div>
+                                <div class="subtitle-stream"><strong>Audio:</strong> 
+                                    ${program.streams.subtitle
+                                        .filter(s => s.selected)
+                                        .map(s => `${s.codec}`).join(', ')
+                                    }
+                                </div>
                             </div>
                         </li>
                     `).join('') : '<li>None</li>';
