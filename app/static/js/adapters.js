@@ -169,7 +169,8 @@ function saveSelection(adapterId) {
             if (!selectedChannels[channelId]) {
                 selectedChannels[channelId] = {
                     video: [],
-                    audio: []
+                    audio: [],
+                    subtitle: []
                 };
             }
             if (cb.id.startsWith('video-')) {
@@ -292,7 +293,7 @@ function loadAdapters() {
                                         .map(a => `${a.codec}`).join(', ')
                                     }
                                 </div>
-                                <div class="subtitle-stream"><strong>Audio:</strong> 
+                                <div class="subtitle-stream"><strong>Subtitle:</strong> 
                                     ${program.streams.subtitle
                                         .filter(s => s.selected)
                                         .map(s => `${s.codec}`).join(', ')

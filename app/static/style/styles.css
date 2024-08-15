@@ -345,6 +345,19 @@ form button {
     left: -15px;
     top: -5px;
 }
+.subtitle-stream {
+    font-weight: normal;
+    margin: 5px 0;
+    padding-left: 15px;
+    position: relative;
+}
+
+.subtitle-stream::before {
+    content: "💬 ";
+    position: absolute;
+    left: -15px;
+    top: -5px;
+}
 
 .spinner {
     display: flex;
