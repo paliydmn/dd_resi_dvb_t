@@ -133,7 +133,7 @@ def construct_ffmpeg_command(udp_link: str, programs: dict, adapter_num: int, mo
 # -thread_queue_size 16384 
     final_cmd = (f"ffmpeg -start_at_zero -thread_queue_size 16384 -i \"{udp_link}{udp_params}\" {base_options} "
                  f"{' '.join(map_cmds)} {' '.join(program_cmds)} -c copy "
-                 f"-muxrate 31668449 -f mpegts -y /dev/dvb/adapter{adapter_num}/mod{modulator_num}")
+                 f"-muxrate 31668449 -max_interleave_delta 0 -copyts -f mpegts -y /dev/dvb/adapter{adapter_num}/mod{modulator_num}")
 
     logger.info(f"Constructed ffmpeg command: {final_cmd}")
     return final_cmd
