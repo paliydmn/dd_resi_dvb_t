@@ -128,8 +128,10 @@ def construct_ffmpeg_command(udp_link: str, programs: dict, adapter_num: int, mo
 
             program_cmd = f"-program program_num={program_num}:title=\"{title}\":{':'.join(stream_map_indices)}"
             program_cmds.append(program_cmd)
-
-    final_cmd = (f"ffmpeg -i \"{udp_link}{udp_params}\" {base_options} "
+#added:
+# -start_at_zero
+# -thread_queue_size 16384 
+    final_cmd = (f"ffmpeg -start_at_zero -thread_queue_size 16384 -i\"{udp_link}{udp_params}\" {base_options} "
                  f"{' '.join(map_cmds)} {' '.join(program_cmds)} -c copy "
                  f"-muxrate 31668449 -f mpegts -y /dev/dvb/adapter{adapter_num}/mod{modulator_num}")
 
