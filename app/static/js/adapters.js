@@ -97,8 +97,8 @@ function scanAdapter(adapterId) {
                                 `).join('')}
                                 ${program.streams.subtitle.map(stream => `
                                     <li>
-                                        <input type="checkbox" id="subtitles-${stream.id}" data-channel="${programId}" data-id="${stream.id}" onchange="updateStreamSelection(${programId})"/> 
-                                        <label for="subtitles-${stream.id}" onclick="toggleStream(event, '${stream.id}')">Subtitles: ID: ${stream.id} (${stream.codec})</label>
+                                        <input type="checkbox" id="subtitle-${stream.id}" data-channel="${programId}" data-id="${stream.id}" onchange="updateStreamSelection(${programId})"/> 
+                                        <label for="subtitle-${stream.id}" onclick="toggleStream(event, '${stream.id}')">Subtitle: ID: ${stream.id} (${stream.codec})</label>
                                     </li>
                                 `).join('')}
                             </ul>
