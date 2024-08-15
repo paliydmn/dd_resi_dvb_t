@@ -95,12 +95,13 @@ function scanAdapter(adapterId) {
                                         <label for="audio-${stream.id}" onclick="toggleStream(event, '${stream.id}')">Audio: ID: ${stream.id} (${stream.codec})</label>
                                     </li>
                                 `).join('')}
-                                ${program.streams.subtitle.map(stream => `
+                            ${program.streams.subtitle.length > 0 ? 
+                                program.streams.subtitle.map(stream => `
                                     <li>
                                         <input type="checkbox" id="subtitle-${stream.id}" data-channel="${programId}" data-id="${stream.id}" onchange="updateStreamSelection(${programId})"/> 
                                         <label for="subtitle-${stream.id}" onclick="toggleStream(event, '${stream.id}')">Subtitle: ID: ${stream.id} (${stream.codec})</label>
                                     </li>
-                                `).join('')}
+                                `).join('') : ''}
                             </ul>
                         </li>
                     `).join('')}
