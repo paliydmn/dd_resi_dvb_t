@@ -180,7 +180,9 @@ def stop_ffmpeg(adapter_id: int):
         logger.info(f"Adapter {adapter_id} is already stopped.")
         return {"message": "Adapter is already stopped"}
 
+    logger.info(f"FFmpeg running_processes: {running_processes}")
     process = running_processes[adapter_id]
+    logger.info(f"FFmpeg process: {process}")
     os.killpg(os.getpgid(process.pid), signal.SIGTERM)
     del running_processes[adapter_id]
     adapters[adapter_id].running = False

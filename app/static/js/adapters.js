@@ -149,7 +149,7 @@ function toggleChannel(event, programId) {
 
 function toggleStream(event, streamId) {
     event.preventDefault(); // Prevent default behavior of the label
-    const streamCheckbox = document.getElementById(`video-${streamId}`) || document.getElementById(`audio-${streamId}`);
+    const streamCheckbox = document.getElementById(`video-${streamId}`) || document.getElementById(`audio-${streamId}`) || document.getElementById(`subtitle-${streamId}`);
     streamCheckbox.checked = !streamCheckbox.checked;
     const channelId = streamCheckbox.getAttribute('data-channel');
     updateStreamSelection(channelId);
