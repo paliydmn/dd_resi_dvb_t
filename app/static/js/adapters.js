@@ -95,7 +95,7 @@ function scanAdapter(adapterId) {
                                         <label for="audio-${stream.id}" onclick="toggleStream(event, '${stream.id}')">Audio: ID: ${stream.id} (${stream.codec})</label>
                                     </li>
                                 `).join('')}
-                                ${program.streams.subtitles.map(stream => `
+                                ${program.streams.subtitle.map(stream => `
                                     <li>
                                         <input type="checkbox" id="subtitles-${stream.id}" data-channel="${programId}" data-id="${stream.id}" onchange="updateStreamSelection(${programId})"/> 
                                         <label for="subtitles-${stream.id}" onclick="toggleStream(event, '${stream.id}')">Subtitles: ID: ${stream.id} (${stream.codec})</label>
@@ -176,6 +176,8 @@ function saveSelection(adapterId) {
                 selectedChannels[channelId].video.push(streamId);
             } else if (cb.id.startsWith('audio-')) {
                 selectedChannels[channelId].audio.push(streamId);
+            } else if (cb.id.startsWith('subtitle-')) {
+                selectedChannels[channelId].subtitle.push(streamId);
             }
         }
     });
