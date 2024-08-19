@@ -112,7 +112,8 @@ def construct_ffmpeg_command(udp_link: str, programs: dict, adapter_num: int, mo
     """
     logger.info("Constructing ffmpeg command.")
     udp_params = "?fifo_size=10000000&overrun_nonfatal=1&reconnect=1&reconnect_streamed=1&reconnect_delay_max=2"
-    base_options = "-buffer_size 5000k -mpegts_flags +resend_headers+pat_pmt_at_frames+latm -pcr_period 20 -mpegts_copyts 1 -ignore_unknown -fflags +genpts+igndts -avoid_negative_ts make_zero"
+    #base_options = "-buffer_size 5000k -mpegts_flags +resend_headers+pat_pmt_at_frames+latm -pcr_period 20 -mpegts_copyts 1 -ignore_unknown -fflags +genpts+igndts -avoid_negative_ts make_zero"
+    base_options = "-buffer_size 5000k -mpegts_flags +resend_headers+pat_pmt_at_frames+latm -pcr_period 20"
     map_cmds = []
     program_cmds = []
     stream_idx = 0
@@ -136,9 +137,13 @@ def construct_ffmpeg_command(udp_link: str, programs: dict, adapter_num: int, mo
 #added:
 # -start_at_zero
 # -thread_queue_size 16384 
-    final_cmd = (f"ffmpeg -start_at_zero -thread_queue_size 16384 -i \"{udp_link}{udp_params}\" {base_options} "
+    # final_cmd = (f"ffmpeg -start_at_zero -thread_queue_size 16384 -i \"{udp_link}{udp_params}\" {base_options} "
+    #              f"{' '.join(map_cmds)} {' '.join(program_cmds)} -c copy "
+    #              f"-muxrate 31668449 -max_interleave_delta 0 -copyts -f mpegts -y /dev/dvb/adapter{adapter_num}/mod{modulator_num}")
+    
+    final_cmd = (f"ffmpeg  -copyts -start_at_zero -fflags +discardcorrupt+igndts+genpts -buffer_size 10000k -ignore_unknown -err_detect ignore_err -avoid_negative_ts make_zero -re -thread_queue_size 16384 -i \"{udp_link}{udp_params}\" {base_options} "
                  f"{' '.join(map_cmds)} {' '.join(program_cmds)} -c copy "
-                 f"-muxrate 31668449 -max_interleave_delta 0 -copyts -f mpegts -y /dev/dvb/adapter{adapter_num}/mod{modulator_num}")
+                 f" -c:v copy -c:a copy -c:s copy -muxrate 31668449 -max_interleave_delta 0 -mpegts_copyts 1 -fps_mode 0 -enc_time_base -1 -start_at_zero -copytb -1 -f mpegts -y /dev/dvb/adapter{adapter_num}/mod{modulator_num}")
 
     logger.info(f"Constructed ffmpeg command: \n{final_cmd}\n")
     return final_cmd
