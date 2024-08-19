@@ -29,8 +29,10 @@ function toggleUrlInputs() {
 
     if (urlType === "spts") {
         urlContainer.innerHTML = `
-            <label for="udp-url-1">UDP URL 1:</label>
-            <input type="text" id="udp-url-1" name="udp-url" required><br>
+            <div id="url-input-1">
+                <label for="udp-url-1">UDP URL 1:</label>
+                <input type="text" id="udp-url-1" name="udp-url" required><br>
+            </div>
             <button type="button" onclick="addUrlInput()">+</button>
         `;
     } else {
@@ -46,11 +48,18 @@ function addUrlInput() {
     const inputCount = urlContainer.querySelectorAll('input[type="text"]').length;
 
     const newInput = document.createElement("div");
+    newInput.setAttribute("id", `url-input-${inputCount + 1}`);
     newInput.innerHTML = `
         <label for="udp-url-${inputCount + 1}">UDP URL ${inputCount + 1}:</label>
-        <input type="text" id="udp-url-${inputCount + 1}" name="udp-url" required><br>
+        <input type="text" id="udp-url-${inputCount + 1}" name="udp-url" required>
+        <button type="button" onclick="removeUrlInput(${inputCount + 1})">-</button><br>
     `;
     urlContainer.insertBefore(newInput, urlContainer.lastElementChild);
+}
+
+function removeUrlInput(index) {
+    const urlInput = document.getElementById(`url-input-${index}`);
+    urlInput.remove();
 }
 
 function handleFormSubmit(event) {
@@ -65,13 +74,68 @@ function handleFormSubmit(event) {
 }
 
 function createSingleUrlAdapter(event) {
-    // Implement your logic for handling a single MPTS URL adapter
+    //logic for handling a single MPTS URL adapter
+    event.preventDefault();
+    const adapterNumber = document.getElementById('adapter-number').value;
+    const modulatorNumber = document.getElementById('modulator-number').value;
+    const udpUrl = document.getElementById('udp-url').value;
+
+    fetch('/adapters/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                adapter_number: parseInt(adapterNumber),
+                modulator_number: parseInt(modulatorNumber),
+                udp_url: udpUrl
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            hideNewAdapterForm();
+            loadAdapters(); // Reload the adapters list
+        })
+        .catch(error => console.error('Error:', error));
 }
 
 function createMultiUrlAdapter(event) {
-    // Implement your logic for handling multiple SPTS URLs adapter
-}
+    event.preventDefault();
+    const adapterNumber = document.getElementById('adapter-number').value;
+    const modulatorNumber = document.getElementById('modulator-number').value;
 
+    // Collect all UDP URLs
+    const urlInputs = document.querySelectorAll('input[name="udp-url"]');
+    const udpUrlList = Array.from(urlInputs).map(input => input.value.trim());
+
+    // Check for duplicate URLs
+    const duplicates = udpUrlList.filter((item, index) => udpUrlList.indexOf(item) !== index);
+
+    if (duplicates.length > 0) {
+        alert('Duplicate URLs found. Please ensure each URL is unique.');
+        return;
+    }
+
+    fetch('/adapters/multi', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                adapter_number: parseInt(adapterNumber),
+                modulator_number: parseInt(modulatorNumber),
+                udp_url_list: udpUrlList
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            hideNewAdapterForm();
+            loadAdapters(); // Reload the adapters list
+        })
+        .catch(error => console.error('Error:', error));
+}
 
 
 function createAdapter(event) {
