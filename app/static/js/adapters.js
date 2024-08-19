@@ -22,6 +22,58 @@ function hideNewAdapterForm() {
     document.getElementById('modal-overlay').style.display = 'none';
 }
 
+
+function toggleUrlInputs() {
+    const urlType = document.getElementById("url-type").value;
+    const urlContainer = document.getElementById("url-input-container");
+
+    if (urlType === "spts") {
+        urlContainer.innerHTML = `
+            <label for="udp-url-1">UDP URL 1:</label>
+            <input type="text" id="udp-url-1" name="udp-url" required><br>
+            <button type="button" onclick="addUrlInput()">+</button>
+        `;
+    } else {
+        urlContainer.innerHTML = `
+            <label for="udp-url">UDP URL:</label>
+            <input type="text" id="udp-url" name="udp-url" required><br>
+        `;
+    }
+}
+
+function addUrlInput() {
+    const urlContainer = document.getElementById("url-input-container");
+    const inputCount = urlContainer.querySelectorAll('input[type="text"]').length;
+
+    const newInput = document.createElement("div");
+    newInput.innerHTML = `
+        <label for="udp-url-${inputCount + 1}">UDP URL ${inputCount + 1}:</label>
+        <input type="text" id="udp-url-${inputCount + 1}" name="udp-url" required><br>
+    `;
+    urlContainer.insertBefore(newInput, urlContainer.lastElementChild);
+}
+
+function handleFormSubmit(event) {
+    event.preventDefault();
+    const urlType = document.getElementById("url-type").value;
+
+    if (urlType === "mpts") {
+        createSingleUrlAdapter(event);
+    } else if (urlType === "spts") {
+        createMultiUrlAdapter(event);
+    }
+}
+
+function createSingleUrlAdapter(event) {
+    // Implement your logic for handling a single MPTS URL adapter
+}
+
+function createMultiUrlAdapter(event) {
+    // Implement your logic for handling multiple SPTS URLs adapter
+}
+
+
+
 function createAdapter(event) {
     event.preventDefault();
     const adapterNumber = document.getElementById('adapter-number').value;

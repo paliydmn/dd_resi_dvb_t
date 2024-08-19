@@ -13,21 +13,30 @@
     <div id="modal-overlay" style="display: none;"></div>
 
     <!-- New Adapter Modal -->
-    <div id="new-adapter-modal">
-        <form id="adapter-form" onsubmit="createAdapter(event)">
-            <label for="adapter-number">Adapter Number:</label>
-            <select id="adapter-number" name="adapter-number" required></select><br>
-    
-            <label for="modulator-number">Modulator Number:</label>
-            <select id="modulator-number" name="modulator-number" required></select><br>
-    
+<div id="new-adapter-modal">
+    <form id="adapter-form" onsubmit="handleFormSubmit(event)">
+        <label for="adapter-number">Adapter Number:</label>
+        <select id="adapter-number" name="adapter-number" required></select><br>
+
+        <label for="modulator-number">Modulator Number:</label>
+        <select id="modulator-number" name="modulator-number" required></select><br>
+
+        <label for="url-type">URL Type:</label>
+        <select id="url-type" name="url-type" required onchange="toggleUrlInputs()">
+            <option value="mpts">MPTS URL</option>
+            <option value="spts">SPTS URLs</option>
+        </select><br>
+
+        <div id="url-input-container">
             <label for="udp-url">UDP URL:</label>
             <input type="text" id="udp-url" name="udp-url" required><br>
-    
-            <button type="submit">Save</button>
-            <button type="button" onclick="hideNewAdapterForm()">Cancel</button>
-        </form>
-    </div>
+        </div>
+
+        <button type="submit">Save</button>
+        <button type="button" onclick="hideNewAdapterForm()">Cancel</button>
+    </form>
+</div>
+
     
 
 
