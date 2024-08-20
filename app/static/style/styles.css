@@ -127,6 +127,24 @@ nav ul li a:hover {
     color: #333;
 }
 
+/* Button styling for adding new SPTS URL */
+#add-new-spts-url button[type="button"] {
+    display: block;
+    margin: 20px auto;
+    padding: 5px 30px;
+    border: none;
+    border-radius: 5px;
+    background-color: #3498db;
+    color: white;
+    font-size: 25px;
+    cursor: pointer;
+    text-align: center;
+    font-weight: bold;
+}
+
+#add-new-spts-url button[type="button"]:hover {
+    background-color: #2980b9;  /* Darker blue on hover */
+}
 /* Styles for the input wrapper to keep the input and button aligned */
 .url-input-wrapper {
     display: flex;
@@ -144,6 +162,24 @@ nav ul li a:hover {
     flex-grow: 1;
 }
 
+/* Button styling for adding new SPTS URL */
+#add-new-spts-url button[type="button"] {
+    display: block;
+    margin: 20px auto;
+    padding: 5px 30px;
+    border: none;
+    border-radius: 5px;
+    background-color: #3498db;
+    color: white;
+    font-size: 25px;
+    cursor: pointer;
+    text-align: center;
+    font-weight: bold;
+}
+
+#add-new-spts-url button[type="button"]:hover {
+    background-color: #2980b9;  /* Darker blue on hover */
+}
 /* Styles the remove button */
 .remove-url-button {
     margin-left: 10px;
@@ -206,7 +242,16 @@ nav ul li a:hover {
     background-color: #c82333;
     /* Darker red on hover */
 }
-
+/* #add-new-spts-url button[type="button"]{
+    margin-top: 20px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #3498db;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+} */
 /* Form styling */
 #adapter-form {
     display: flex;

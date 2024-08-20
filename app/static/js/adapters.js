@@ -33,7 +33,9 @@ function toggleUrlInputs() {
                 <label for="udp-url-1">UDP URL 1:</label>
                 <input type="text" id="udp-url-1" name="udp-url" required><br>
             </div>
-            <button type="button" onclick="addUrlInput()">+</button>
+            <div id="add-new-spts-url">
+                <button type="button" onclick="addUrlInput()">+</button>
+            </div>
         `;
     } else {
         urlContainer.innerHTML = `
