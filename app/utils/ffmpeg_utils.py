@@ -2,7 +2,7 @@
 import subprocess
 import json
 import logging
-from typing import Union, Dict, Any
+from typing import Union, Dict, Any, List
 
 # Configure logging
 #TODO: need to re-write logging here
@@ -24,7 +24,7 @@ if not logger.hasHandlers():
     logger.addHandler(log_handler)
     logger.propagate = False  # Prevent propagation to the root logger
 
-def get_ffprobe_data(adapter_type: str, udp_link: str) -> Union[Dict[str, Any], str]:
+def get_ffprobe_data(adapter_type: str, udp_link: List) -> Union[Dict[str, Any], str]:
     if adapter_type == 'MPTS':
         return get_mpts_ffprobe(udp_link[0])
     elif adapter_type == 'SPTS':
@@ -32,7 +32,7 @@ def get_ffprobe_data(adapter_type: str, udp_link: str) -> Union[Dict[str, Any], 
     return "Error: Wrong adapter type"
 
 
-def get_spts_ffprobe(udp_link: str) -> Union[Dict[str, Any], str]:
+def get_spts_ffprobe(udp_link: List) -> Union[Dict[str, Any], str]:
     return "Not Implemented!"
 
 
@@ -116,8 +116,16 @@ def construct_programs_dict(ffprobe_data: dict) -> dict:
     logger.info(f"Constructed programs dictionary with {len(programs)} programs.")
     return programs
 
+def construct_ffmpeg_command(type: str, udp_link: list, programs: dict, adapter_num: int, modulator_num: int) -> str:
+    if type == "MPTS":
+        return construct_mpts_ffmpeg_command(udp_link, programs, adapter_num, modulator_num)
+    elif type == "SPTS":
+        return construct_spts_ffmpeg_command(udp_link, programs, adapter_num, modulator_num)
 
-def construct_ffmpeg_command(udp_link: str, programs: dict, adapter_num: int, modulator_num: int) -> str:
+def construct_spts_ffmpeg_command(udp_link: list, programs: dict, adapter_num: int, modulator_num: int) -> str:
+    return "Not Implemented!"
+
+def construct_mpts_ffmpeg_command(udp_link: list, programs: dict, adapter_num: int, modulator_num: int) -> str:
     """
     Construct the ffmpeg command based on the selected programs and streams.
     """
@@ -152,7 +160,7 @@ def construct_ffmpeg_command(udp_link: str, programs: dict, adapter_num: int, mo
     #              f"{' '.join(map_cmds)} {' '.join(program_cmds)} -c copy "
     #              f"-muxrate 31668449 -max_interleave_delta 0 -copyts -f mpegts -y /dev/dvb/adapter{adapter_num}/mod{modulator_num}")
     
-    final_cmd = (f"ffmpeg  -copyts -start_at_zero -fflags +discardcorrupt+igndts+genpts -buffer_size 10000k -ignore_unknown -err_detect ignore_err -avoid_negative_ts make_zero -re -thread_queue_size 16384 -i \"{udp_link}{udp_params}\" {base_options} "
+    final_cmd = (f"ffmpeg  -copyts -start_at_zero -fflags +discardcorrupt+igndts+genpts -buffer_size 10000k -ignore_unknown -err_detect ignore_err -avoid_negative_ts make_zero -re -thread_queue_size 16384 -i \"{udp_link[0]}{udp_params}\" {base_options} "
                  f"{' '.join(map_cmds)} {' '.join(program_cmds)} "
                  f" -c:v copy -c:a copy -c:s copy -muxrate 31668449 -max_interleave_delta 0 -mpegts_copyts 1 -fps_mode 0 -enc_time_base -1 -start_at_zero -copytb -1 -f mpegts -y /dev/dvb/adapter{adapter_num}/mod{modulator_num}")
 

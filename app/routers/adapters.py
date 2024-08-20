@@ -144,8 +144,7 @@ def scan_adapter(adapter_id: int):
 
     programs = construct_programs_dict(ffprobe_data)
     adapters[adapter_id].programs = programs
-    logger.info(f"Scanned adapter {adapter_id}: {
-                len(programs)} programs found.")
+    logger.info(f"Scanned adapter {adapter_id}: {len(programs)} programs found.")
     save_adapters_to_file()
     return {"programs": programs}
 
@@ -168,10 +167,9 @@ def start_ffmpeg(adapter_id: int):
     }
 
     # #ToDo: add logger for each ffmpeg adapter start
-    ffmpeg_cmd = construct_ffmpeg_command(
-        adapter.udp_url, selected_programs, adapter.adapter_number, adapter.modulator_number)
-    logger.info(f"Starting FFmpeg for adapter {
-                adapter_id} with command: {ffmpeg_cmd}")
+    ffmpeg_cmd = construct_ffmpeg_command( adapter.type,
+        adapter.udp_urls, selected_programs, adapter.adapter_number, adapter.modulator_number)
+    logger.info(f"Starting FFmpeg for adapter {adapter_id} with command: {ffmpeg_cmd}")
 
     ff_logger = get_ffmpeg_logger(adapter_id)
     # with open(adapter_log_file, 'w') as log_file:
