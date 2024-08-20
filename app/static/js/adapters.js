@@ -29,18 +29,18 @@ function toggleUrlInputs() {
 
     if (urlType === "spts") {
         urlContainer.innerHTML = `
-            <div id="url-input-1">
+            <div id="url-input-1" class="url-input-wrapper">
                 <label for="udp-url-1">UDP URL 1:</label>
-                <input type="text" id="udp-url-1" name="udp-url" required><br>
+                <input type="text" id="udp-url-1" name="udp-url" class="udp-url-input" required><br>
             </div>
             <div id="add-new-spts-url">
-                <button type="button" onclick="addUrlInput()">+</button>
+                <button type="button" onclick="addUrlInput()">Add SPTS URL</button>
             </div>
         `;
     } else {
         urlContainer.innerHTML = `
             <label for="udp-url">UDP URL:</label>
-            <input type="text" id="udp-url" name="udp-url" required><br>
+            <input type="text" id="udp-url" name="udp-url" class="udp-url-input" required><br>
         `;
     }
 }
@@ -55,10 +55,10 @@ function addUrlInput() {
     newInput.classList.add("url-input-wrapper");
     newInput.innerHTML = `
         <label for="udp-url-${inputCount + 1}">UDP URL ${inputCount + 1}:</label>
-        <input type="text" id="udp-url-${inputCount + 1}" name="udp-url" required>
+        <input type="text" id="udp-url-${inputCount + 1}" name="udp-url" class="udp-url-input" required>
         <button type="button" onclick="removeUrlInput(${inputCount + 1})" class="remove-url-button">-</button><br>
     `;
-    urlContainer.insertBefore(newInput, urlContainer.lastElementChild);
+    urlContainer.insertBefore(newInput, document.getElementById("add-new-spts-url"));
 }
 
 
@@ -148,69 +148,6 @@ function createMultiUrlAdapter(event) {
         .catch(error => console.error('Error:', error));
 }
 
-// function createMultiUrlAdapter(event) {
-//     event.preventDefault();
-//     const adapterNumber = document.getElementById('adapter-number').value;
-//     const modulatorNumber = document.getElementById('modulator-number').value;
-
-//     // Collect all UDP URLs
-//     const urlInputs = document.querySelectorAll('input[name="udp-url"]');
-//     const udpUrlList = Array.from(urlInputs).map(input => input.value.trim());
-
-//     // Check for duplicate URLs
-//     const duplicates = udpUrlList.filter((item, index) => udpUrlList.indexOf(item) !== index);
-
-//     if (duplicates.length > 0) {
-//         alert('Duplicate URLs found. Please ensure each URL is unique.');
-//         return;
-//     }
-
-//     fetch('/adapters/multi', {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json'
-//             },
-//             body: JSON.stringify({
-//                 adapter_number: parseInt(adapterNumber),
-//                 modulator_number: parseInt(modulatorNumber),
-//                 udp_url_list: udpUrlList
-//             })
-//         })
-//         .then(response => response.json())
-//         .then(data => {
-//             alert(data.message);
-//             hideNewAdapterForm();
-//             loadAdapters(); // Reload the adapters list
-//         })
-//         .catch(error => console.error('Error:', error));
-// }
-
-
-function createAdapter(event) {
-    event.preventDefault();
-    const adapterNumber = document.getElementById('adapter-number').value;
-    const modulatorNumber = document.getElementById('modulator-number').value;
-    const udpUrl = document.getElementById('udp-url').value;
-
-    fetch('/adapters/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                adapter_number: parseInt(adapterNumber),
-                modulator_number: parseInt(modulatorNumber),
-                udp_url: udpUrl
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            hideNewAdapterForm();
-            loadAdapters(); // Reload the adapters list
-        })
-        .catch(error => console.error('Error:', error));
-}
 
 function scanAdapter(adapterId) {
     const scanSection = document.getElementById(`scan-section-${adapterId}`);
@@ -506,57 +443,6 @@ function toggleProgramDetails(programTitle) {
         detailsDiv.style.display = "none";
     }
 }
-
-
-
-// function loadAdapters() {
-//     fetch('/get_adapters/')
-//         .then(response => response.json())
-//         .then(data => {
-//             const adapterContainer = document.getElementById('existing-adapters');
-//             adapterContainer.innerHTML = ''; // Clear the container
-
-//             Object.entries(data).forEach(([adapterId, adapter]) => {
-//                 const adapterDiv = document.createElement('div');
-//                 adapterDiv.id = `adapter-${adapterId}`;
-
-//                 // Display selected channels
-//                 const selectedPrograms = adapter.programs ?
-//                     Object.values(adapter.programs)
-//                     .filter(program => program.selected)
-//                     .map(program => program.title) : [];
-
-//                 const status = adapter.running ? '<span style="color: green;">Running</span>' : '<span style="color: red;">Stopped</span>';
-
-//                 adapterDiv.innerHTML = `
-//                 <h3>Adapter ${adapterId}: (Adapter${adapter.adapter_number}/mod${adapter.modulator_number})  ${status}</h3>
-//                 <div id="udp-url">UDP link: ${adapter.udp_url}</div>
-//                 <div id="udp-url">Frequency: ${adapter.description}</div>
-//                 <div class="selected-channels">
-//                     <p>Selected channels:</p>
-//                     <ul id="selected-channels-list">
-//                         ${selectedPrograms.length ? selectedPrograms.map(program => `<li>${program}</li>`).join('') : '<li>None</li>'}
-//                     </ul>
-//                 </div>
-//                 <div id="scan-section-${adapterId}">
-//                     <!-- Scan results will be loaded here -->
-//                 </div>
-//                 <button onclick="scanAdapter(${adapterId})" id="scan-button-${adapterId}" ${adapter.running ? 'disabled' : ''}>Scan</button>
-//                 <form method="post" action="/adapters/${adapterId}/start" id="start-form-${adapterId}" style="display:inline;">
-//                     <button type="button" onclick="startFFmpeg(${adapterId})" ${adapter.running ? 'disabled' : ''}>Start</button>
-//                 </form>
-//                 <form method="post" action="/adapters/${adapterId}/stop" id="stop-form-${adapterId}" style="display:inline;">
-//                     <button type="button" onclick="stopFFmpeg(${adapterId})" ${adapter.running ? '' : 'disabled'}>Stop</button>
-//                 </form>
-//                 <form method="post" action="/adapters/${adapterId}/delete" id="delete-form-${adapterId}" style="display:inline;">
-//                     <button type="button" onclick="deleteAdapter(${adapterId})">Delete</button>
-//                 </form>
-//             `;
-//                 adapterContainer.appendChild(adapterDiv);
-//             });
-//         })
-//         .catch(error => console.error('Error:', error));
-// }
 
 
 function fetchAvailableAdapters() {

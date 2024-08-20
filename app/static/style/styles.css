@@ -131,15 +131,16 @@ nav ul li a:hover {
 #add-new-spts-url button[type="button"] {
     display: block;
     margin: 20px auto;
-    padding: 5px 30px;
-    border: none;
-    border-radius: 5px;
-    background-color: #3498db;
-    color: white;
-    font-size: 25px;
     cursor: pointer;
     text-align: center;
-    font-weight: bold;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
 }
 
 #add-new-spts-url button[type="button"]:hover {
@@ -160,21 +161,6 @@ nav ul li a:hover {
 /* Styles the input field */
 .url-input-wrapper input[type="text"] {
     flex-grow: 1;
-}
-
-/* Button styling for adding new SPTS URL */
-#add-new-spts-url button[type="button"] {
-    display: block;
-    margin: 20px auto;
-    padding: 5px 30px;
-    border: none;
-    border-radius: 5px;
-    background-color: #3498db;
-    color: white;
-    font-size: 25px;
-    cursor: pointer;
-    text-align: center;
-    font-weight: bold;
 }
 
 #add-new-spts-url button[type="button"]:hover {
@@ -242,16 +228,7 @@ nav ul li a:hover {
     background-color: #c82333;
     /* Darker red on hover */
 }
-/* #add-new-spts-url button[type="button"]{
-    margin-top: 20px;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    background-color: #3498db;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-} */
+
 /* Form styling */
 #adapter-form {
     display: flex;
