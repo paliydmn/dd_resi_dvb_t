@@ -43,19 +43,35 @@ function toggleUrlInputs() {
     }
 }
 
+// function addUrlInput() {
+//     const urlContainer = document.getElementById("url-input-container");
+//     const inputCount = urlContainer.querySelectorAll('input[type="text"]').length;
+
+//     const newInput = document.createElement("div");
+//     newInput.setAttribute("id", `url-input-${inputCount + 1}`);
+//     newInput.innerHTML = `
+//         <label for="udp-url-${inputCount + 1}">UDP URL ${inputCount + 1}:</label>
+//         <input type="text" class="url-input-wrapper" id="udp-url-${inputCount + 1}" name="udp-url" required>
+//         <button type="button" class="remove-url-button" onclick="removeUrlInput(${inputCount + 1})">-</button><br>
+//     `;
+//     urlContainer.insertBefore(newInput, urlContainer.lastElementChild);
+// }
+
 function addUrlInput() {
     const urlContainer = document.getElementById("url-input-container");
     const inputCount = urlContainer.querySelectorAll('input[type="text"]').length;
 
     const newInput = document.createElement("div");
     newInput.setAttribute("id", `url-input-${inputCount + 1}`);
+    newInput.classList.add("url-input-wrapper");
     newInput.innerHTML = `
         <label for="udp-url-${inputCount + 1}">UDP URL ${inputCount + 1}:</label>
         <input type="text" id="udp-url-${inputCount + 1}" name="udp-url" required>
-        <button type="button" onclick="removeUrlInput(${inputCount + 1})">-</button><br>
+        <button type="button" onclick="removeUrlInput(${inputCount + 1})" class="remove-url-button">-</button><br>
     `;
     urlContainer.insertBefore(newInput, urlContainer.lastElementChild);
 }
+
 
 function removeUrlInput(index) {
     const urlInput = document.getElementById(`url-input-${index}`);

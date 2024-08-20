@@ -127,6 +127,40 @@ nav ul li a:hover {
     color: #333;
 }
 
+/* Styles for the input wrapper to keep the input and button aligned */
+.url-input-wrapper {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+/* Ensures the label is aligned with the input */
+.url-input-wrapper label {
+    margin-right: 10px;
+}
+
+/* Styles the input field */
+.url-input-wrapper input[type="text"] {
+    flex-grow: 1;
+}
+
+/* Styles the remove button */
+.remove-url-button {
+    margin-left: 10px;
+    padding: 5px 10px;
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+/* Optional: Adds a hover effect to the remove button */
+.remove-url-button:hover {
+    background-color: #c0392b;
+}
+
+
 /* Add focus styles for accessibility */
 #new-adapter-modal input:focus,
 #new-adapter-modal select:focus {
