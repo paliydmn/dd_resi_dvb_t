@@ -405,9 +405,19 @@ function loadAdapters() {
                         </li>
                     `).join('') : '<li>None</li>';
 
+                // Adapter type and UDP URLs (with Expand/Collapse for SPTS)
+                const udpUrlsHtml = adapter.type === 'spts' ? `
+                    <div>
+                        <a href="javascript:void(0);" onclick="toggleUrlList('${adapterId}-urls')">UDP URLs</a>
+                        <ul id="${adapterId}-urls" style="display:none;">
+                            ${adapter.udp_url.map(url => `<li>${url}</li>`).join('')}
+                        </ul>
+                    </div>` : `<div id="udp-url">UDP link: ${adapter.udp_url}</div>`;
+
                 adapterDiv.innerHTML = `
-                <h3>Adapter ${adapterId}: (Adapter${adapter.adapter_number}/mod${adapter.modulator_number})  ${status}</h3>
-                <div id="udp-url">UDP link: ${adapter.udp_url}</div>
+                <h3>Adapter ${adapterId}: (Adapter${adapter.adapter_number}/mod${adapter.modulator_number}) ${status}</h3>
+                <div><strong>Type:</strong> ${adapter.type.toUpperCase()}</div>
+                ${udpUrlsHtml}
                 <div id="udp-url">Frequency: ${adapter.description}</div>
                 <div class="selected-channels">
                     <p>Selected channels:</p>
@@ -443,6 +453,16 @@ function toggleProgramDetails(programTitle) {
         detailsDiv.style.display = "none";
     }
 }
+
+function toggleUrlList(urlListId) {
+    const urlList = document.getElementById(urlListId);
+    if (urlList.style.display === "none") {
+        urlList.style.display = "block";
+    } else {
+        urlList.style.display = "none";
+    }
+}
+
 
 
 function fetchAvailableAdapters() {
