@@ -3,6 +3,7 @@
         "adapter_number": 0,
         "modulator_number": 0,
         "type": "MPTS",
+        "adapter_name": "My MPTS adapter test",
         "udp_urls": [
             "udp://192.168.0.20:1234"
         ],
@@ -102,17 +103,20 @@
             }
         },
         "running": false,
-        "description": "114.0 MHz."
+        "description": "474.0 MHz."
     },
     "3": {
         "adapter_number": 0,
-        "modulator_number": 1,
-        "type": "MPTS",
+        "modulator_number": 5,
+        "type": "SPTS",
+        "adapter_name": "My SPTS test adapter",
         "udp_urls": [
-            "udp://192.168.0.20:1236"
+            "udp://192.168.0.20:12340",
+            "udp://192.168.0.20:12350",
+            "udp://192.168.0.20:12360"
         ],
         "programs": {},
         "running": false,
-        "description": "114.0 MHz."
+        "description": "154.0 MHz."
     }
 }

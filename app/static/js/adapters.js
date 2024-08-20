@@ -84,6 +84,7 @@ function createSingleUrlAdapter(event) {
     event.preventDefault();
     const adapterNumber = document.getElementById('adapter-number').value;
     const modulatorNumber = document.getElementById('modulator-number').value;
+    const adapterName = document.getElementById('adapter-name').value; 
     const udpUrl = document.getElementById('udp-url').value;
 
     fetch('/adapters/createMA', {
@@ -95,6 +96,7 @@ function createSingleUrlAdapter(event) {
                 adapter_number: parseInt(adapterNumber),
                 modulator_number: parseInt(modulatorNumber),
                 type: 'MPTS',  // Specify the type as MPTS
+                adapter_name: adapterName,
                 udp_urls: [udpUrl]  // Send a single URL as an array
             })
         })
@@ -111,6 +113,7 @@ function createMultiUrlAdapter(event) {
     event.preventDefault();
     const adapterNumber = document.getElementById('adapter-number').value;
     const modulatorNumber = document.getElementById('modulator-number').value;
+    const adapterName = document.getElementById('adapter-name').value; 
     const urlInputs = document.querySelectorAll('.udp-url-input');
     const udpUrls = [];
 
@@ -136,6 +139,7 @@ function createMultiUrlAdapter(event) {
                 adapter_number: parseInt(adapterNumber),
                 modulator_number: parseInt(modulatorNumber),
                 type: 'SPTS',  // Specify the type as SPTS
+                adapter_name: adapterName,
                 udp_urls: udpUrls  // Send the list of URLs
             })
         })
@@ -406,16 +410,16 @@ function loadAdapters() {
                     `).join('') : '<li>None</li>';
 
                 // Adapter type and UDP URLs (with Expand/Collapse for SPTS)
-                const udpUrlsHtml = adapter.type === 'spts' ? `
+                const udpUrlsHtml = adapter.type === 'SPTS' ? `
                     <div>
-                        <a href="javascript:void(0);" onclick="toggleUrlList('${adapterId}-urls')">UDP URLs</a>
+                        <a href="javascript:void(0);" onclick="toggleUrlList('${adapterId}-urls')">UDP URLs:  &#11206;</a>
                         <ul id="${adapterId}-urls" style="display:none;">
-                            ${adapter.udp_url.map(url => `<li>${url}</li>`).join('')}
+                            ${adapter.udp_urls.map(url => `<li>${url}</li>`).join('')}
                         </ul>
-                    </div>` : `<div id="udp-url">UDP link: ${adapter.udp_url}</div>`;
+                    </div>` : `<div id="udp-url">UDP link: ${adapter.udp_urls}</div>`;
 
                 adapterDiv.innerHTML = `
-                <h3>Adapter ${adapterId}: (Adapter${adapter.adapter_number}/mod${adapter.modulator_number}) ${status}</h3>
+                <h3>${adapter.adapter_name}: (Adapter${adapter.adapter_number}/mod${adapter.modulator_number}) ${status}</h3>
                 <div><strong>Type:</strong> ${adapter.type.toUpperCase()}</div>
                 ${udpUrlsHtml}
                 <div id="udp-url">Frequency: ${adapter.description}</div>

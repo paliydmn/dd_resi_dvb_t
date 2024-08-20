@@ -100,7 +100,7 @@ def create_MPTS_adapter(adapterConf: AdapterConfig):
     adapters[adapter_id] = adapterConf
     save_adapters_to_file()
     logger.info(f"MPTS Adapter created: {adapterConf}")
-    return {"id": adapter_id, "message": "MPTS Adapter created successfully"}
+    return {"id": adapter_id, "message": f"Adapter '{adapterConf.adapter_name}' created successfully"}
 
 @router.post("/adapters/createSA")
 def create_SPTS_adapter(adapterConf: AdapterConfig):
@@ -116,7 +116,7 @@ def create_SPTS_adapter(adapterConf: AdapterConfig):
     adapters[adapter_id] = adapterConf
     save_adapters_to_file()
     logger.info(f"SPTS Adapter created: {adapterConf}")
-    return {"id": adapter_id, "message": "SPTS Adapter created successfully"}
+    return {"id": adapter_id, "message": f"Adapter '{adapterConf.adapter_name}' created successfully"}
 
 
 @router.get("/adapters/{adapter_id}/scan")

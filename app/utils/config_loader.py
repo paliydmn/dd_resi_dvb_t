@@ -40,6 +40,7 @@ def load_adapters_from_file():
                         adapter_number=adapter_data["adapter_number"],
                         modulator_number=adapter_data["modulator_number"],
                         type=adapter_data["type"],  # New field for adapter type
+                        adapter_name = adapter_data["adapter_name"],
                         udp_urls=adapter_data["udp_urls"],  # Updated to use the list of URLs
                         programs=programs,
                         running=adapter_data.get("running", False),

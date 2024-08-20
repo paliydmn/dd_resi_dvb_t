@@ -19,6 +19,7 @@ class AdapterConfig(BaseModel):
     adapter_number: int = Field(..., ge=0, description="Adapter number, must be non-negative")
     modulator_number: int = Field(..., ge=0, description="Modulator number, must be non-negative")
     type: Literal['MPTS', 'SPTS'] = Field(..., description="Type of the adapter, MPTS or SPTS")
+    adapter_name: str = Field(..., description="Name of the adapter")  # New field
     udp_urls: List[str] = Field(..., description="List of UDP URLs for input streams")  # Changed to list
     programs: Dict[int, Program] = Field(default_factory=dict, description="Selected programs and streams")
     running: bool = False  # Track if FFmpeg is currently running for this adapter
