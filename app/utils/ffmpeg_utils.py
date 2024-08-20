@@ -24,8 +24,19 @@ if not logger.hasHandlers():
     logger.addHandler(log_handler)
     logger.propagate = False  # Prevent propagation to the root logger
 
+def get_ffprobe_data(adapter_type: str, udp_link: str) -> Union[Dict[str, Any], str]:
+    if adapter_type == 'MPTS':
+        return get_mpts_ffprobe(udp_link[0])
+    elif adapter_type == 'SPTS':
+        return get_spts_ffprobe(udp_link)
+    return "Error: Wrong adapter type"
 
-def get_ffprobe_data(udp_link: str) -> Union[Dict[str, Any], str]:
+
+def get_spts_ffprobe(udp_link: str) -> Union[Dict[str, Any], str]:
+    return "Not Implemented!"
+
+
+def get_mpts_ffprobe(udp_link: str) -> Union[Dict[str, Any], str]:
     """
     Get stream and program information from a UDP link using ffprobe.
     """
