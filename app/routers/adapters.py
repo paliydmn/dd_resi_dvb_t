@@ -86,13 +86,37 @@ def get_available_adapters():
         return {"adapters": [], "modulators": []}
 
 
-@router.post("/adapters/")
-def create_adapter(adapterConf: AdapterConfig):
+@router.post("/adapters/createMA")
+def create_MPTS_adapter(adapterConf: AdapterConfig):
+    # Validate that the type is MPTS
+    if adapterConf.type != "MPTS":
+        raise HTTPException(status_code=400, detail="Invalid adapter type for this route. Expected MPTS.")
+    
+    # Validate that only one URL is provided for MPTS
+    if len(adapterConf.udp_urls) != 1:
+        raise HTTPException(status_code=400, detail="MPTS adapter should have exactly one UDP URL.")
+    
     adapter_id = len(adapters) + 1
     adapters[adapter_id] = adapterConf
     save_adapters_to_file()
-    logger.info(f"Adapter created: {adapterConf}")
-    return {"id": adapter_id, "message": "Adapter created successfully"}
+    logger.info(f"MPTS Adapter created: {adapterConf}")
+    return {"id": adapter_id, "message": "MPTS Adapter created successfully"}
+
+@router.post("/adapters/createSA")
+def create_SPTS_adapter(adapterConf: AdapterConfig):
+    # Validate that the type is SPTS
+    if adapterConf.type != "SPTS":
+        raise HTTPException(status_code=400, detail="Invalid adapter type for this route. Expected SPTS.")
+    
+    # Validate that at least one URL is provided for SPTS
+    if not adapterConf.udp_urls or len(adapterConf.udp_urls) == 0:
+        raise HTTPException(status_code=400, detail="SPTS adapter must have at least one UDP URL.")
+    
+    adapter_id = len(adapters) + 1
+    adapters[adapter_id] = adapterConf
+    save_adapters_to_file()
+    logger.info(f"SPTS Adapter created: {adapterConf}")
+    return {"id": adapter_id, "message": "SPTS Adapter created successfully"}
 
 
 @router.get("/adapters/{adapter_id}/scan")

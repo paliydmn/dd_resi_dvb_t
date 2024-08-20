@@ -2,7 +2,10 @@
     "1": {
         "adapter_number": 0,
         "modulator_number": 0,
-        "udp_url": "udp://192.168.0.20:1234",
+        "type": "MPTS",
+        "udp_urls": [
+            "udp://192.168.0.20:1234"
+        ],
         "programs": {
             "10352": {
                 "title": "MDR Sachsen HD",
@@ -104,7 +107,10 @@
     "3": {
         "adapter_number": 0,
         "modulator_number": 1,
-        "udp_url": "udp://192.168.0.20:1236",
+        "type": "MPTS",
+        "udp_urls": [
+            "udp://192.168.0.20:1236"
+        ],
         "programs": {},
         "running": false,
         "description": "114.0 MHz."

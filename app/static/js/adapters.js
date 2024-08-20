@@ -45,19 +45,6 @@ function toggleUrlInputs() {
     }
 }
 
-// function addUrlInput() {
-//     const urlContainer = document.getElementById("url-input-container");
-//     const inputCount = urlContainer.querySelectorAll('input[type="text"]').length;
-
-//     const newInput = document.createElement("div");
-//     newInput.setAttribute("id", `url-input-${inputCount + 1}`);
-//     newInput.innerHTML = `
-//         <label for="udp-url-${inputCount + 1}">UDP URL ${inputCount + 1}:</label>
-//         <input type="text" class="url-input-wrapper" id="udp-url-${inputCount + 1}" name="udp-url" required>
-//         <button type="button" class="remove-url-button" onclick="removeUrlInput(${inputCount + 1})">-</button><br>
-//     `;
-//     urlContainer.insertBefore(newInput, urlContainer.lastElementChild);
-// }
 
 function addUrlInput() {
     const urlContainer = document.getElementById("url-input-container");
@@ -91,6 +78,7 @@ function handleFormSubmit(event) {
     }
 }
 
+
 function createSingleUrlAdapter(event) {
     //logic for handling a single MPTS URL adapter
     event.preventDefault();
@@ -98,7 +86,7 @@ function createSingleUrlAdapter(event) {
     const modulatorNumber = document.getElementById('modulator-number').value;
     const udpUrl = document.getElementById('udp-url').value;
 
-    fetch('/adapters/', {
+    fetch('/adapters/createMA', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -106,7 +94,8 @@ function createSingleUrlAdapter(event) {
             body: JSON.stringify({
                 adapter_number: parseInt(adapterNumber),
                 modulator_number: parseInt(modulatorNumber),
-                udp_url: udpUrl
+                type: 'MPTS',  // Specify the type as MPTS
+                udp_urls: [udpUrl]  // Send a single URL as an array
             })
         })
         .then(response => response.json())
@@ -122,20 +111,23 @@ function createMultiUrlAdapter(event) {
     event.preventDefault();
     const adapterNumber = document.getElementById('adapter-number').value;
     const modulatorNumber = document.getElementById('modulator-number').value;
+    const urlInputs = document.querySelectorAll('.udp-url-input');
+    const udpUrls = [];
 
-    // Collect all UDP URLs
-    const urlInputs = document.querySelectorAll('input[name="udp-url"]');
-    const udpUrlList = Array.from(urlInputs).map(input => input.value.trim());
+    urlInputs.forEach(input => {
+        if (input.value.trim() !== "") {
+            udpUrls.push(input.value.trim());
+        }
+    });
 
     // Check for duplicate URLs
-    const duplicates = udpUrlList.filter((item, index) => udpUrlList.indexOf(item) !== index);
-
-    if (duplicates.length > 0) {
-        alert('Duplicate URLs found. Please ensure each URL is unique.');
+    const duplicateUrls = udpUrls.filter((url, index) => udpUrls.indexOf(url) !== index);
+    if (duplicateUrls.length > 0) {
+        alert('Duplicate URLs found: ' + duplicateUrls.join(', ') + '. Please ensure all URLs are unique.');
         return;
     }
 
-    fetch('/adapters/multi', {
+    fetch('/adapters/createSA', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -143,7 +135,8 @@ function createMultiUrlAdapter(event) {
             body: JSON.stringify({
                 adapter_number: parseInt(adapterNumber),
                 modulator_number: parseInt(modulatorNumber),
-                udp_url_list: udpUrlList
+                type: 'SPTS',  // Specify the type as SPTS
+                udp_urls: udpUrls  // Send the list of URLs
             })
         })
         .then(response => response.json())
@@ -154,6 +147,43 @@ function createMultiUrlAdapter(event) {
         })
         .catch(error => console.error('Error:', error));
 }
+
+// function createMultiUrlAdapter(event) {
+//     event.preventDefault();
+//     const adapterNumber = document.getElementById('adapter-number').value;
+//     const modulatorNumber = document.getElementById('modulator-number').value;
+
+//     // Collect all UDP URLs
+//     const urlInputs = document.querySelectorAll('input[name="udp-url"]');
+//     const udpUrlList = Array.from(urlInputs).map(input => input.value.trim());
+
+//     // Check for duplicate URLs
+//     const duplicates = udpUrlList.filter((item, index) => udpUrlList.indexOf(item) !== index);
+
+//     if (duplicates.length > 0) {
+//         alert('Duplicate URLs found. Please ensure each URL is unique.');
+//         return;
+//     }
+
+//     fetch('/adapters/multi', {
+//             method: 'POST',
+//             headers: {
+//                 'Content-Type': 'application/json'
+//             },
+//             body: JSON.stringify({
+//                 adapter_number: parseInt(adapterNumber),
+//                 modulator_number: parseInt(modulatorNumber),
+//                 udp_url_list: udpUrlList
+//             })
+//         })
+//         .then(response => response.json())
+//         .then(data => {
+//             alert(data.message);
+//             hideNewAdapterForm();
+//             loadAdapters(); // Reload the adapters list
+//         })
+//         .catch(error => console.error('Error:', error));
+// }
 
 
 function createAdapter(event) {
