@@ -136,7 +136,7 @@ def create_SPTS_adapter(adapterConf: AdapterConfig):
 
 
 @router.get("/adapters/{adapter_id}/scan")
-def scan_adapter(adapter_id: int):
+def scan_adapter(adapter_id: str):
     if adapter_id not in adapters:
         raise HTTPException(status_code=404, detail="Adapter not found")
     adapter = adapters[adapter_id]
@@ -156,7 +156,7 @@ def scan_adapter(adapter_id: int):
 
 
 @router.post("/adapters/{adapter_id}/start")
-def start_ffmpeg(adapter_id: int):
+def start_ffmpeg(adapter_id: str):
     if adapter_id in running_processes:
         logger.warning(
             f"FFmpeg process is already running for adapter {adapter_id}.")
@@ -213,7 +213,7 @@ def start_ffmpeg(adapter_id: int):
 
 
 @router.post("/adapters/{adapter_id}/stop")
-def stop_ffmpeg(adapter_id: int):
+def stop_ffmpeg(adapter_id: str):
     if adapter_id not in running_processes:
         logger.warning(f"FFmpeg process not found for adapter {adapter_id}.")
         raise HTTPException(status_code=404, detail="FFmpeg process not found")
@@ -234,10 +234,9 @@ def stop_ffmpeg(adapter_id: int):
 
 
 @router.delete("/adapters/{adapter_id}/")
-def delete_adapter(adapter_id: int):
+def delete_adapter(adapter_id: str):
     if adapter_id in running_processes:
-        logger.warning(f"Attempt to delete adapter {
-                       adapter_id} while FFmpeg is running.")
+        logger.warning(f"Attempt to delete adapter {adapter_id} while FFmpeg is running.")
         raise HTTPException(
             status_code=400, detail="Stop FFmpeg process before deleting the adapter")
     if adapter_id not in adapters:
@@ -251,7 +250,7 @@ def delete_adapter(adapter_id: int):
 
 
 @router.post("/adapters/{adapter_id}/save")
-def save_selection(adapter_id: int, selection: SaveSelection):
+def save_selection(adapter_id: str, selection: SaveSelection):
     if adapter_id not in adapters:
         logger.warning(f"Adapter {adapter_id} not found.")
         raise HTTPException(status_code=404, detail="Adapter not found")

@@ -211,8 +211,8 @@ function scanAdapter(adapterId) {
                         </li>
                     `).join('')}
                 </ul>
-                <button onclick="saveSelection(${adapterId})">Save Selected</button>
-                <button onclick="cancelSelection(${adapterId})">Cancel</button>
+                <button onclick="saveSelection('${adapterId}')">Save Selected</button>
+                <button onclick="cancelSelection('${adapterId}')">Cancel</button>
             `;
         })
         .catch(error => {
@@ -432,15 +432,15 @@ function loadAdapters() {
                 <div id="scan-section-${adapterId}">
                     <!-- Scan results will be loaded here -->
                 </div>
-                <button onclick="scanAdapter(${adapterId})" id="scan-button-${adapterId}" ${adapter.running ? 'disabled' : ''}>Scan</button>
+                <button onclick="scanAdapter('${adapterId}')" id="scan-button-${adapterId}" ${adapter.running ? 'disabled' : ''}>Scan</button>
                 <form method="post" action="/adapters/${adapterId}/start" id="start-form-${adapterId}" style="display:inline;">
-                    <button type="button" onclick="startFFmpeg(${adapterId})" ${adapter.running ? 'disabled' : ''}>Start</button>
+                    <button type="button" onclick="startFFmpeg('${adapterId}')" ${adapter.running ? 'disabled' : ''}>Start</button>
                 </form>
                 <form method="post" action="/adapters/${adapterId}/stop" id="stop-form-${adapterId}" style="display:inline;">
-                    <button type="button" onclick="stopFFmpeg(${adapterId})" ${adapter.running ? '' : 'disabled'}>Stop</button>
+                    <button type="button" onclick="stopFFmpeg('${adapterId}')" ${adapter.running ? '' : 'disabled'}>Stop</button>
                 </form>
                 <form method="post" action="/adapters/${adapterId}/delete" id="delete-form-${adapterId}" style="display:inline;">
-                    <button type="button" onclick="deleteAdapter(${adapterId})">Delete</button>
+                    <button type="button" onclick="deleteAdapter('${adapterId}')">Delete</button>
                 </form>
             `;
                 adapterContainer.appendChild(adapterDiv);
