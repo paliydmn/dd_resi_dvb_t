@@ -32,7 +32,7 @@ def load_adapters_from_file():
             with settings.adapter_conf_file.open('r') as file:
                 adapters_data = json.load(file)
                 for adapter_id_str, adapter_data in adapters_data.items():
-                    adapter_id = int(adapter_id_str)
+                    adapter_id = adapter_id_str
                     programs = {int(prog_id): prog_data for prog_id, prog_data in adapter_data.get("programs", {}).items()}
 
                     # Load adapter configuration with the updated model
