@@ -163,20 +163,66 @@ def construct_programs_dict(ffprobe_data: dict) -> dict:
             "streams": streams,
             "selected": False
         }
-    logger.info(f"Constructed programs dictionary with {
-                len(programs)} programs.")
+    logger.info(f"Constructed programs dictionary with {len(programs)} programs.")
     return programs
 
 
-def construct_ffmpeg_command(type: str, udp_link: list, programs: dict, adapter_num: int, modulator_num: int) -> str:
+def construct_ffmpeg_command(type: str, udp_links: list, programs: dict, adapter_num: int, modulator_num: int) -> str:
     if type == "MPTS":
-        return construct_mpts_ffmpeg_command(udp_link, programs, adapter_num, modulator_num)
+        return construct_mpts_ffmpeg_command(udp_links, programs, adapter_num, modulator_num)
     elif type == "SPTS":
-        return construct_spts_ffmpeg_command(udp_link, programs, adapter_num, modulator_num)
+        return construct_spts_ffmpeg_command(udp_links, programs, adapter_num, modulator_num)
 
 
-def construct_spts_ffmpeg_command(udp_link: list, programs: dict, adapter_num: int, modulator_num: int) -> str:
-    return "Not Implemented!"
+def construct_spts_ffmpeg_command(udp_links: list, programs: dict, adapter_num: int, modulator_num: int) -> str:
+    """
+    Construct the ffmpeg command for SPTS streams based on the selected programs and streams.
+    """
+    logger.info("Constructing SPTS ffmpeg command.")
+    udp_params = "?fifo_size=10000000&overrun_nonfatal=1&reconnect=1&reconnect_streamed=1&reconnect_delay_max=2"
+    base_options = "-buffer_size 5000k -mpegts_flags +resend_headers+pat_pmt_at_frames+latm -pcr_period 20"
+    map_cmds = []
+    program_cmds = []
+    stream_idx = 0
+
+    # Construct input and map commands for each UDP link
+    for i, udp_link in enumerate(udp_links):
+        # Add input URL with parameters
+        map_cmds.append(f"-thread_queue_size 16384 -i \"{udp_link}{udp_params}\"")
+
+        # Collect the map commands for each stream type
+        for program_num, program_info in programs.items():
+            if program_info.get("selected"):
+                title = program_info["title"]
+                streams = program_info["streams"]
+                stream_map_indices = []
+
+                for stream_type, stream_list in streams.items():
+                    if any(stream["selected"] for stream in stream_list):  # Check if there are selected streams
+                        for stream in stream_list:
+                            if stream["selected"]:
+                                map_cmd = f"-map {i}:{stream_type[0]}:i:{stream['id']}"
+                                map_cmds.append(map_cmd)
+                                stream_map_indices.append(f"st={stream_idx}")
+                                stream_idx += 1
+
+                # Construct the program command
+                program_cmd = f"-program program_num={program_num}:title=\"{title}\":{':'.join(stream_map_indices)}"
+                program_cmds.append(program_cmd)
+
+    # Finalize the FFmpeg command
+    final_cmd = (
+        f"ffmpeg -copyts -start_at_zero -fflags +discardcorrupt+igndts+genpts "
+        f"-buffer_size 10000k -ignore_unknown -err_detect ignore_err -avoid_negative_ts make_zero -re "
+        f"{' '.join(map_cmds)} {base_options} {' '.join(program_cmds)} "
+        f"-c:v copy -c:a copy -c:s copy -muxrate 31668449 -max_interleave_delta 0 "
+        f"-mpegts_copyts 1 -fps_mode 0 -enc_time_base -1 -start_at_zero -copytb -1 "
+        f"-f mpegts -y /dev/dvb/adapter{adapter_num}/mod{modulator_num}"
+    )
+
+    logger.info(f"Constructed ffmpeg command: \n{final_cmd}\n")
+    return final_cmd
+    
 
 
 def construct_mpts_ffmpeg_command(udp_link: list, programs: dict, adapter_num: int, modulator_num: int) -> str:
