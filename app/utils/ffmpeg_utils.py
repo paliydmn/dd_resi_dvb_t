@@ -5,7 +5,7 @@ import logging
 from typing import Union, Dict, Any, List
 
 # Configure logging
-#TODO: need to re-write logging here
+# TODO: need to re-write logging here
 logger = logging.getLogger(__name__)
 # Ensure no handlers are already attached to avoid duplication
 if not logger.hasHandlers():
@@ -24,19 +24,69 @@ if not logger.hasHandlers():
     logger.addHandler(log_handler)
     logger.propagate = False  # Prevent propagation to the root logger
 
-def get_ffprobe_data(adapter_type: str, udp_link: List) -> Union[Dict[str, Any], str]:
+
+def get_ffprobe_data(adapter_type: str, udp_links: List) -> Union[Dict[str, Any], str]:
     if adapter_type == 'MPTS':
-        return get_mpts_ffprobe(udp_link[0])
+        return mpts_ffprobe(udp_links[0])
     elif adapter_type == 'SPTS':
-        return get_spts_ffprobe(udp_link)
+        return spts_ffprobe(udp_links)
     return "Error: Wrong adapter type"
 
 
-def get_spts_ffprobe(udp_link: List) -> Union[Dict[str, Any], str]:
-    return "Not Implemented!"
+def spts_ffprobe(udp_links: List) -> Union[Dict[str, Any], str]:
+    """
+    Get stream and program information from multiple SPTS UDP links using ffprobe.
+    """
+    combined_ffprobe_output = {"streams": [], "programs": []}
+
+    for udp_link in udp_links:
+            ffprobe_cmd = [
+                "ffprobe",
+                "-v", "quiet",
+                "-print_format", "json",
+                "-show_streams",
+                "-show_programs",
+                udp_link
+            ]
+
+            try:
+                logger.info(f"Running ffprobe command for {udp_link}: {' '.join(ffprobe_cmd)}")
+                result = subprocess.run(
+                    ffprobe_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+                )
+                logger.info(f"ffprobe result for {udp_link}: {result}")
+                if result.returncode != 0:
+                    error_message = result.stderr.strip()
+                    logger.error(f"ffprobe error for {udp_link}: {error_message}")
+                    if "ffprobe: command not found" in error_message:
+                        return "Error: ffprobe is not installed or not found in PATH."
+                    return f"Error: ffprobe failed with error: {error_message}"
+
+                try:
+                    ffprobe_output = json.loads(result.stdout)
+                    logger.info(
+                        f"Successfully parsed ffprobe output for {udp_link}.")
+                    combined_ffprobe_output["streams"].extend(
+                        ffprobe_output.get("streams", []))
+                    combined_ffprobe_output["programs"].extend(
+                        ffprobe_output.get("programs", []))
+                except json.JSONDecodeError:
+                    logger.error(
+                        f"Failed to parse ffprobe output as JSON for {udp_link}.")
+                    return "Error: Unable to parse ffprobe output as JSON."
+
+            except FileNotFoundError:
+                logger.error("ffprobe is not installed or not found in PATH.")
+                return "Error: ffprobe is not installed or not found in PATH."
+            except Exception as e:
+                logger.exception(
+                    f"Unexpected error occurred while processing {udp_link}: {e}")
+                return f"Error: An unexpected error occurred while processing {udp_link}: {str(e)}"
+    print(f"ffprobe SPTS:\n\n {combined_ffprobe_output}")
+    return combined_ffprobe_output
 
 
-def get_mpts_ffprobe(udp_link: str) -> Union[Dict[str, Any], str]:
+def mpts_ffprobe(udp_link: str) -> Union[Dict[str, Any], str]:
     """
     Get stream and program information from a UDP link using ffprobe.
     """
@@ -113,8 +163,10 @@ def construct_programs_dict(ffprobe_data: dict) -> dict:
             "streams": streams,
             "selected": False
         }
-    logger.info(f"Constructed programs dictionary with {len(programs)} programs.")
+    logger.info(f"Constructed programs dictionary with {
+                len(programs)} programs.")
     return programs
+
 
 def construct_ffmpeg_command(type: str, udp_link: list, programs: dict, adapter_num: int, modulator_num: int) -> str:
     if type == "MPTS":
@@ -122,8 +174,10 @@ def construct_ffmpeg_command(type: str, udp_link: list, programs: dict, adapter_
     elif type == "SPTS":
         return construct_spts_ffmpeg_command(udp_link, programs, adapter_num, modulator_num)
 
+
 def construct_spts_ffmpeg_command(udp_link: list, programs: dict, adapter_num: int, modulator_num: int) -> str:
     return "Not Implemented!"
+
 
 def construct_mpts_ffmpeg_command(udp_link: list, programs: dict, adapter_num: int, modulator_num: int) -> str:
     """
@@ -131,7 +185,7 @@ def construct_mpts_ffmpeg_command(udp_link: list, programs: dict, adapter_num: i
     """
     logger.info("Constructing ffmpeg command.")
     udp_params = "?fifo_size=10000000&overrun_nonfatal=1&reconnect=1&reconnect_streamed=1&reconnect_delay_max=2"
-    #base_options = "-buffer_size 5000k -mpegts_flags +resend_headers+pat_pmt_at_frames+latm -pcr_period 20 -mpegts_copyts 1 -ignore_unknown -fflags +genpts+igndts -avoid_negative_ts make_zero"
+    # base_options = "-buffer_size 5000k -mpegts_flags +resend_headers+pat_pmt_at_frames+latm -pcr_period 20 -mpegts_copyts 1 -ignore_unknown -fflags +genpts+igndts -avoid_negative_ts make_zero"
     base_options = "-buffer_size 5000k -mpegts_flags +resend_headers+pat_pmt_at_frames+latm -pcr_period 20"
     map_cmds = []
     program_cmds = []
@@ -151,15 +205,16 @@ def construct_mpts_ffmpeg_command(udp_link: list, programs: dict, adapter_num: i
                         stream_map_indices.append(f"st={stream_idx}")
                         stream_idx += 1
 
-            program_cmd = f"-program program_num={program_num}:title=\"{title}\":{':'.join(stream_map_indices)}"
+            program_cmd = f"-program program_num={program_num}:title=\"{
+                title}\":{':'.join(stream_map_indices)}"
             program_cmds.append(program_cmd)
-#added:
+# added:
 # -start_at_zero
-# -thread_queue_size 16384 
+# -thread_queue_size 16384
     # final_cmd = (f"ffmpeg -start_at_zero -thread_queue_size 16384 -i \"{udp_link}{udp_params}\" {base_options} "
     #              f"{' '.join(map_cmds)} {' '.join(program_cmds)} -c copy "
     #              f"-muxrate 31668449 -max_interleave_delta 0 -copyts -f mpegts -y /dev/dvb/adapter{adapter_num}/mod{modulator_num}")
-    
+
     final_cmd = (f"ffmpeg  -copyts -start_at_zero -fflags +discardcorrupt+igndts+genpts -buffer_size 10000k -ignore_unknown -err_detect ignore_err -avoid_negative_ts make_zero -re -thread_queue_size 16384 -i \"{udp_link[0]}{udp_params}\" {base_options} "
                  f"{' '.join(map_cmds)} {' '.join(program_cmds)} "
                  f" -c:v copy -c:a copy -c:s copy -muxrate 31668449 -max_interleave_delta 0 -mpegts_copyts 1 -fps_mode 0 -enc_time_base -1 -start_at_zero -copytb -1 -f mpegts -y /dev/dvb/adapter{adapter_num}/mod{modulator_num}")
