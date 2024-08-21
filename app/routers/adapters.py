@@ -14,6 +14,8 @@ import logging
 import subprocess
 import os
 import signal
+import uuid
+
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -45,8 +47,7 @@ def set_description():
                     description = frequency + (channel_value * 8)
                     adapter_config.description = f"{
                         description:.1f} MHz."  # Format to 2 decimal places
-                    logger.info(f"Set description = {
-                                adapter_config.description} for stream = {modulator_number}.")
+                    logger.info(f"Set description = {adapter_config.description} for stream = {modulator_number}.")
                     break
     save_adapters_to_file()
 
@@ -79,6 +80,7 @@ def get_available_adapters():
         output = subprocess.check_output(
             "find /dev/dvb/ -type c -name 'mod*'", shell=True).decode('utf-8')
         if output:
+           
             lines = output.strip().split('\n')
             adapters = {
                 int(line.split('/')[3].replace("adapter", "")) for line in lines}
@@ -89,6 +91,10 @@ def get_available_adapters():
     except subprocess.CalledProcessError as e:
         logger.error(f"Error fetching available adapters: {e}")
         return {"adapters": [], "modulators": []}
+
+def generate_uid():
+    uid = str(uuid.uuid4()).replace('-', '')[:4].upper()
+    return uid
 
 
 @router.post("/adapters/createMA")
@@ -103,7 +109,7 @@ def create_MPTS_adapter(adapterConf: AdapterConfig):
         raise HTTPException(
             status_code=400, detail="MPTS adapter should have exactly one UDP URL.")
 
-    adapter_id = len(adapters) + 1
+    adapter_id = generate_uid()
     adapters[adapter_id] = adapterConf
     save_adapters_to_file()
     logger.info(f"MPTS Adapter created: {adapterConf}")
@@ -122,7 +128,7 @@ def create_SPTS_adapter(adapterConf: AdapterConfig):
         raise HTTPException(
             status_code=400, detail="SPTS adapter must have at least one UDP URL.")
 
-    adapter_id = len(adapters) + 1
+    adapter_id = generate_uid()
     adapters[adapter_id] = adapterConf
     save_adapters_to_file()
     logger.info(f"SPTS Adapter created: {adapterConf}")

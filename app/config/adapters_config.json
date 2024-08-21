@@ -105,18 +105,42 @@
         "running": false,
         "description": "474.0 MHz."
     },
-    "3": {
+    "2E83": {
         "adapter_number": 0,
-        "modulator_number": 5,
-        "type": "SPTS",
-        "adapter_name": "My SPTS test adapter",
+        "modulator_number": 0,
+        "type": "MPTS",
+        "adapter_name": "MPTS TEST 6 uid",
         "udp_urls": [
-            "udp://192.168.0.20:12340",
-            "udp://192.168.0.20:12350",
-            "udp://192.168.0.20:12360"
+            "udp://192.168.0.20:1235"
         ],
         "programs": {},
         "running": false,
-        "description": "154.0 MHz."
+        "description": null
+    },
+    "6618": {
+        "adapter_number": 0,
+        "modulator_number": 6,
+        "type": "SPTS",
+        "adapter_name": "SPTS TEST 7 uid",
+        "udp_urls": [
+            "udp://192.168.0.20:12340",
+            "udp://192.168.0.20:12360",
+            "udp://192.168.0.20:12350"
+        ],
+        "programs": {},
+        "running": false,
+        "description": "162.0 MHz."
+    },
+    "F294": {
+        "adapter_number": 0,
+        "modulator_number": 0,
+        "type": "MPTS",
+        "adapter_name": "MPTS TEST 8 uid",
+        "udp_urls": [
+            "udp://192.168.0.20:1234"
+        ],
+        "programs": {},
+        "running": false,
+        "description": null
     }
 }
