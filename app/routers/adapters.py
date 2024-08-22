@@ -261,11 +261,11 @@ def delete_adapter(adapter_id: str):
     if adapter_id not in adapters:
         logger.warning(f"Adapter {adapter_id} not found.")
         raise HTTPException(status_code=404, detail="Adapter not found")
-
+    name = adapters[adapter_id].adapter_name
     del adapters[adapter_id]
     logger.info(f"Deleted adapter {adapter_id}.")
     save_adapters_to_file()
-    return  {"status": "success", "msg" : f"Adapter {adapters[adapter_id].adapter_name} successfully deleted."}
+    return  {"status": "success", "msg" : f"Adapter {name} successfully deleted."}
 
 
 @router.post("/adapters/{adapter_id}/save")
