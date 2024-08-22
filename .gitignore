@@ -1,8 +1,8 @@
 venv
 *.log
-*.json
-*.conf
-
+**.json
+**.conf
+app/config/adapters_config.json
 .vscode/*
 
 **/__pycache__/

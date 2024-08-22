@@ -224,8 +224,9 @@ def construct_spts_ffmpeg_command(adapter: AdapterConfig) -> str:
                     st_map.append(f'st={stream_index}')
                     stream_index += 1
             if program.streams['subtitle']:
-                st_map.append(f'st={stream_index}')
-                stream_index += 1
+                for _ in program.streams['subtitle']:
+                    st_map.append(f'st={stream_index}')
+                    stream_index += 1
 
             st_map_str = ':'.join(st_map)
             program_lines.append(

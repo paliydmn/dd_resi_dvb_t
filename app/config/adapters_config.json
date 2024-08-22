@@ -192,26 +192,113 @@
         "programs": {
             "73": {
                 "title": "DMAX Austria",
-                "selected": true,
+                "selected": false,
                 "streams": {
                     "video": [
                         {
                             "id": "0xdff",
                             "codec": "mpeg2video",
-                            "selected": true
+                            "selected": false
                         }
                     ],
                     "audio": [
                         {
                             "id": "0xe00",
                             "codec": "mp2",
-                            "selected": true
+                            "selected": false
                         }
                     ],
                     "subtitle": [
                         {
                             "id": "0x2d",
                             "codec": "dvb_teletext",
+                            "selected": false
+                        }
+                    ]
+                }
+            },
+            "61": {
+                "title": "Nick/Comedy Central Austria",
+                "selected": false,
+                "streams": {
+                    "video": [
+                        {
+                            "id": "0x6ff",
+                            "codec": "mpeg2video",
+                            "selected": false
+                        }
+                    ],
+                    "audio": [
+                        {
+                            "id": "0x700",
+                            "codec": "mp2",
+                            "selected": false
+                        },
+                        {
+                            "id": "0x701",
+                            "codec": "mp2",
+                            "selected": false
+                        }
+                    ],
+                    "subtitle": []
+                }
+            }
+        },
+        "running": false,
+        "description": "114.0 MHz."
+    },
+    "A26B": {
+        "adapter_number": 0,
+        "modulator_number": 1,
+        "type": "SPTS",
+        "adapter_name": "SPTS TEST 2 channels",
+        "udp_urls": [
+            "udp://192.168.0.20:1270",
+            "udp://192.168.0.20:1280"
+        ],
+        "programs": {
+            "10355": {
+                "title": "hr-fernsehen HD",
+                "selected": true,
+                "streams": {
+                    "video": [
+                        {
+                            "id": "0x14e7",
+                            "codec": "h264",
+                            "selected": true
+                        }
+                    ],
+                    "audio": [
+                        {
+                            "id": "0x14e8",
+                            "codec": "mp2",
+                            "selected": true
+                        },
+                        {
+                            "id": "0x14e9",
+                            "codec": "mp2",
+                            "selected": true
+                        },
+                        {
+                            "id": "0x14ed",
+                            "codec": "mp2",
+                            "selected": true
+                        },
+                        {
+                            "id": "0x14ec",
+                            "codec": "ac3",
+                            "selected": true
+                        }
+                    ],
+                    "subtitle": [
+                        {
+                            "id": "0x14ea",
+                            "codec": "dvb_teletext",
+                            "selected": true
+                        },
+                        {
+                            "id": "0x14eb",
+                            "codec": "dvb_subtitle",
                             "selected": true
                         }
                     ]
