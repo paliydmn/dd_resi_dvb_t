@@ -454,12 +454,14 @@ function loadAdapters() {
                                         .map(a => `${a.codec}`).join(', ')
                                     }
                                 </div>
+                                ${program.streams.subtitle.some(s => s.selected) ? `
                                 <div class="subtitle-stream"><strong>Subtitle:</strong> 
                                     ${program.streams.subtitle
                                         .filter(s => s.selected)
                                         .map(s => `${s.codec}`).join(', ')
                                     }
                                 </div>
+                                ` : ''}
                             </div>
                         </li>
                     `).join('') : '<li>None</li>';
