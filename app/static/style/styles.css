@@ -455,6 +455,7 @@ form button {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
+    margin-bottom: 15px;
 }
 
 .stream-assignment {
