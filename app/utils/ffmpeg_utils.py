@@ -3,6 +3,7 @@ import subprocess
 import json
 import logging
 from typing import Union, Dict, Any, List
+from app.models.models import AdapterConfig
 
 # Configure logging
 # TODO: need to re-write logging here
@@ -167,61 +168,86 @@ def construct_programs_dict(ffprobe_data: dict) -> dict:
     return programs
 
 
-def construct_ffmpeg_command(type: str, udp_links: list, programs: dict, adapter_num: int, modulator_num: int) -> str:
-    if type == "MPTS":
-        return construct_mpts_ffmpeg_command(udp_links, programs, adapter_num, modulator_num)
-    elif type == "SPTS":
-        return construct_spts_ffmpeg_command(udp_links, programs, adapter_num, modulator_num)
+#def construct_ffmpeg_command(type: str, udp_links: list, programs: dict, adapter_num: int, modulator_num: int) -> str:
+def construct_ffmpeg_command(adapter: AdapterConfig) -> str:
+    if adapter.type == "MPTS":
+        selected_programs = {
+            program_id: program.dict() for program_id, program in adapter.programs.items() if program.selected
+        }
+        return construct_mpts_ffmpeg_command(adapter.udp_urls, selected_programs, adapter.adapter_number, adapter.modulator_number)
+    elif adapter.type == "SPTS":
+        return construct_spts_ffmpeg_command(adapter)
 
 
-def construct_spts_ffmpeg_command(udp_links: list, programs: dict, adapter_num: int, modulator_num: int) -> str:
-    """
-    Construct the ffmpeg command for SPTS streams based on the selected programs and streams.
-    """
-    logger.info("Constructing SPTS ffmpeg command.")
-    udp_params = "?fifo_size=10000000&overrun_nonfatal=1&reconnect=1&reconnect_streamed=1&reconnect_delay_max=2"
-    base_options = "-buffer_size 5000k -mpegts_flags +resend_headers+pat_pmt_at_frames+latm -pcr_period 20"
-    map_cmds = []
-    program_cmds = []
-    stream_idx = 0
+def construct_spts_ffmpeg_command(adapter: AdapterConfig) -> str:
+    base_command = [
+        "ffmpeg",
+        "-copyts",
+        "-start_at_zero",
+        "-fflags +discardcorrupt+igndts+genpts",
+        "-buffer_size 10000k",
+        "-ignore_unknown",
+        "-err_detect ignore_err",
+        "-avoid_negative_ts make_zero",
+        "-re",
+    ]
 
-    # Construct input and map commands for each UDP link
-    for i, udp_link in enumerate(udp_links):
-        # Add input URL with parameters
-        map_cmds.append(f"-thread_queue_size 16384 -i \"{udp_link}{udp_params}\"")
+    map_lines = []
+    program_lines = []
+    stream_index = 0
 
-        # Collect the map commands for each stream type
-        for program_num, program_info in programs.items():
-            if program_info.get("selected"):
-                title = program_info["title"]
-                streams = program_info["streams"]
-                stream_map_indices = []
+    # Ensure each UDP URL is correctly associated with its respective programs
+    for input_index, udp_url in enumerate(adapter.udp_urls):
+        base_command.append(f'-thread_queue_size 16384')
+        base_command.append(f'-i "{udp_url}?fifo_size=10000000&overrun_nonfatal=1&reconnect=1&reconnect_streamed=1&reconnect_delay_max=2"')
 
-                for stream_type, stream_list in streams.items():
-                    if any(stream["selected"] for stream in stream_list):  # Check if there are selected streams
-                        for stream in stream_list:
-                            if stream["selected"]:
-                                map_cmd = f"-map {i}:{stream_type[0]}:i:{stream['id']}"
-                                map_cmds.append(map_cmd)
-                                stream_map_indices.append(f"st={stream_idx}")
-                                stream_idx += 1
+        # Get the corresponding program for the current UDP URL
+        program_key = list(adapter.programs.keys())[input_index]
+        program = adapter.programs[program_key]
 
-                # Construct the program command
-                program_cmd = f"-program program_num={program_num}:title=\"{title}\":{':'.join(stream_map_indices)}"
-                program_cmds.append(program_cmd)
+        # Determine the mapping for video, audio, and subtitle streams
+        if program.selected:
+            if program.streams['video']:
+                map_lines.append(f'-map {input_index}:v')
+            if program.streams['audio']:
+                map_lines.append(f'-map {input_index}:a')
+            if program.streams['subtitle']:
+                map_lines.append(f'-map {input_index}:s')
 
-    # Finalize the FFmpeg command
-    final_cmd = (
-        f"ffmpeg -copyts -start_at_zero -fflags +discardcorrupt+igndts+genpts "
-        f"-buffer_size 10000k -ignore_unknown -err_detect ignore_err -avoid_negative_ts make_zero -re "
-        f"{' '.join(map_cmds)} {base_options} {' '.join(program_cmds)} "
-        f"-c:v copy -c:a copy -c:s copy -muxrate 31668449 -max_interleave_delta 0 "
-        f"-mpegts_copyts 1 -fps_mode 0 -enc_time_base -1 -start_at_zero -copytb -1 "
-        f"-f mpegts -y /dev/dvb/adapter{adapter_num}/mod{modulator_num}"
-    )
+            # Generate the program line
+            st_map = []
+            if program.streams['video']:
+                st_map.append(f'st={stream_index}')
+                stream_index += 1
+            if program.streams['audio']:
+                for _ in program.streams['audio']:
+                    st_map.append(f'st={stream_index}')
+                    stream_index += 1
+            if program.streams['subtitle']:
+                st_map.append(f'st={stream_index}')
+                stream_index += 1
 
-    logger.info(f"Constructed ffmpeg command: \n{final_cmd}\n")
-    return final_cmd
+            st_map_str = ':'.join(st_map)
+            program_lines.append(
+                f'-program program_num={program_key}:title="{program.title}":{st_map_str}'
+            )
+
+    # Add the remaining FFmpeg options
+    base_command.append("-buffer_size 5000k")
+    base_command.append("-mpegts_flags +resend_headers+pat_pmt_at_frames+latm")
+    base_command.append("-pcr_period 20")
+    base_command.extend(map_lines)
+    base_command.extend(program_lines)
+    base_command.append("-c:v copy -c:a copy -c:s copy")
+    base_command.append("-muxrate 31668449 -max_interleave_delta 0")
+    base_command.append("-mpegts_copyts 1 -fps_mode 0")
+    base_command.append("-enc_time_base -1 -start_at_zero -copytb -1")
+    base_command.append(f'-f mpegts -y /dev/dvb/adapter{adapter.adapter_number}/mod{adapter.modulator_number}')
+
+    # Join all parts into the final command string
+    final_command = ' '.join(base_command)
+    
+    return final_command
     
 
 
@@ -251,8 +277,7 @@ def construct_mpts_ffmpeg_command(udp_link: list, programs: dict, adapter_num: i
                         stream_map_indices.append(f"st={stream_idx}")
                         stream_idx += 1
 
-            program_cmd = f"-program program_num={program_num}:title=\"{
-                title}\":{':'.join(stream_map_indices)}"
+            program_cmd = f"-program program_num={program_num}:title=\"{title}\":{':'.join(stream_map_indices)}"
             program_cmds.append(program_cmd)
 # added:
 # -start_at_zero

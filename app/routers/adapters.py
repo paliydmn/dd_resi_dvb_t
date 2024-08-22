@@ -173,8 +173,8 @@ def start_ffmpeg(adapter_id: str):
     }
 
     # #ToDo: add logger for each ffmpeg adapter start
-    ffmpeg_cmd = construct_ffmpeg_command( adapter.type,
-        adapter.udp_urls, selected_programs, adapter.adapter_number, adapter.modulator_number)
+    ffmpeg_cmd = construct_ffmpeg_command(adapter)
+
     logger.info(f"Starting FFmpeg for adapter {adapter_id} with command: {ffmpeg_cmd}")
 
     ff_logger = get_ffmpeg_logger(adapter_id)
