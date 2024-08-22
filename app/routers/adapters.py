@@ -13,6 +13,7 @@ import threading
 import logging
 import subprocess
 import os
+import time
 import signal
 import uuid
 
@@ -245,7 +246,8 @@ def stop_ffmpeg(adapter_id: str):
     adapters[adapter_id].running = False
     logger.info(f"Stopped FFmpeg for adapter {adapter_id}.")
     save_adapters_to_file()
-
+    #sleep 5 seconds to be sure the process is stopped
+    time.sleep(5)
     return {"message": "FFmpeg stopped successfully"}
 
 

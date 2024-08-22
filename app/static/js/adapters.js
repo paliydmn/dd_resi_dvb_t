@@ -159,7 +159,7 @@ function scanAdapter(adapterId) {
     // Add a spinner to indicate loading
     const spinner = document.createElement('div');
     spinner.className = 'spinner';
-    spinner.innerHTML = `<div class="loading-spinner"></div>`;
+    spinner.innerHTML = `<div class="loading-spinner">Scanning...</div>`;
     scanSection.appendChild(spinner);
 
     // Fetch scan results and display them in the scan section
@@ -322,6 +322,14 @@ function cancelSelection(adapterId) {
 }
 
 function startFFmpeg(adapterId) {
+        const adapterSection = document.getElementById(`adapter-${adapterId}`);
+
+        // Add a spinner to indicate loading
+        const spinner = document.createElement('div');
+        spinner.className = 'spinner';
+        spinner.innerHTML = `<div class="loading-spinner">Stopping...</div>`;
+        adapterSection.appendChild(spinner);
+    
     fetch(`/adapters/${adapterId}/start`, {
             method: 'POST',
             headers: {
@@ -330,10 +338,14 @@ function startFFmpeg(adapterId) {
         })
         .then(response => response.json())
         .then(data => {
+            adapterSection.removeChild(spinner);
             alert(data.message);
             loadAdapters(); // Reload the adapters list
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            adapterSection.removeChild(spinner);
+            console.error('Error:', error)
+        });
 }
 
 function stopFFmpeg(adapterId) {
