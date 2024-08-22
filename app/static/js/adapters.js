@@ -322,13 +322,14 @@ function cancelSelection(adapterId) {
 }
 
 function startFFmpeg(adapterId) {
-        const adapterSection = document.getElementById(`adapter-${adapterId}`);
+    const adapterSection = document.getElementById(`adapter-${adapterId}`);
+    adapterSection.style.position = 'relative';
 
-        // Add a spinner to indicate loading
-        const spinner = document.createElement('div');
-        spinner.className = 'spinner';
-        spinner.innerHTML = `<div class="loading-spinner">Stopping...</div>`;
-        adapterSection.appendChild(spinner);
+    // Add a spinner to indicate loading
+    const spinner = document.createElement('div');
+    spinner.className = 'spinner-overlay';
+    spinner.innerHTML = `<div class="loading-spinner"></div>`;
+    adapterSection.appendChild(spinner);
     
     fetch(`/adapters/${adapterId}/start`, {
             method: 'POST',
@@ -349,15 +350,28 @@ function startFFmpeg(adapterId) {
 }
 
 function stopFFmpeg(adapterId) {
+    const adapterSection = document.getElementById(`adapter-${adapterId}`);
+    adapterSection.style.position = 'relative';
+
+    // Add a spinner to indicate loading
+    const spinner = document.createElement('div');
+    spinner.className = 'spinner-overlay';
+    spinner.innerHTML = `<div class="loading-spinner"></div>`;
+    adapterSection.appendChild(spinner);
+
     fetch(`/adapters/${adapterId}/stop`, {
             method: 'POST'
         })
         .then(response => response.json())
         .then(data => {
+            adapterSection.removeChild(spinner);
             alert(data.message);
             loadAdapters(); // Reload the adapters list
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => {
+            adapterSection.removeChild(spinner);
+            console.error('Error:', error)
+        });
 }
 
 function deleteAdapter(adapterId) {

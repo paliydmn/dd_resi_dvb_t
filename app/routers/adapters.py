@@ -210,6 +210,8 @@ def start_ffmpeg(adapter_id: str):
     if process:
         adapter.running = True
     save_adapters_to_file()
+    #sleep 5 seconds to be sure the process is stopped
+    time.sleep(len(adapter.udp_urls)*5)
     return {"message": "FFmpeg started"}
 
 
@@ -249,7 +251,6 @@ def stop_ffmpeg(adapter_id: str):
     #sleep 5 seconds to be sure the process is stopped
     time.sleep(5)
     return {"message": "FFmpeg stopped successfully"}
-
 
 
 @router.delete("/adapters/{adapter_id}/")
