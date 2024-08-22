@@ -211,7 +211,7 @@ def start_ffmpeg(adapter_id: str):
     save_adapters_to_file()
     #sleep 5 seconds to be sure the process is stopped
     time.sleep(len(adapter.udp_urls)*5)
-    return  {"status": "success", "msg" : f"Adapter {adapter.apter_name} successfully started."}
+    return  {"status": "success", "msg" : f"Adapter {adapter.adapter_name} successfully started."}
 
 
 @router.post("/adapters/{adapter_id}/stop")
@@ -249,7 +249,7 @@ def stop_ffmpeg(adapter_id: str):
     save_adapters_to_file()
     #sleep 5 seconds to be sure the process is stopped
     time.sleep(5)
-    return  {"status": "success", "msg" : f"Adapter {adapters[adapter_id].apter_name} successfully stopped."}
+    return  {"status": "success", "msg" : f"Adapter {adapters[adapter_id].adapter_name} successfully stopped."}
 
 
 @router.delete("/adapters/{adapter_id}/")
@@ -265,7 +265,7 @@ def delete_adapter(adapter_id: str):
     del adapters[adapter_id]
     logger.info(f"Deleted adapter {adapter_id}.")
     save_adapters_to_file()
-    return  {"status": "success", "msg" : f"Adapter {adapters[adapter_id].apter_name} successfully deleted."}
+    return  {"status": "success", "msg" : f"Adapter {adapters[adapter_id].adapter_name} successfully deleted."}
 
 
 @router.post("/adapters/{adapter_id}/save")
@@ -302,4 +302,4 @@ def save_selection(adapter_id: str, selection: SaveSelection):
     save_adapters_to_file()
     logger.info(f"Saved selection for adapter {adapter_id}.")
     # Respond with success message
-    return  {"status": "success", "msg" : f"Adapter {adapters[adapter_id].apter_name} successfully saved."}
+    return  {"status": "success", "msg" : f"Adapter {adapters[adapter_id].adapter_name} successfully saved."}
