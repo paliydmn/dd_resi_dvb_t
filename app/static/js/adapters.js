@@ -84,7 +84,7 @@ function createSingleUrlAdapter(event) {
     event.preventDefault();
     const adapterNumber = document.getElementById('adapter-number').value;
     const modulatorNumber = document.getElementById('modulator-number').value;
-    const adapterName = document.getElementById('adapter-name').value; 
+    const adapterName = document.getElementById('adapter-name').value;
     const udpUrl = document.getElementById('udp-url').value;
 
     fetch('/adapters/createMA', {
@@ -95,9 +95,9 @@ function createSingleUrlAdapter(event) {
             body: JSON.stringify({
                 adapter_number: parseInt(adapterNumber),
                 modulator_number: parseInt(modulatorNumber),
-                type: 'MPTS',  // Specify the type as MPTS
+                type: 'MPTS', // Specify the type as MPTS
                 adapter_name: adapterName,
-                udp_urls: [udpUrl]  // Send a single URL as an array
+                udp_urls: [udpUrl] // Send a single URL as an array
             })
         })
         .then(response => response.json())
@@ -113,7 +113,7 @@ function createMultiUrlAdapter(event) {
     event.preventDefault();
     const adapterNumber = document.getElementById('adapter-number').value;
     const modulatorNumber = document.getElementById('modulator-number').value;
-    const adapterName = document.getElementById('adapter-name').value; 
+    const adapterName = document.getElementById('adapter-name').value;
     const urlInputs = document.querySelectorAll('.udp-url-input');
     const udpUrls = [];
 
@@ -138,9 +138,9 @@ function createMultiUrlAdapter(event) {
             body: JSON.stringify({
                 adapter_number: parseInt(adapterNumber),
                 modulator_number: parseInt(modulatorNumber),
-                type: 'SPTS',  // Specify the type as SPTS
+                type: 'SPTS', // Specify the type as SPTS
                 adapter_name: adapterName,
-                udp_urls: udpUrls  // Send the list of URLs
+                udp_urls: udpUrls // Send the list of URLs
             })
         })
         .then(response => response.json())
@@ -330,7 +330,7 @@ function startFFmpeg(adapterId) {
     spinner.className = 'spinner-overlay';
     spinner.innerHTML = `<div class="loading-spinner"></div>`;
     adapterSection.appendChild(spinner);
-    
+
     fetch(`/adapters/${adapterId}/start`, {
             method: 'POST',
             headers: {
@@ -339,17 +339,14 @@ function startFFmpeg(adapterId) {
         })
         .then(response => response.json())
         .then(data => {
+            adapterSection.removeChild(spinner);
             if (data.status == "success") {
-                adapterSection.removeChild(spinner);
                 alert(data.msg);
                 loadAdapters(); // Reload the adapters list
             } else if (data.status == "error") {
-                adapterSection.removeChild(spinner);
                 alert(data.msg);
                 loadAdapters(); // Reload the adapters list
             }
-
-
         })
         .catch(error => {
             adapterSection.removeChild(spinner);
@@ -372,15 +369,14 @@ function stopFFmpeg(adapterId) {
         })
         .then(response => response.json())
         .then(data => {
+            adapterSection.removeChild(spinner);
             if (data.status == "success") {
-                adapterSection.removeChild(spinner);
                 alert(data.msg);
                 loadAdapters(); // Reload the adapters list
             } else if (data.status == "error") {
-                adapterSection.removeChild(spinner);
                 alert(data.msg);
                 loadAdapters(); // Reload the adapters list
-            } 
+            }
         })
         .catch(error => {
             adapterSection.removeChild(spinner);
@@ -400,7 +396,7 @@ function deleteAdapter(adapterId) {
             } else if (data.status == "error") {
                 alert(data.msg);
                 loadAdapters(); // Reload the adapters list
-            } 
+            }
         })
         .catch(error => console.error('Error:', error));
 }
