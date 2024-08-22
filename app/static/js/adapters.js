@@ -20,6 +20,7 @@ function showNewAdapterForm() {
 function hideNewAdapterForm() {
     document.getElementById('new-adapter-modal').style.display = 'none';
     document.getElementById('modal-overlay').style.display = 'none';
+    resetNewAdapterForm()
 }
 
 
@@ -152,6 +153,19 @@ function createMultiUrlAdapter(event) {
         .catch(error => console.error('Error:', error));
 }
 
+function resetNewAdapterForm() {
+        // Reset the form
+        document.getElementById('adapter-form').reset();
+
+        // Clear any dynamically added URL input fields if needed
+        const urlInputContainer = document.getElementById('url-input-container');
+        urlInputContainer.innerHTML = `
+            <label for="udp-url">UDP URL:</label>
+            <input type="text" id="udp-url" name="udp-url" class="udp-url-input" required><br>
+        `;
+        // Reset the URL Type to the default value (optional)
+        document.getElementById('url-type').value = 'mpts';
+}
 
 function scanAdapter(adapterId) {
     const scanSection = document.getElementById(`scan-section-${adapterId}`);
