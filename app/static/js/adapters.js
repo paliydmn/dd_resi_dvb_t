@@ -339,9 +339,17 @@ function startFFmpeg(adapterId) {
         })
         .then(response => response.json())
         .then(data => {
-            adapterSection.removeChild(spinner);
-            alert(data.message);
-            loadAdapters(); // Reload the adapters list
+            if (data.status == "success") {
+                adapterSection.removeChild(spinner);
+                alert(data.msg);
+                loadAdapters(); // Reload the adapters list
+            } else if (data.status == "error") {
+                adapterSection.removeChild(spinner);
+                alert(data.msg);
+                loadAdapters(); // Reload the adapters list
+            }
+
+
         })
         .catch(error => {
             adapterSection.removeChild(spinner);
@@ -364,9 +372,15 @@ function stopFFmpeg(adapterId) {
         })
         .then(response => response.json())
         .then(data => {
-            adapterSection.removeChild(spinner);
-            alert(data.message);
-            loadAdapters(); // Reload the adapters list
+            if (data.status == "success") {
+                adapterSection.removeChild(spinner);
+                alert(data.msg);
+                loadAdapters(); // Reload the adapters list
+            } else if (data.status == "error") {
+                adapterSection.removeChild(spinner);
+                alert(data.msg);
+                loadAdapters(); // Reload the adapters list
+            } 
         })
         .catch(error => {
             adapterSection.removeChild(spinner);
@@ -380,8 +394,13 @@ function deleteAdapter(adapterId) {
         })
         .then(response => response.json())
         .then(data => {
-            alert(data.message);
-            loadAdapters(); // Reload the adapters list
+            if (data.status == "success") {
+                alert(data.msg);
+                loadAdapters(); // Reload the adapters list
+            } else if (data.status == "error") {
+                alert(data.msg);
+                loadAdapters(); // Reload the adapters list
+            } 
         })
         .catch(error => console.error('Error:', error));
 }

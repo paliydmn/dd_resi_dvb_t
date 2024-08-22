@@ -74,8 +74,7 @@ def stop_all_adapters():
 @router.get("/adapters/available", response_model=AvailableResources)
 def get_available_adapters():
     """Fetch available adapters and modulators from the system."""
-    logger.info(f"Loading available adapters from {
-                settings.adapter_conf_file} file.")
+    logger.info(f"Loading available adapters from {settings.adapter_conf_file} file.")
 
     try:
         output = subprocess.check_output(
@@ -212,7 +211,7 @@ def start_ffmpeg(adapter_id: str):
     save_adapters_to_file()
     #sleep 5 seconds to be sure the process is stopped
     time.sleep(len(adapter.udp_urls)*5)
-    return {"message": "FFmpeg started"}
+    return  {"status": "success", "msg" : f"Adapter {adapter.apter_name} successfully started."}
 
 
 @router.post("/adapters/{adapter_id}/stop")
@@ -250,7 +249,7 @@ def stop_ffmpeg(adapter_id: str):
     save_adapters_to_file()
     #sleep 5 seconds to be sure the process is stopped
     time.sleep(5)
-    return {"message": "FFmpeg stopped successfully"}
+    return  {"status": "success", "msg" : f"Adapter {adapters[adapter_id].apter_name} successfully stopped."}
 
 
 @router.delete("/adapters/{adapter_id}/")
@@ -266,7 +265,7 @@ def delete_adapter(adapter_id: str):
     del adapters[adapter_id]
     logger.info(f"Deleted adapter {adapter_id}.")
     save_adapters_to_file()
-    return {"message": "Adapter deleted"}
+    return  {"status": "success", "msg" : f"Adapter {adapters[adapter_id].apter_name} successfully deleted."}
 
 
 @router.post("/adapters/{adapter_id}/save")
@@ -303,4 +302,4 @@ def save_selection(adapter_id: str, selection: SaveSelection):
     save_adapters_to_file()
     logger.info(f"Saved selection for adapter {adapter_id}.")
     # Respond with success message
-    return {"message": "Selection saved successfully"}
+    return  {"status": "success", "msg" : f"Adapter {adapters[adapter_id].apter_name} successfully saved."}
