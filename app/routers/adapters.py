@@ -247,8 +247,8 @@ def stop_ffmpeg(adapter_id: str):
     adapters[adapter_id].running = False
     logger.info(f"Stopped FFmpeg for adapter {adapter_id}.")
     save_adapters_to_file()
-    #sleep 5 seconds to be sure the process is stopped
-    time.sleep(5)
+    #sleep 2 seconds to be sure the process is stopped
+    time.sleep(2)
     return  {"status": "success", "msg" : f"Adapter {adapters[adapter_id].adapter_name} successfully stopped."}
 
 
