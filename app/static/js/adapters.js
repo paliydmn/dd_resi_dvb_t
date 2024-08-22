@@ -159,7 +159,7 @@ function scanAdapter(adapterId) {
     // Add a spinner to indicate loading
     const spinner = document.createElement('div');
     spinner.className = 'spinner';
-    spinner.innerHTML = `<div class="loading-spinner">Scanning...</div>`;
+    spinner.innerHTML = `<div class="loading-spinner"></div>`;
     scanSection.appendChild(spinner);
 
     // Fetch scan results and display them in the scan section
