@@ -224,8 +224,9 @@ def stop_ffmpeg(adapter_id: str):
 
     process = running_processes[adapter_id]
     try:
+        logger.info(f"Process PID: {process.pid}")
         # Send SIGTERM to the process group
-        os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+        os.killpg(os.getpgid(process.pid), signal.SIGKILL)
         # Wait for the process to terminate gracefully
         process.wait(timeout=5)
     except subprocess.TimeoutExpired:
