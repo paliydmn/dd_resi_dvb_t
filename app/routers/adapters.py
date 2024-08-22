@@ -222,15 +222,31 @@ def stop_ffmpeg(adapter_id: str):
         logger.info(f"Adapter {adapter_id} is already stopped.")
         return {"message": "Adapter is already stopped"}
 
-    logger.info(f"FFmpeg running_processes: {running_processes}")
     process = running_processes[adapter_id]
-    logger.info(f"FFmpeg process: {process}")
-    os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+    try:
+        # Send SIGTERM to the process group
+        os.killpg(os.getpgid(process.pid), signal.SIGTERM)
+        # Wait for the process to terminate gracefully
+        process.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        logger.warning(f"FFmpeg process {adapter_id} did not terminate, sending SIGKILL")
+        # Forcefully kill the process if it doesn't stop
+        os.killpg(os.getpgid(process.pid), signal.SIGKILL)
+        process.wait()  # Wait for the process to terminate
+
+    # Confirm the process is terminated
+    if process.poll() is None:
+        logger.error(f"FFmpeg process {adapter_id} could not be stopped.")
+        raise HTTPException(status_code=500, detail="FFmpeg process could not be stopped")
+
+    # Cleanup
     del running_processes[adapter_id]
     adapters[adapter_id].running = False
     logger.info(f"Stopped FFmpeg for adapter {adapter_id}.")
     save_adapters_to_file()
-    return {"message": "FFmpeg stopped"}
+
+    return {"message": "FFmpeg stopped successfully"}
+
 
 
 @router.delete("/adapters/{adapter_id}/")
