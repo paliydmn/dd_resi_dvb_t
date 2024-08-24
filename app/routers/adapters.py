@@ -30,6 +30,20 @@ async def adapters_page(request: Request):
     return templates.TemplateResponse("adapters.html", {"request": request, "adapters": adapters})
 
 
+@router.get("/get_adapters/{adapter_id}")
+def get_adapter_by_id(adapter_id: str):
+    # Ensure descriptions are up-to-date
+    set_description()
+
+    # Retrieve the adapter by ID
+    adapter = adapters.get(adapter_id)
+
+    if adapter is None:
+        raise HTTPException(status_code=404, detail="Adapter not found")
+
+    return adapter
+
+
 def set_description():
     # Update AdapterConfig with description
     for adapter_key, adapter_config in adapters.items():
@@ -55,8 +69,6 @@ def set_description():
 
 @router.get("/get_adapters/")
 def get_adapters():
-    #    m_configs = get_modulators_config(adapters)
-    #    set_description(adapters=adapters, modulators=m_configs)
     set_description()
     return adapters
 
