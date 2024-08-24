@@ -30,7 +30,7 @@ async def adapters_page(request: Request):
     return templates.TemplateResponse("adapters.html", {"request": request, "adapters": adapters})
 
 
-@router.get("/get_adapters/{adapter_id}")
+@router.get("/get_adapter/{adapter_id}")
 def get_adapter_by_id(adapter_id: str):
     # Ensure descriptions are up-to-date
     set_description()
