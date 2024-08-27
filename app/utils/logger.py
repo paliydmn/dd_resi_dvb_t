@@ -36,4 +36,7 @@ def get_ffmpeg_logger(adapter_id: str):
     if not logger.handlers:
         logger.addHandler(handler)
 
+    # Prevent logs from propagating to the root logger
+    logger.propagate = False
+
     return logger
