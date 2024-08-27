@@ -232,6 +232,8 @@ function scanAdapter(adapterId) {
         .catch(error => {
             console.error('Error:', error)
             // Hide the spinner if an error occurs
+            alert("Scan Error. See log file.")
+            updateAdapter(adapterId)
             scanSection.removeChild(spinner);
         });
 }
@@ -363,6 +365,7 @@ function startFFmpeg(adapterId) {
             }
         })
         .catch(error => {
+            alert(`Start Adapter Error: ${error}`);
             adapterSection.removeChild(spinner);
             console.error('Error:', error)
         });

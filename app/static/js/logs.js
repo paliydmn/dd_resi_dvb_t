@@ -1,20 +1,39 @@
 let currentSocket;
 
+// function loadLogFiles() {
+//     fetch('/logs/list/')
+//         .then(response => response.json())
+//         .then(logFiles => {
+//             const logFilesList = document.getElementById('log-files-list');
+//             logFilesList.innerHTML = ''; // Clear the existing list
+
+//             logFiles.forEach(file => {
+//                 const listItem = document.createElement('li');
+//                 listItem.innerHTML = `<a href="#" onclick="viewLogFile('${file}')">${file}</a>`; // Make the file name clickable
+//                 logFilesList.appendChild(listItem); // Add the item to the list
+//             });
+//         })
+//         .catch(error => console.error('Error loading log files:', error));
+// }
+
 function loadLogFiles() {
     fetch('/logs/list/')
         .then(response => response.json())
         .then(logFiles => {
+            console.log('Log Files:', logFiles);  // Debugging line
             const logFilesList = document.getElementById('log-files-list');
-            logFilesList.innerHTML = ''; // Clear the existing list
+            logFilesList.innerHTML = '';
 
             logFiles.forEach(file => {
                 const listItem = document.createElement('li');
-                listItem.innerHTML = `<a href="#" onclick="viewLogFile('${file}')">${file}</a>`; // Make the file name clickable
-                logFilesList.appendChild(listItem); // Add the item to the list
+                listItem.innerHTML = `<a href="javascript:void(0);" onclick="viewLogFile('${file.name}')">${file.name}</a> - Last Modified: ${file.last_modified}`;
+                logFilesList.appendChild(listItem);
             });
         })
         .catch(error => console.error('Error loading log files:', error));
 }
+
+
 
 function viewLogFile(fileName) {
     const logContent = document.getElementById('log-content');
