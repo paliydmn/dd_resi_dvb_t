@@ -17,6 +17,10 @@ async function fetchModulatorConfig(adapterId) {
 // Initialize the page by loading the adapters and setting up event handlers
 async function init() {
     adapterData = await fetchAdaptersAndModulators();
+    if (Object.keys(adapterData).length === 0) {
+        alert('Error fetching adapter data. Please check logs and try again.');
+        return;
+    }
     displayAdapters(adapterData);
 }
 

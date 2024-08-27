@@ -47,7 +47,7 @@ body {
     border: 1px solid #ccc;
     padding: 10px;
     background-color: #f9f9f9;
-    height: 400px;
+    height: 65vh;
     overflow-y: scroll;
     white-space: pre-wrap;
     font-family: 'Courier New', Courier, monospace;
@@ -67,4 +67,3 @@ body {
 #log-content::-webkit-scrollbar-track {
     background-color: #f1f1f1;
 }
-
