@@ -193,14 +193,13 @@ def start_ffmpeg(adapter_id: str):
             line = pipe.readline()
             if not line:
                 break
-            # print(f"[{level}] {line.strip()}")  # Debug print
             ff_logger.log(level, line.strip())
 
     # Start logging in separate threads to avoid blocking
     threading.Thread(target=log_output, args=(
         process.stdout, logging.INFO)).start()
     threading.Thread(target=log_output, args=(
-        process.stderr, logging.ERROR)).start()
+        process.stderr, logging.INFO)).start()
 
     running_processes[adapter_id] = process
     # ToDo: check
