@@ -150,3 +150,22 @@ __pycache__/
 - Ensure that your virtual environment is activated before running any Python commands.
 - If you make changes to the project, commit and push them as necessary.
 
+---
+
+## Licensing and Copyright
+
+This project uses FFmpeg, a free software project that is licensed under the GNU Lesser General Public License (LGPL) version 2.1 or later, and the GNU General Public License (GPL) version 2 or later. For more information, refer to the FFmpeg licensing documentation and the licenses included with the FFmpeg source code.
+
+### FFmpeg Licensing
+
+FFmpeg is licensed under the following licenses:
+- **LGPL v2.1**: The LGPL license applies to the FFmpeg libraries. You can find the full text of the LGPL license [here](https://www.gnu.org/licenses/lgpl-2.1.html).
+- **GPL v2**: The GPL license applies to FFmpeg components. You can find the full text of the GPL license [here](https://www.gnu.org/licenses/gpl-2.0.html).
+
+FFmpeg is a registered trademark of the FFmpeg project. 
+
+### Acknowledgments
+
+We acknowledge and thank the FFmpeg project for providing this powerful multimedia framework.
+
+---
