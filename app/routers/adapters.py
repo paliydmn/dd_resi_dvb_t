@@ -179,26 +179,12 @@ def start_ffmpeg(adapter_id: str):
         raise HTTPException(status_code=404, detail="Adapter not found")
 
     adapter = adapters[adapter_id]
-    # Construct the selected programs dictionary based on the 'selected' field
-    selected_programs = {
-        program_id: program.dict() for program_id, program in adapter.programs.items() if program.selected
-    }
-
     # #ToDo: add logger for each ffmpeg adapter start
     ffmpeg_cmd = construct_ffmpeg_command(adapter)
 
     logger.info(f"Starting FFmpeg for adapter {adapter_id} with command: {ffmpeg_cmd}")
 
     ff_logger = get_ffmpeg_logger(adapter_id)
-    # with open(adapter_log_file, 'w') as log_file:
-    #     process = subprocess.Popen(
-    #         ffmpeg_cmd, shell=True, stdout=log_file, stderr=subprocess.STDOUT, preexec_fn=os.setsid)
-    #     running_processes[adapter_id] = process
-    #     adapter.running = process is not None
-    # # process = subprocess.Popen(ffmpeg_cmd, shell=True, preexec_fn=os.setsid)
-    # # running_processes[adapter_id] = process
-    # process = subprocess.Popen(
-    #     ffmpeg_cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
     process = subprocess.Popen(ffmpeg_cmd, shell=True, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE, text=True, preexec_fn=os.setsid)
 
@@ -214,7 +200,7 @@ def start_ffmpeg(adapter_id: str):
     threading.Thread(target=log_output, args=(
         process.stdout, logging.INFO)).start()
     threading.Thread(target=log_output, args=(
-        process.stderr, logging.INFO)).start()
+        process.stderr, logging.ERROR)).start()
 
     running_processes[adapter_id] = process
     # ToDo: check
