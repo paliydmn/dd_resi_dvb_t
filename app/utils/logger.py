@@ -15,18 +15,22 @@ def setup_main_logger(log_file="app.log", level=logging.INFO):
 
     logger = logging.getLogger()
     logger.setLevel(level)
-    logger.addHandler(log_handler)
+    
+    # Avoid adding multiple handlers to the logger
+    if not logger.handlers:
+        logger.addHandler(log_handler)
+
     return logger
 
-def get_ffmpeg_logger(adapter_id: int):
+def get_ffmpeg_logger(adapter_id: str):
     log_path = os.path.join(settings.log_directory, f"ffmpeg_a{adapter_id}.log")
-    logger = logging.getLogger(f"ffmpeg_adapter_{adapter_id}")
+    logger = logging.getLogger(f"adapter_{adapter_id}")
     logger.setLevel(logging.DEBUG)
 
     # Create a rotating file handler
     handler = RotatingFileHandler(log_path, maxBytes=settings.log_file_size, backupCount=settings.log_backup_count)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    handler.setFormatter(formatter)
+    log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(log_formatter)
 
     # Avoid adding multiple handlers to the logger
     if not logger.handlers:

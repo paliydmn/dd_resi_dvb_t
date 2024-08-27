@@ -7,6 +7,9 @@ jinja2
 pydantic
 pydantic-settings
 
+#for constant log reading
+websockets
+
 # Tools for working with subprocesses
 subprocess32
 

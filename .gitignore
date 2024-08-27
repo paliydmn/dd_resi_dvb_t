@@ -1,9 +1,10 @@
 venv
 *.log
-*.json
+**.json
 **.conf
-
+app/config/adapters_config.json
 .vscode/*
 
 **/__pycache__/
 __pycache__/
+app/config/adapters_config.json

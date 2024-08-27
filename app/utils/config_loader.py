@@ -32,13 +32,16 @@ def load_adapters_from_file():
             with settings.adapter_conf_file.open('r') as file:
                 adapters_data = json.load(file)
                 for adapter_id_str, adapter_data in adapters_data.items():
-                    adapter_id = int(adapter_id_str)
-                    programs = {int(prog_id): prog_data for prog_id, prog_data in adapter_data.get(
-                        "programs", {}).items()}
+                    adapter_id = adapter_id_str
+                    programs = {int(prog_id): prog_data for prog_id, prog_data in adapter_data.get("programs", {}).items()}
+
+                    # Load adapter configuration with the updated model
                     adapters[adapter_id] = AdapterConfig(
                         adapter_number=adapter_data["adapter_number"],
                         modulator_number=adapter_data["modulator_number"],
-                        udp_url=adapter_data["udp_url"],
+                        type=adapter_data["type"],  # New field for adapter type
+                        adapter_name = adapter_data["adapter_name"],
+                        udp_urls=adapter_data["udp_urls"],  # Updated to use the list of URLs
                         programs=programs,
                         running=adapter_data.get("running", False),
                         description=adapter_data.get("description", None),
@@ -48,6 +51,7 @@ def load_adapters_from_file():
             logger.error(f"Error loading adapters from file: {e}")
     else:
         logger.warning("Adapters configuration file does not exist.")
+
 
 def get_modulator_config_path(adapter_id):
     return os.path.join(settings.modulator_conf_dir, f"mod_a_{adapter_id}.conf")
