@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     
     # Logger settings
     log_directory: str = "logs/"
-    log_file_size: int = 5 * 1024 * 1024  # 5 MB
+    log_file_size: int = 1 * 1024 * 1024  # 1 MB
     log_backup_count: int = 3  # Number of backup log files to keep
     log_ffmpeg_file: str = "ffmpeg_adapter_"
 
