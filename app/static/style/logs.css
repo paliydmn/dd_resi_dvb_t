@@ -23,7 +23,8 @@ body {
 }
 
 .highlight {
-    background-color: yellow;
+    background-color: lightgrey;
+    width: fit-content;
 }
 
 #log-files-list {
