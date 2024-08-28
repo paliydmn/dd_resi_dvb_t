@@ -22,6 +22,10 @@ body {
     color: #333;
 }
 
+.highlight {
+    background-color: yellow;
+}
+
 #log-files-list {
     list-style-type: none;
     padding: 0;

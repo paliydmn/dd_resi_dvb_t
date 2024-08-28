@@ -17,6 +17,7 @@ LOG_DIR = settings.log_directory
 def show_logs_page(request: Request):
     return templates.TemplateResponse("logs.html", {"request": request})
 
+
 @router.get("/logs/list/")
 def list_log_files():
     try:
@@ -31,6 +32,27 @@ def list_log_files():
         return log_files
     except FileNotFoundError:
         raise HTTPException(status_code=404, detail="Log directory not found")
+
+
+@router.get("/logs/last_lines/{log_file}")
+def get_last_lines(log_file: str, lines: int = 10):
+    file_path = os.path.join(LOG_DIR, log_file)
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="Log file not found")
+
+    with open(file_path, 'rb') as file:
+        file.seek(0, os.SEEK_END)
+        file_size = file.tell()
+        block_size = 1024
+        data = []
+        while len(data) < lines and file_size > 0:
+            file_size = max(0, file_size - block_size)
+            file.seek(file_size)
+            data = (file.read(block_size) + b'\n'.join(data)).splitlines()
+
+    # Decode each line and join them with newline characters
+    return '\n'.join(line.decode('utf-8') for line in data[-lines:])
+
 
 @router.websocket("/ws/logs/{log_file}")
 async def websocket_endpoint(websocket: WebSocket, log_file: str):
@@ -51,7 +73,7 @@ async def websocket_endpoint(websocket: WebSocket, log_file: str):
     with open(file_path, 'r') as file:
         # Move to the end of the file
         file.seek(0, os.SEEK_END)
-        
+
         try:
             while True:
                 line = file.readline()

@@ -1,26 +1,19 @@
 let currentSocket;
 
-// function loadLogFiles() {
-//     fetch('/logs/list/')
-//         .then(response => response.json())
-//         .then(logFiles => {
-//             const logFilesList = document.getElementById('log-files-list');
-//             logFilesList.innerHTML = ''; // Clear the existing list
+function highlightLogFile(selectedFile) {
+    const logFilesList = document.getElementById('log-files-list');
+    Array.from(logFilesList.getElementsByTagName('li')).forEach(item => {
+        item.classList.remove('highlight');
+    });
+    selectedFile.classList.add('highlight');
+}
 
-//             logFiles.forEach(file => {
-//                 const listItem = document.createElement('li');
-//                 listItem.innerHTML = `<a href="#" onclick="viewLogFile('${file}')">${file}</a>`; // Make the file name clickable
-//                 logFilesList.appendChild(listItem); // Add the item to the list
-//             });
-//         })
-//         .catch(error => console.error('Error loading log files:', error));
-// }
 
 function loadLogFiles() {
     fetch('/logs/list/')
         .then(response => response.json())
         .then(logFiles => {
-            console.log('Log Files:', logFiles);  // Debugging line
+            console.log('Log Files:', logFiles);
             const logFilesList = document.getElementById('log-files-list');
             logFilesList.innerHTML = '';
 
@@ -33,36 +26,58 @@ function loadLogFiles() {
         .catch(error => console.error('Error loading log files:', error));
 }
 
-
-
 function viewLogFile(fileName) {
     const logContent = document.getElementById('log-content');
-    logContent.innerHTML = 'Loading...'; // Indicate loading
+    logContent.innerHTML = 'Loading...';
 
-    // Close the existing WebSocket connection if it's open
+    const selectedFile = event.target.parentElement;
+    highlightLogFile(selectedFile);
+
+    // Close existing WebSocket if open
     if (currentSocket) {
         currentSocket.close();
     }
 
-    // Open a new WebSocket connection
-    currentSocket = new WebSocket(`ws://${window.location.host}/ws/logs/${fileName}`);
+    // Fetch the last 25 lines first
+    fetch(`/logs/last_lines/${fileName}?lines=10`)
+        .then(response => response.text())
+        .then(data => {
+            logContent.innerHTML = data.replace(/\\n/g, '<br>');
+            openWebSocket(fileName, logContent);
+        })
+        .catch(error => {
+            console.error('Error loading last lines:', error);
+            logContent.innerHTML = 'Error loading log content.';
+        });
+}
 
-    // Handle incoming messages (log lines)
-    currentSocket.onmessage = function(event) {
-        const newLine = event.data.replace(/\n/g, '<br>'); // Replace newlines with <br> for HTML display
-        logContent.innerHTML += newLine; // Append new lines
-        logContent.scrollTop = logContent.scrollHeight; // Scroll to the bottom
+function openWebSocket(fileName, logContent) {
+    currentSocket = new WebSocket(`ws://${window.location.host}/ws/logs/${fileName}`);
+    let lineCount = logContent.innerHTML.split('<br>').length;
+
+    currentSocket.onmessage = function (event) {
+        const newLine = event.data.replace(/\n/g, '<br>');
+        logContent.innerHTML += newLine;
+        lineCount++;
+
+        // Clear old lines if line count exceeds 200
+        if (lineCount > 200) {
+            const excessLines = lineCount - 200;
+            logContent.innerHTML = logContent.innerHTML.split('<br>').slice(excessLines).join('<br>');
+            lineCount = 200;
+        }
+
+        logContent.scrollTop = logContent.scrollHeight;
     };
 
-    currentSocket.onerror = function(error) {
+    currentSocket.onerror = function (error) {
         console.error('WebSocket error:', error);
         logContent.innerHTML = 'Error loading log content.';
     };
 
-    currentSocket.onclose = function() {
+    currentSocket.onclose = function () {
         console.log('WebSocket connection closed.');
     };
 }
 
-// Ensure that the log files are loaded when the page is ready
 document.addEventListener('DOMContentLoaded', loadLogFiles);
