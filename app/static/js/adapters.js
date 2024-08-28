@@ -409,7 +409,7 @@ function deleteAdapter(adapterId) {
         .then(data => {
             if (data.status == "success") {
                 alert(data.msg);
-                updateAdapter(adapterId); 
+                loadAdapters(); 
             } else if (data.status == "error") {
                 alert(data.msg);
                 updateAdapter(adapterId); 
