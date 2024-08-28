@@ -3,6 +3,7 @@ import asyncio
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException, Request
 from fastapi.templating import Jinja2Templates
 from settings import settings
+from app.utils import logger
 
 import re
 from datetime import datetime
@@ -15,11 +16,13 @@ LOG_DIR = settings.log_directory
 
 @router.get("/logs/")
 def show_logs_page(request: Request):
+    logger.info("Get Logs page")
     return templates.TemplateResponse("logs.html", {"request": request})
 
 
 @router.get("/logs/list/")
 def list_log_files():
+    logger.info("Get list of log files")
     try:
         files = os.listdir(LOG_DIR)
         log_files = [
@@ -31,13 +34,16 @@ def list_log_files():
         ]
         return log_files
     except FileNotFoundError:
+        logger.error(f"Log directory not found")
         raise HTTPException(status_code=404, detail="Log directory not found")
 
 
 @router.get("/logs/last_lines/{log_file}")
 def get_last_lines(log_file: str, lines: int = 10):
+    logger.info(f"Get last {lines} lines from log file: {log_file}")
     file_path = os.path.join(LOG_DIR, log_file)
     if not os.path.exists(file_path):
+        logger.error(f"Log file: {log_file} not found")
         raise HTTPException(status_code=404, detail="Log file not found")
 
     with open(file_path, 'rb') as file:
@@ -56,15 +62,18 @@ def get_last_lines(log_file: str, lines: int = 10):
 
 @router.websocket("/ws/logs/{log_file}")
 async def websocket_endpoint(websocket: WebSocket, log_file: str):
+    logger.info(f"Open websocket_endpoint for log file: {log_file}")
     # Basic validation to prevent path traversal
     if not re.match(r'^[\w\-. ]+\.log$', log_file):
         await websocket.close(code=1000)
+        logger.error(f"Invalid log file name: {log_file}")
         raise HTTPException(status_code=400, detail="Invalid log file name")
 
     file_path = os.path.join(LOG_DIR, log_file)
 
     if not os.path.exists(file_path):
         await websocket.close(code=1000)
+        logger.error(f"Log file: {log_file} not found")
         raise HTTPException(status_code=404, detail="Log file not found")
 
     await websocket.accept()
@@ -82,4 +91,4 @@ async def websocket_endpoint(websocket: WebSocket, log_file: str):
                 else:
                     await asyncio.sleep(1)  # Wait for new lines
         except WebSocketDisconnect:
-            print(f"WebSocket disconnected for {log_file}")
+            logger.info(f"WebSocket disconnected for {log_file}")

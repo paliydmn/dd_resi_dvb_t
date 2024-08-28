@@ -3,7 +3,7 @@ import os
 from logging.handlers import RotatingFileHandler
 from settings import settings
 
-def setup_main_logger(log_file="app.log", level=logging.INFO):
+def setup_main_logger(log_file=settings.log_main_file, level=logging.INFO):
     log_path = os.path.join(settings.log_directory, log_file)
     # Ensure the directory exists
     os.makedirs(os.path.dirname(log_path), exist_ok=True)

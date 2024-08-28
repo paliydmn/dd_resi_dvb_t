@@ -38,7 +38,6 @@ function viewLogFile(fileName) {
         currentSocket.close();
     }
 
-    // Fetch the last 25 lines first
     fetch(`/logs/last_lines/${fileName}?lines=10`)
         .then(response => response.text())
         .then(data => {
