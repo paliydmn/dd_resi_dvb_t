@@ -3,7 +3,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi import HTTPException, Request
 from fastapi.responses import HTMLResponse
 from app.utils import logger
-from app.utils.logger import get_ffmpeg_logger
+from app.utils.logger import get_ffmpeg_logger, delete_log_file
 from app.utils.config_loader import adapters, save_adapters_to_file, get_modulators_config
 from app.utils.ffmpeg_utils import get_ffprobe_data, construct_programs_dict, construct_ffmpeg_command
 from app.utils.signal_handler import stop_ffmpeg_processes
@@ -184,7 +184,7 @@ def start_ffmpeg(adapter_id: str):
 
     logger.info(f"Starting FFmpeg for adapter {adapter_id} with command: {ffmpeg_cmd}")
 
-    ff_logger = get_ffmpeg_logger(adapter_id)
+    ff_logger = get_ffmpeg_logger(adapter.adapter_name, adapter_id)
     process = subprocess.Popen(ffmpeg_cmd, shell=True, stdout=subprocess.PIPE,
                                stderr=subprocess.PIPE, text=True, preexec_fn=os.setsid)
 
@@ -260,7 +260,8 @@ def delete_adapter(adapter_id: str):
         raise HTTPException(status_code=404, detail="Adapter not found")
     name = adapters[adapter_id].adapter_name
     del adapters[adapter_id]
-    logger.info(f"Deleted adapter {adapter_id}.")
+    del_res = delete_log_file(name=name, id=adapter_id)
+    logger.info(del_res)
     save_adapters_to_file()
     return  {"status": "success", "msg" : f"Adapter {name} successfully deleted."}
 

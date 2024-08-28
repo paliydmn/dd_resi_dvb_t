@@ -22,9 +22,9 @@ def setup_main_logger(log_file="app.log", level=logging.INFO):
 
     return logger
 
-def get_ffmpeg_logger(adapter_id: str):
-    log_path = os.path.join(settings.log_directory, f"ffmpeg_a{adapter_id}.log")
-    logger = logging.getLogger(f"adapter_{adapter_id}")
+def get_ffmpeg_logger(name: str, id: str):
+    log_path = os.path.join(settings.log_directory, f"ff_{name}_{id}.log")
+    logger = logging.getLogger(f"adapter_{id}")
     logger.setLevel(logging.DEBUG)
 
     # Create a rotating file handler
@@ -40,3 +40,16 @@ def get_ffmpeg_logger(adapter_id: str):
     logger.propagate = False
 
     return logger
+
+
+def delete_log_file(name: str, id: str):
+    log_filename = f"ff_{name}_{id}.log"
+    log_file_path = os.path.join(settings.log_directory, log_filename)
+
+    try:
+        os.remove(log_file_path)
+        return(f"Deleted logfile: {log_file_path}")
+    except FileNotFoundError:
+        return(f"Log file not found: {log_file_path}")
+    except Exception as e:
+        return(f"Error deleting log file {log_file_path}: {e}")

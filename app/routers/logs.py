@@ -2,13 +2,16 @@ import os
 import asyncio
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException, Request
 from fastapi.templating import Jinja2Templates
+from settings import settings
+
 import re
 from datetime import datetime
 
 router = APIRouter()
 
 templates = Jinja2Templates(directory="app/templates")
-LOG_DIR = "logs"  # Adjust this path as needed
+LOG_DIR = settings.log_directory
+
 
 @router.get("/logs/")
 def show_logs_page(request: Request):

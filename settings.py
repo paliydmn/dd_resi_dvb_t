@@ -7,10 +7,11 @@ class Settings(BaseSettings):
     modulator_conf_dir: str = "app/config/"
     
     # Logger settings
-    log_directory: str = "logs/"
+    log_directory: str = "logs/" # Adjust this path as needed
     log_file_size: int = 1 * 1024 * 1024  # 1 MB
     log_backup_count: int = 3  # Number of backup log files to keep
-    log_ffmpeg_file: str = "ffmpeg_adapter_"
+    log_ffmpeg_file: str = "ff_"
+
 
     #tools
     modconfig_app: str = "./tools/modconfig"
