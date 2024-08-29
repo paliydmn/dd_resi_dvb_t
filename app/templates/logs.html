@@ -1,4 +1,3 @@
-<!-- app/templates/logs.html -->
 {% extends "base.html" %}
 
 {% block title %}Logs{% endblock %}
@@ -7,6 +6,13 @@
     <div id="logs" class="logs-content">
         <h3>Logs</h3>
         <ul id="log-files-list"></ul>
+        
+        <!-- Input field for maximum number of lines -->
+        <div>
+            <label for="max-lines">Max lines to display:</label>
+            <input type="number" id="max-lines" step="10" value="200">
+        </div>
+        
         <div id="log-content"></div>
     </div>
     <script src="/static/js/logs.js"></script>
