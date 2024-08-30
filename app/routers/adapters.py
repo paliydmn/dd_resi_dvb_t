@@ -163,7 +163,7 @@ def scan_adapter(adapter_id: str):
     programs = construct_programs_dict(ffprobe_data)
     adapters[adapter_id].programs = programs
     logger.info(f"Scanned adapter {adapter_id}: {len(programs)} programs found.")
-    save_adapters_to_file()
+    #save_adapters_to_file()
     return {"programs": programs}
 
 
@@ -300,4 +300,4 @@ def save_selection(adapter_id: str, selection: SaveSelection):
     save_adapters_to_file()
     logger.info(f"Saved selection for adapter {adapter_id}.")
     # Respond with success message
-    return  {"status": "success", "msg" : f"Adapter {adapters[adapter_id].adapter_name} successfully saved."}
+    return  {"status": "success", "msg" : f"Adapter {adapter.adapter_name} successfully saved."}
