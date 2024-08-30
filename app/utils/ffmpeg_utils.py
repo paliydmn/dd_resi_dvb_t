@@ -185,7 +185,7 @@ def construct_spts_ffmpeg_command(adapter: AdapterConfig) -> str:
         "-copyts",
         "-start_at_zero",
         "-fflags +discardcorrupt+igndts+genpts",
-        "-buffer_size 10000k",
+        "-buffer_size 5000k",
         "-ignore_unknown",
         "-err_detect ignore_err",
         "-avoid_negative_ts make_zero",
@@ -199,7 +199,7 @@ def construct_spts_ffmpeg_command(adapter: AdapterConfig) -> str:
     # Ensure each UDP URL is correctly associated with its respective programs
     for input_index, udp_url in enumerate(adapter.udp_urls):
         base_command.append(f'-thread_queue_size 16384')
-        base_command.append(f'-i "{udp_url}?fifo_size=10000000&overrun_nonfatal=1&reconnect=1&reconnect_streamed=1&reconnect_delay_max=2"')
+        base_command.append(f'-i "{udp_url}?fifo_size=1000000&overrun_nonfatal=1&reconnect=1&reconnect_streamed=1&reconnect_delay_max=2"')
 
         # Get the corresponding program for the current UDP URL
         program_key = list(adapter.programs.keys())[input_index]
@@ -234,7 +234,7 @@ def construct_spts_ffmpeg_command(adapter: AdapterConfig) -> str:
             )
 
     # Add the remaining FFmpeg options
-    base_command.append("-buffer_size 5000k")
+    #base_command.append("-buffer_size 5000k")
     base_command.append("-mpegts_flags +resend_headers+pat_pmt_at_frames+latm")
     base_command.append("-pcr_period 20")
     base_command.extend(map_lines)
