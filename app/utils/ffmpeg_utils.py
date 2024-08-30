@@ -257,9 +257,9 @@ def construct_mpts_ffmpeg_command(udp_link: list, programs: dict, adapter_num: i
     Construct the ffmpeg command based on the selected programs and streams.
     """
     logger.info("Constructing ffmpeg command.")
-    udp_params = "?fifo_size=10000000&overrun_nonfatal=1&reconnect=1&reconnect_streamed=1&reconnect_delay_max=2"
+    udp_params = "?fifo_size=1000000&overrun_nonfatal=1&reconnect=1&reconnect_streamed=1&reconnect_delay_max=2"
     # base_options = "-buffer_size 5000k -mpegts_flags +resend_headers+pat_pmt_at_frames+latm -pcr_period 20 -mpegts_copyts 1 -ignore_unknown -fflags +genpts+igndts -avoid_negative_ts make_zero"
-    base_options = "-buffer_size 5000k -mpegts_flags +resend_headers+pat_pmt_at_frames+latm -pcr_period 20"
+    base_options = " -mpegts_flags +resend_headers+pat_pmt_at_frames+latm -pcr_period 20"
     map_cmds = []
     program_cmds = []
     stream_idx = 0
