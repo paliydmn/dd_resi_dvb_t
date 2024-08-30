@@ -157,7 +157,6 @@ def scan_adapter(adapter_id: str):
 
     # Check if ffprobe_data is an error message or valid data
     if isinstance(ffprobe_data, str):
-        # Use the error message as the detail
         raise HTTPException(status_code=500, detail=ffprobe_data)
 
     programs = construct_programs_dict(ffprobe_data)

@@ -317,7 +317,7 @@ function saveSelection(adapterId) {
         })
         .then(response => response.json())
         .then(data => {
-            alert(data.message);
+            alert(data.msg);
             loadAdapters(); // Reload the adapters list
         })
         .catch(error => console.error('Error:', error));
@@ -409,10 +409,10 @@ function deleteAdapter(adapterId) {
         .then(data => {
             if (data.status == "success") {
                 alert(data.msg);
-                loadAdapters(); 
+                loadAdapters();
             } else if (data.status == "error") {
                 alert(data.msg);
-                updateAdapter(adapterId); 
+                updateAdapter(adapterId);
             }
         })
         .catch(error => console.error('Error:', error));
