@@ -160,9 +160,7 @@ def scan_adapter(adapter_id: str):
         raise HTTPException(status_code=500, detail=ffprobe_data)
 
     programs = construct_programs_dict(ffprobe_data)
-    #adapters[adapter_id].programs = programs
     logger.info(f"Scanned adapter {adapter_id}: {len(programs)} programs found.")
-    #save_adapters_to_file()
     return {"programs": programs}
 
 
@@ -200,14 +198,23 @@ def start_ffmpeg(adapter_id: str):
     threading.Thread(target=log_output, args=(
         process.stderr, logging.INFO)).start()
 
+    # Wait a bit to check for immediate FFmpeg errors
+    time.sleep(3)
+    return_code = process.poll()
+
+    if return_code is not None and return_code != 0:
+        logger.error(f"FFmpeg failed to start for adapter {adapter_id}.")
+        raise HTTPException(status_code=500, detail="FFmpeg process failed to start.")
+
+    # Process is running, register it
     running_processes[adapter_id] = process
-    # ToDo: check
-    if process:
-        adapter.running = True
+    adapter.running = True
     save_adapters_to_file()
-    #sleep 5 seconds to be sure the process is stopped
-    time.sleep(len(adapter.udp_urls)*5)
-    return  {"status": "success", "msg" : f"Adapter {adapter.adapter_name} successfully started."}
+
+    # Optional: Increase sleep time if you need to ensure process stability
+    time.sleep(len(adapter.udp_urls) * 5)
+
+    return {"status": "success", "msg": f"Adapter {adapter.adapter_name} successfully started."}
 
 
 @router.post("/adapters/{adapter_id}/stop")
