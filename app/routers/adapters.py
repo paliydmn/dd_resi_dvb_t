@@ -204,7 +204,7 @@ def start_ffmpeg(adapter_id: str):
 
     if return_code is not None and return_code != 0:
         logger.error(f"FFmpeg failed to start for adapter {adapter_id}.")
-        raise HTTPException(status_code=500, detail="FFmpeg process failed to start.")
+        return {"status": "success", "msg": f"FFmpeg process failed to start. See log file for details."}
 
     # Process is running, register it
     running_processes[adapter_id] = process
