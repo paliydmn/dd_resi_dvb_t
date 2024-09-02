@@ -67,11 +67,13 @@ def get_modulator_temperatures():
         logger.warning("No modulator cards found.")
         raise HTTPException(status_code=404, detail="No modulator cards found")
 
-    modulators = []
+    modulators = {}
     for card in modulator_cards:
         temps = read_temperatures(card)
-        modulators.append({
-            "card_id": card,
-            "temperatures": temps
-        })
-    return {"modulators": modulators}
+        if temps:
+            modulators[card] = temps
+    
+    if not modulators:
+        raise HTTPException(status_code=404, detail="No temperatures available for modulator cards")
+    
+    return modulators

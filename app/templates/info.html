@@ -22,7 +22,10 @@
                     x: {
                         type: 'time',
                         time: {
-                            unit: 'minute'
+                            unit: 'minute',
+                            displayFormats: {
+                                minute: 'HH:mm:ss'
+                            }
                         }
                     },
                     y: {
@@ -36,28 +39,31 @@
 
         async function fetchTemperatureData() {
             try {
-                const response = await fetch('/modulators/temperature');
-                const temps = await response.json();
+                const response = await fetch('/modulators/temperatures');
+                const modulatorData = await response.json();
                 
                 const now = new Date();
-                for (const [modulator, tempValues] of Object.entries(temps)) {
-                    if (!temperatureChart.data.datasets.some(ds => ds.label === modulator)) {
-                        const color = (temp) => temp > 65 ? 'red' : temp > 45 ? 'yellow' : 'green';
+                for (const modulator of modulatorData.modulators) {
+                    const modulatorId = modulator.card_id;
+                    const tempValues = modulator.temperatures;
+
+                    if (!temperatureChart.data.datasets.some(ds => ds.label === modulatorId)) {
                         temperatureChart.data.datasets.push({
-                            label: modulator,
+                            label: modulatorId,
                             data: [],
-                            borderColor: color(tempValues[0]),
+                            borderColor: '',
                             backgroundColor: 'rgba(0,0,0,0)',
                             fill: false
                         });
                     }
-                    const dataset = temperatureChart.data.datasets.find(ds => ds.label === modulator);
+                    const dataset = temperatureChart.data.datasets.find(ds => ds.label === modulatorId);
+                    
                     tempValues.forEach(temp => {
                         dataset.data.push({
                             x: now,
                             y: temp
                         });
-                        dataset.borderColor = color(temp);
+                        dataset.borderColor = temp > 65 ? 'red' : temp > 45 ? 'yellow' : 'green';
                     });
                 }
 
