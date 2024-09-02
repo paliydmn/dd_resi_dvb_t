@@ -2,121 +2,77 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Modulator Card Temperatures</title>
-    <!-- Include Chart.js from CDN -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temperature Monitoring</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        .chart-container {
-            width: 600px;
-            margin: 20px auto;
-        }
-        .chart-wrapper {
-            margin-bottom: 40px;
-        }
-    </style>
 </head>
 <body>
-    <h1 style="text-align:center;">Modulator Card Temperatures</h1>
-    <div id="charts" class="chart-container"></div>
-
+    <canvas id="temperatureChart"></canvas>
     <script>
-        // Function to fetch temperature data from the API
-        async function fetchTemperatures() {
-            try {
-                const response = await fetch('/modulators/temperatures');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const data = await response.json();
-                return data.modulators;
-            } catch (error) {
-                console.error('Error fetching temperatures:', error);
-                return [];
-            }
-        }
-
-        // Function to create a chart container for a modulator card
-        function createChartContainer(cardId) {
-            const container = document.createElement('div');
-            container.className = 'chart-wrapper';
-
-            const title = document.createElement('h2');
-            title.textContent = `Card: ${cardId}`;
-            title.style.textAlign = 'center';
-            container.appendChild(title);
-
-            const canvas = document.createElement('canvas');
-            canvas.id = `chart-${cardId}`;
-            container.appendChild(canvas);
-
-            return container;
-        }
-
-        // Function to render charts for all modulator cards
-        function renderCharts(modulators) {
-            const chartsDiv = document.getElementById('charts');
-            chartsDiv.innerHTML = ''; // Clear existing charts
-
-            modulators.forEach(modulator => {
-                const { card_id, temperatures } = modulator;
-
-                // Create a container for each chart
-                const container = createChartContainer(card_id);
-                chartsDiv.appendChild(container);
-
-                // Get the context of the canvas
-                const ctx = document.getElementById(`chart-${card_id}`).getContext('2d');
-
-                // Create the chart
-                new Chart(ctx, {
-                    type: 'bar', // Choose 'bar', 'line', etc., based on preference
-                    data: {
-                        labels: temperatures.map((_, index) => `Sensor ${index + 1}`),
-                        datasets: [{
-                            label: 'Temperature (°C)',
-                            data: temperatures,
-                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                suggestedMax: 100
-                            }
-                        },
-                        plugins: {
-                            legend: {
-                                display: false
-                            },
-                            title: {
-                                display: false,
-                                text: `Temperatures for ${card_id}`
-                            }
+        const ctx = document.getElementById('temperatureChart').getContext('2d');
+        const data = {
+            labels: [], // Time labels
+            datasets: []
+        };
+        const config = {
+            type: 'line',
+            data: data,
+            options: {
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'minute'
                         }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        suggestedMax: 100
                     }
-                });
-            });
-        }
+                }
+            }
+        };
+        const temperatureChart = new Chart(ctx, config);
 
-        // Function to update charts periodically
-        async function updateCharts() {
-            const modulators = await fetchTemperatures();
-            if (modulators.length > 0) {
-                renderCharts(modulators);
-            } else {
-                const chartsDiv = document.getElementById('charts');
-                chartsDiv.innerHTML = '<p style="text-align:center;">No modulator cards found.</p>';
+        async function fetchTemperatureData() {
+            try {
+                const response = await fetch('/modulators/temperature');
+                const temps = await response.json();
+                
+                const now = new Date();
+                for (const [modulator, tempValues] of Object.entries(temps)) {
+                    if (!temperatureChart.data.datasets.some(ds => ds.label === modulator)) {
+                        const color = (temp) => temp > 65 ? 'red' : temp > 45 ? 'yellow' : 'green';
+                        temperatureChart.data.datasets.push({
+                            label: modulator,
+                            data: [],
+                            borderColor: color(tempValues[0]),
+                            backgroundColor: 'rgba(0,0,0,0)',
+                            fill: false
+                        });
+                    }
+                    const dataset = temperatureChart.data.datasets.find(ds => ds.label === modulator);
+                    tempValues.forEach(temp => {
+                        dataset.data.push({
+                            x: now,
+                            y: temp
+                        });
+                        dataset.borderColor = color(temp);
+                    });
+                }
+
+                // Remove old data (only keep data for the last 5 minutes)
+                temperatureChart.data.datasets.forEach(ds => {
+                    ds.data = ds.data.filter(d => now - new Date(d.x) < 5 * 60 * 1000);
+                });
+
+                temperatureChart.update();
+            } catch (error) {
+                console.error('Error fetching temperature data:', error);
             }
         }
 
-        // Initial load
-        updateCharts();
-
-        // Update every 10 seconds
-        setInterval(updateCharts, 10000);
+        setInterval(fetchTemperatureData, 2000);
     </script>
 </body>
 </html>
