@@ -234,7 +234,6 @@ def construct_spts_ffmpeg_command(adapter: AdapterConfig) -> str:
             )
 
     # Add the remaining FFmpeg options
-    #base_command.append("-buffer_size 5000k")
     base_command.append("-mpegts_flags +resend_headers+pat_pmt_at_frames+latm")
     base_command.append("-pcr_period 20")
     base_command.extend(map_lines)
@@ -258,7 +257,6 @@ def construct_mpts_ffmpeg_command(udp_link: list, programs: dict, adapter_num: i
     """
     logger.info("Constructing ffmpeg command.")
     udp_params = "?fifo_size=1000000&overrun_nonfatal=1&reconnect=1&reconnect_streamed=1&reconnect_delay_max=2"
-    # base_options = "-buffer_size 5000k -mpegts_flags +resend_headers+pat_pmt_at_frames+latm -pcr_period 20 -mpegts_copyts 1 -ignore_unknown -fflags +genpts+igndts -avoid_negative_ts make_zero"
     base_options = " -mpegts_flags +resend_headers+pat_pmt_at_frames+latm -pcr_period 20"
     map_cmds = []
     program_cmds = []
@@ -280,12 +278,6 @@ def construct_mpts_ffmpeg_command(udp_link: list, programs: dict, adapter_num: i
 
             program_cmd = f"-program program_num={program_num}:title=\"{title}\":{':'.join(stream_map_indices)}"
             program_cmds.append(program_cmd)
-# added:
-# -start_at_zero
-# -thread_queue_size 16384
-    # final_cmd = (f"ffmpeg -start_at_zero -thread_queue_size 16384 -i \"{udp_link}{udp_params}\" {base_options} "
-    #              f"{' '.join(map_cmds)} {' '.join(program_cmds)} -c copy "
-    #              f"-muxrate 31668449 -max_interleave_delta 0 -copyts -f mpegts -y /dev/dvb/adapter{adapter_num}/mod{modulator_num}")
 
     final_cmd = (f"ffmpeg  -copyts -start_at_zero -fflags +discardcorrupt+igndts+genpts -buffer_size 10000k -ignore_unknown -err_detect ignore_err -avoid_negative_ts make_zero -re -thread_queue_size 16384 -i \"{udp_link[0]}{udp_params}\" {base_options} "
                  f"{' '.join(map_cmds)} {' '.join(program_cmds)} "
