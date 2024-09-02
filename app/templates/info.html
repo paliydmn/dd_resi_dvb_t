@@ -1,95 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Temperature Monitoring</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>
-</head>
-<body>
-    <canvas id="temperatureChart"></canvas>
-    <script>
-        const ctx = document.getElementById('temperatureChart').getContext('2d');
-        const data = {
-            labels: [], // Time labels
-            datasets: []
-        };
-        const config = {
-            type: 'line',
-            data: data,
-            options: {
-                scales: {
-                    x: {
-                        type: 'time',
-                        time: {
-                            unit: 'second',
-                            stepSize: 15, 
-                            displayFormats: {
-                                second: 'HH:mm:ss'
-                            },
-                            title: {
-                                display: true,
-                                text: 'Time'
-                            }
-                        },
-                    },
-                    y: {
-                        beginAtZero: true,
-                        suggestedMax: 100,
-                        title: {
-                            display: true,
-                            text: 'C°'
-                        }
-                    }
-                }
-            }
-        };
-        const temperatureChart = new Chart(ctx, config);
+{% extends "base.html" %}
 
-        async function fetchTemperatureData() {
-            try {
-                const response = await fetch('/modulators/temperatures');
-                const modulatorData = await response.json();
-                
-                const now = new Date();
-                Object.entries(modulatorData).forEach(([modulatorId, temps]) => {
-                    ['sensor_1', 'sensor_2', 'sensor_3'].forEach((sensor, index) => {
-                        if (temps[sensor] !== null) {
-                            const datasetLabel = `${modulatorId} Sensor ${index + 1}`;
-                            if (!temperatureChart.data.datasets.some(ds => ds.label === datasetLabel)) {
-                                temperatureChart.data.datasets.push({
-                                    label: datasetLabel,
-                                    data: [],
-                                    borderColor: '',
-                                    backgroundColor: 'rgba(0,0,0,0)',
-                                    fill: false
-                                });
-                            }
-                            const dataset = temperatureChart.data.datasets.find(ds => ds.label === datasetLabel);
-                            dataset.data.push({
-                                x: now,
-                                y: temps[sensor]
-                            });
-                            dataset.borderColor = temps[sensor] > 65 ? 'red' : temps[sensor] > 45 ? 'yellow' : 'green';
-                        }
-                    });
-                });
+{% block title %}Temperature Monitoring{% endblock %}
 
-                // Remove old data (only keep data for the last 3 minutes)
-                const threeMinutesAgo = now - 3 * 60 * 1000;
-                temperatureChart.data.datasets.forEach(ds => {
-                    ds.data = ds.data.filter(d => new Date(d.x) > threeMinutesAgo);
-                });
+{% block content %}
+<div class="chart-container">
+    <h3 class="chart-title">Temperature Monitoring</h3>
+    <canvas id="temperatureChart" class="chart"></canvas>
+</div>
 
-                temperatureChart.update();
-            } catch (error) {
-                console.error('Error fetching temperature data:', error);
-            }
-        }
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>
+<script src="/static/js/info.js"></script>
+<link rel="stylesheet" href="/static/style/main.css">
 
-        // Fetch new data every 5 seconds
-        setInterval(fetchTemperatureData, 5000);
-    </script>
-</body>
-</html>
+{% endblock %}
