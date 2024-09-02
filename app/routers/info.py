@@ -62,28 +62,6 @@ def read_temperatures(card: str) -> List[float]:
         logger.error(f"Error reading {temp_path}: {e}")
     return temperatures
 
-
-# @router.get("/modulators/temperatures")
-# def get_modulator_temperatures():
-#     modulator_cards = find_modulator_cards()
-#     if not modulator_cards:
-#         logger.warning("No modulator cards found.")
-#         raise HTTPException(status_code=404, detail="No modulator cards found")
-
-#     modulators = []
-#     for card in modulator_cards:
-#         temps = read_temperatures(card)
-#         if temps:
-#             modulators.append({
-#                 "card_id": card,
-#                 "temperatures": temps
-#             })
-
-#     if not modulators:
-#         raise HTTPException(
-#             status_code=404, detail="No temperatures available for modulator cards")
-
-#     return {"modulators": modulators}
 @router.get("/modulators/temperatures")
 def get_modulator_temperatures():
     modulator_cards = find_modulator_cards()

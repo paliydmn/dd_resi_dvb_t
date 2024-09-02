@@ -23,9 +23,10 @@
                     x: {
                         type: 'time',
                         time: {
-                            unit: 'minute',
+                            unit: 'second',
+                            stepSize: 15, 
                             displayFormats: {
-                                minute: 'HH:mm:ss'
+                                second: 'HH:mm:ss'
                             },
                             title: {
                                 display: true,
@@ -75,9 +76,10 @@
                     });
                 });
 
-                // Remove old data (only keep data for the last 5 minutes)
+                // Remove old data (only keep data for the last 3 minutes)
+                const threeMinutesAgo = now - 3 * 60 * 1000;
                 temperatureChart.data.datasets.forEach(ds => {
-                    ds.data = ds.data.filter(d => now - new Date(d.x) < 5 * 60 * 1000);
+                    ds.data = ds.data.filter(d => new Date(d.x) > threeMinutesAgo);
                 });
 
                 temperatureChart.update();
@@ -86,7 +88,8 @@
             }
         }
 
-        setInterval(fetchTemperatureData, 2000);
+        // Fetch new data every 5 seconds
+        setInterval(fetchTemperatureData, 5000);
     </script>
 </body>
 </html>
