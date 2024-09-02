@@ -14,6 +14,10 @@ class Settings(BaseSettings):
     log_ffmpeg_file: str = "ff_"
 
 
+    # Modulator settings
+    mod_devid: str = "0222dd01"
+    mod_card_path: str = "/sys/class/ddbridge/" 
+
     #tools
     modconfig_app: str = "./tools/modconfig"
     

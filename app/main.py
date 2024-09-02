@@ -6,7 +6,8 @@ import uvicorn
 from app.routers.index import router as index_router
 from app.routers.adapters import router as adapter_router
 from app.routers.modulator import router as modulator_router
-from app.routers.logs import router as logs
+from app.routers.logs import router as logs_router
+from app.routers.info import router as info_router
 
 from app.utils.signal_handler import register_signal_handlers, stop_ffmpeg_processes
 
@@ -21,7 +22,8 @@ app = FastAPI()
 app.include_router(index_router)
 app.include_router(adapter_router)
 app.include_router(modulator_router)
-app.include_router(logs)
+app.include_router(logs_router)
+app.include_router(info_router)
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 
