@@ -41,6 +41,7 @@ def find_modulator_cards() -> List[str]:
                     logger.error(f"Error reading {devid0_path}: {e}")
     return modulator_cards
 
+
 def read_temperatures(card: str) -> List[float]:
     temp_path = f"/sys/class/ddbridge/{card}/temp"
     temperatures = []
@@ -55,10 +56,12 @@ def read_temperatures(card: str) -> List[float]:
                     temp_c = int(temp_str) / 1000.0
                     temperatures.append(temp_c)
                 else:
-                    logger.warning(f"Invalid temperature value: {temp_str} in {temp_path}")
+                    logger.warning(f"Invalid temperature value: {
+                                   temp_str} in {temp_path}")
     except Exception as e:
         logger.error(f"Error reading {temp_path}: {e}")
     return temperatures
+
 
 @router.get("/modulators/temperatures")
 def get_modulator_temperatures():
@@ -67,13 +70,17 @@ def get_modulator_temperatures():
         logger.warning("No modulator cards found.")
         raise HTTPException(status_code=404, detail="No modulator cards found")
 
-    modulators = {}
+    modulators = []
     for card in modulator_cards:
         temps = read_temperatures(card)
         if temps:
-            modulators[card] = temps
-    
+            modulators.append({
+                "card_id": card,
+                "temperatures": temps
+            })
+
     if not modulators:
-        raise HTTPException(status_code=404, detail="No temperatures available for modulator cards")
-    
-    return modulators
+        raise HTTPException(
+            status_code=404, detail="No temperatures available for modulator cards")
+
+    return {"modulators": modulators}
