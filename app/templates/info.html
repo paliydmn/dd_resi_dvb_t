@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Temperature Monitoring</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script> <!-- Include the date adapter -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>
 </head>
 <body>
     <canvas id="temperatureChart"></canvas>
@@ -26,12 +26,20 @@
                             unit: 'minute',
                             displayFormats: {
                                 minute: 'HH:mm:ss'
+                            },
+                            title: {
+                                display: true,
+                                text: 'Time'
                             }
-                        }
+                        },
                     },
                     y: {
                         beginAtZero: true,
-                        suggestedMax: 100
+                        suggestedMax: 100,
+                        title: {
+                            display: true,
+                            text: 'C°'
+                        }
                     }
                 }
             }
@@ -39,52 +47,45 @@
         const temperatureChart = new Chart(ctx, config);
 
         async function fetchTemperatureData() {
-    try {
-        const response = await fetch('/modulators/temperatures');
-        const modulatorData = await response.json();
-        console.log(modulatorData);  // Log the response to check its structure
-        
-        // Check if the expected 'modulators' field exists
-        if (!modulatorData.modulators) {
-            throw new Error("The 'modulators' field is missing in the response.");
-        }
-
-        // Process the data as before
-        const now = new Date();
-        for (const modulator of modulatorData.modulators) {
-            const modulatorId = modulator.card_id;
-            const tempValues = modulator.temperatures;
-
-            if (!temperatureChart.data.datasets.some(ds => ds.label === modulatorId)) {
-                temperatureChart.data.datasets.push({
-                    label: modulatorId,
-                    data: [],
-                    borderColor: '',
-                    backgroundColor: 'rgba(0,0,0,0)',
-                    fill: false
+            try {
+                const response = await fetch('/modulators/temperatures');
+                const modulatorData = await response.json();
+                
+                const now = new Date();
+                Object.entries(modulatorData).forEach(([modulatorId, temps]) => {
+                    ['sensor_1', 'sensor_2', 'sensor_3'].forEach((sensor, index) => {
+                        if (temps[sensor] !== null) {
+                            const datasetLabel = `${modulatorId} Sensor ${index + 1}`;
+                            if (!temperatureChart.data.datasets.some(ds => ds.label === datasetLabel)) {
+                                temperatureChart.data.datasets.push({
+                                    label: datasetLabel,
+                                    data: [],
+                                    borderColor: '',
+                                    backgroundColor: 'rgba(0,0,0,0)',
+                                    fill: false
+                                });
+                            }
+                            const dataset = temperatureChart.data.datasets.find(ds => ds.label === datasetLabel);
+                            dataset.data.push({
+                                x: now,
+                                y: temps[sensor]
+                            });
+                            dataset.borderColor = temps[sensor] > 65 ? 'red' : temps[sensor] > 45 ? 'yellow' : 'green';
+                        }
+                    });
                 });
+
+                // Remove old data (only keep data for the last 5 minutes)
+                temperatureChart.data.datasets.forEach(ds => {
+                    ds.data = ds.data.filter(d => now - new Date(d.x) < 5 * 60 * 1000);
+                });
+
+                temperatureChart.update();
+            } catch (error) {
+                console.error('Error fetching temperature data:', error);
             }
-            const dataset = temperatureChart.data.datasets.find(ds => ds.label === modulatorId);
-            
-            tempValues.forEach(temp => {
-                dataset.data.push({
-                    x: now,
-                    y: temp
-                });
-                dataset.borderColor = temp > 65 ? 'red' : temp > 45 ? 'yellow' : 'green';
-            });
         }
 
-        // Remove old data (only keep data for the last 5 minutes)
-        temperatureChart.data.datasets.forEach(ds => {
-            ds.data = ds.data.filter(d => now - new Date(d.x) < 5 * 60 * 1000);
-        });
-
-        temperatureChart.update();
-    } catch (error) {
-        console.error('Error fetching temperature data:', error);
-    }
-}
         setInterval(fetchTemperatureData, 2000);
     </script>
 </body>
