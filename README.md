@@ -17,13 +17,13 @@ This project utilizes a Python virtual environment to manage dependencies and ru
 To clone the repository, run:
 
 ```sh
-git clone git@github.com:paliydmn/dd_resi_dvb_t.git
+wget https://github.com/paliydmn/resicast.git
 ```
 
 Navigate into the project directory:
 
 ```sh
-cd dd_resi_dvb_t
+cd resicast
 ```
 
 ### Using the Makefile

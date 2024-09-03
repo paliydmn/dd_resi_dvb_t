@@ -3,10 +3,13 @@ from fastapi.staticfiles import StaticFiles
 from fastapi import FastAPI
 
 import uvicorn
+import argparse
+
 from app.routers.index import router as index_router
 from app.routers.adapters import router as adapter_router
 from app.routers.modulator import router as modulator_router
-from app.routers.logs import router as logs
+from app.routers.logs import router as logs_router
+from app.routers.info import router as info_router
 
 from app.utils.signal_handler import register_signal_handlers, stop_ffmpeg_processes
 
@@ -21,7 +24,8 @@ app = FastAPI()
 app.include_router(index_router)
 app.include_router(adapter_router)
 app.include_router(modulator_router)
-app.include_router(logs)
+app.include_router(logs_router)
+app.include_router(info_router)
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 
 
@@ -47,5 +51,9 @@ def apply_mod_config_for_all():
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run ResiCast FastAPI application.")
+    parser.add_argument("-p", "--port", type=int, default=settings.default_port, help="Port to run the server on")
+    args = parser.parse_args()
+
     register_signal_handlers()
-    uvicorn.run(app, host="0.0.0.0", port=8008)
+    uvicorn.run("app.main:app", host="0.0.0.0", port=args.port)

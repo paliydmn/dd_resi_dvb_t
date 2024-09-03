@@ -2,6 +2,9 @@ from pydantic_settings import BaseSettings
 from pathlib import Path
 
 class Settings(BaseSettings):
+    # Server settings
+    default_port: int = 8008
+
     #configuration files
     adapter_conf_file: Path = Path("app/config/adapters_config.json")
     modulator_conf_dir: str = "app/config/"
@@ -13,6 +16,10 @@ class Settings(BaseSettings):
     log_main_file: str = "app.log"
     log_ffmpeg_file: str = "ff_"
 
+
+    # Modulator settings
+    mod_devid: str = "0222dd01"
+    mod_card_path: str = "/sys/class/ddbridge/" 
 
     #tools
     modconfig_app: str = "./tools/modconfig"

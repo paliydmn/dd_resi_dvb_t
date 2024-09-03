@@ -31,29 +31,29 @@ install:
                 echo "Python is installed."; \
         fi
 
-	@echo "Checking for FFmpeg..."
-	@if ! command -v ffmpeg &> /dev/null; then \
-		echo "FFmpeg is not installed. Installing FFmpeg..."; \
-		if [ "$$(uname)" = "Linux" ]; then \
-			sudo apt-get update && sudo apt-get install -y ffmpeg; \
-		elif [ "$$(uname)" = "Darwin" ]; then \
-			brew install ffmpeg; \
-		else \
-			echo "Please install FFmpeg manually."; \
-			exit 1; \
-		fi \
-	else \
-		echo "FFmpeg is installed."; \
-	fi
+        @echo "Checking for FFmpeg..."
+        @if ! command -v ffmpeg &> /dev/null; then \
+                echo "FFmpeg is not installed. Installing FFmpeg..."; \
+                if [ "$$(uname)" = "Linux" ]; then \
+                        sudo apt-get update && sudo apt-get install -y ffmpeg; \
+                elif [ "$$(uname)" = "Darwin" ]; then \
+                        brew install ffmpeg; \
+                else \
+                        echo "Please install FFmpeg manually."; \
+                        exit 1; \
+                fi \
+        else \
+                echo "FFmpeg is installed."; \
+        fi
 
-	@echo "Creating virtual environment..."
-	python3 -m venv $(VENV_NAME)
+        @echo "Creating virtual environment..."
+        python3 -m venv $(VENV_NAME)
 
-	@echo "Activating virtual environment..."
-	@bash -c '$(ACTIVATE_CMD) && pip install --upgrade pip'
+        @echo "Activating virtual environment..."
+        @bash -c '$(ACTIVATE_CMD) && pip install --upgrade pip'
 
-	@echo "Installing dependencies..."
-	@bash -c '$(ACTIVATE_CMD) && pip install -r $(REQUIREMENTS_FILE)'
+        @echo "Installing dependencies..."
+        @bash -c '$(ACTIVATE_CMD) && pip install -r $(REQUIREMENTS_FILE)'
 
         @echo "make 'modconfig' executable..."
         @chmod +x  ./tools/modconfig
