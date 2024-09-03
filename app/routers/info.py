@@ -56,8 +56,7 @@ def read_temperatures(card: str) -> List[float]:
                     temp_c = int(temp_str) / 1000.0
                     temperatures.append(temp_c)
                 else:
-                    logger.warning(f"Invalid temperature value: {
-                                   temp_str} in {temp_path}")
+                    logger.warning(f"Invalid temperature value: {temp_str} in {temp_path}")
     except Exception as e:
         logger.error(f"Error reading {temp_path}: {e}")
     return temperatures

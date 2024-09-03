@@ -2,6 +2,9 @@ from pydantic_settings import BaseSettings
 from pathlib import Path
 
 class Settings(BaseSettings):
+    # Server settings
+    default_port: int = 8008
+
     #configuration files
     adapter_conf_file: Path = Path("app/config/adapters_config.json")
     modulator_conf_dir: str = "app/config/"
