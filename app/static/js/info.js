@@ -73,13 +73,13 @@ async function fetchTemperatureData() {
                         x: now,
                         y: temps[sensor]
                     });
-                    dataset.borderColor = temps[sensor] > 65 ? 'red' : temps[sensor] > 45 ? 'yellow' : 'green';
+                    dataset.borderColor = temps[sensor] > 65 ? 'red' : temps[sensor] > 45 ? 'orange' : 'green';
                 }
             });
         });
 
-        // Remove old data (only keep data for the last 5 minutes)
-        const fiveMinutesAgo = now - 5 * 60 * 1000;
+        // Remove old data (only keep data for the last 3 minutes)
+        const fiveMinutesAgo = now - 3 * 60 * 1000;
         temperatureChart.data.datasets.forEach(ds => {
             ds.data = ds.data.filter(d => new Date(d.x) > fiveMinutesAgo);
         });
@@ -89,6 +89,8 @@ async function fetchTemperatureData() {
         console.error('Error fetching temperature data:', error);
     }
 }
+// Fetch data immediately after page load
+fetchTemperatureData();
 
-// Fetch new data every 2 seconds
-setInterval(fetchTemperatureData, 2000);
+// Continue fetching new data every 5 seconds
+setInterval(fetchTemperatureData, 5000);
