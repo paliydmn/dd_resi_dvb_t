@@ -58,8 +58,37 @@ install:
 	@echo "make 'modconfig' executable..."
 	@chmod +x  ./tools/modconfig
 	@echo "Virtual environment setup and dependencies installed."
-	
-# Run the FastAPI server
-run:
-	@echo "Starting FastAPI server..."
-	@bash -c '$(ACTIVATE_CMD) && uvicorn $(ENTRY_POINT) --host $(HOST) --port $(PORT) --reload'
+
+# Run the FastAPI server in development mode
+run_dev:
+	@echo "Starting FastAPI server in development mode..."
+	@bash -c '$(ACTIVATE_CMD) && uvicorn $(ENTRY_POINT) --host $(HOST) --port $${p:-$(PORT)} --reload'
+
+# Initialize and create a systemd service for ResiCast
+init:
+	@echo "Creating systemd service for ResiCast..."
+	@bash -c 'cat > /etc/systemd/system/resicast.service << EOL \
+[Unit] \
+Description=ResiCast FastAPI Service \
+After=network.target \
+\
+[Service] \
+User=$$(whoami) \
+WorkingDirectory=$$(pwd) \
+ExecStart=$$(pwd)/$(VENV_NAME)/bin/uvicorn $(ENTRY_POINT) --host $(HOST) --port $${p:-$(PORT)} \
+Restart=always \
+RestartSec=3 \
+Environment="PATH=$$(pwd)/$(VENV_NAME)/bin" \
+\
+[Install] \
+WantedBy=multi-user.target \
+EOL'
+
+	@echo "Reloading systemd daemon..."
+	@systemctl daemon-reload
+
+	@echo "Enabling and starting ResiCast service..."
+	@systemctl enable resicast.service
+	@systemctl start resicast.service
+
+	@echo "ResiCast service initialized successfully."
