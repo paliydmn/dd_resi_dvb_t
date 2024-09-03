@@ -60,8 +60,7 @@ def set_description():
                 if stream['stream'] == modulator_number:
                     channel_value = stream['channel']
                     description = frequency + (channel_value * 8)
-                    adapter_config.description = f"{
-                        description:.1f} MHz."  # Format to 2 decimal places
+                    adapter_config.description = f"{description:.1f} MHz."  # Format to 2 decimal places
                     logger.info(f"Set description = {adapter_config.description} for stream = {modulator_number}.")
                     break
     save_adapters_to_file()
