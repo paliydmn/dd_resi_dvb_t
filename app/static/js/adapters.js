@@ -318,7 +318,7 @@ function saveSelection(adapterId) {
         .then(response => response.json())
         .then(data => {
             alert(data.msg);
-            loadAdapters(); // Reload the adapters list
+            updateAdapter(adapterId)
         })
         .catch(error => console.error('Error:', error));
 }
