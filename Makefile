@@ -64,9 +64,10 @@ run_dev:
 
 # Initialize and create a systemd service for ResiCast
 init:
-	@echo "Initializing ResiCast as a systemd service..."
+	@echo "Creating systemd service for ResiCast..."
 	@echo "[Unit]" | sudo tee /etc/systemd/system/resicast.service > /dev/null
 	@echo "Description=ResiCast FastAPI Service" | sudo tee -a /etc/systemd/system/resicast.service > /dev/null
+	@echo "After=network.target" | sudo tee -a /etc/systemd/system/resicast.service > /dev/null
 	@echo "" | sudo tee -a /etc/systemd/system/resicast.service > /dev/null
 	@echo "[Service]" | sudo tee -a /etc/systemd/system/resicast.service > /dev/null
 	@echo "User=$$(whoami)" | sudo tee -a /etc/systemd/system/resicast.service > /dev/null
@@ -74,15 +75,13 @@ init:
 	@echo "ExecStart=$$(pwd)/$(VENV_NAME)/bin/uvicorn $(ENTRY_POINT) --host $(HOST) --port $${p:-$(PORT)}" | sudo tee -a /etc/systemd/system/resicast.service > /dev/null
 	@echo "Restart=always" | sudo tee -a /etc/systemd/system/resicast.service > /dev/null
 	@echo "RestartSec=3" | sudo tee -a /etc/systemd/system/resicast.service > /dev/null
-	@echo "Environment=PATH=$$(pwd)/$(VENV_NAME)/bin" | sudo tee -a /etc/systemd/system/resicast.service > /dev/null
+	@echo "Environment=\"PATH=$$(pwd)/$(VENV_NAME)/bin:/usr/bin:/bin\"" | sudo tee -a /etc/systemd/system/resicast.service > /dev/null
 	@echo "" | sudo tee -a /etc/systemd/system/resicast.service > /dev/null
 	@echo "[Install]" | sudo tee -a /etc/systemd/system/resicast.service > /dev/null
 	@echo "WantedBy=multi-user.target" | sudo tee -a /etc/systemd/system/resicast.service > /dev/null
-
 	@echo "Reloading systemd daemon..."
 	@sudo systemctl daemon-reload
-
 	@echo "Enabling and starting ResiCast service..."
-	@sudo systemctl enable --now resicast.service
-
-	@echo "ResiCast service initialized and started on port $${p:-$(PORT)}."
+	@sudo systemctl enable resicast.service
+	@sudo systemctl start resicast.service
+	@echo "ResiCast service initialized successfully."
