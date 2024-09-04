@@ -13,8 +13,8 @@ class Settings(BaseSettings):
     log_directory: str = "logs/" # Adjust this path as needed
     log_file_size: int = 1 * 1024 * 1024  # 1 MB
     log_backup_count: int = 3  # Number of backup log files to keep
-    log_main_file: str = "app.log"
-    log_ffmpeg_file: str = "ff_"
+    log_main_file: str = "resicast.log"
+    log_ffmpeg_file: str = "ff_" #the <adapter_name> and <adapter id> will be added to ff log files
 
 
     # Modulator settings
