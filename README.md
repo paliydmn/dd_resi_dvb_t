@@ -114,7 +114,7 @@ After running this command, ResiCast will be running as a systemd service, and y
 
 Once the server is running, you can access the web user interface (UI) through your web browser. Open your web browser and navigate to:
 **Default port**
- - default port is `8008`, if port is not indicated custome one in `settings.py`, `make run_dev` or `make init` commands. 
+ - default port is `8008`, if it is not indicated in `settings.py` file or `make run_dev`, `make init` commands. 
 ```
 http://<localhost/server_IP>:8008
 ```
