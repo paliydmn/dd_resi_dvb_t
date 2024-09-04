@@ -64,6 +64,52 @@ make run_dev PORT=<port_number>
 ```
 Where `<port_number>`, for instance `8200`. 
 
+#### 3. Initializing the ResiCast Service
+
+The `init` command in the `Makefile` sets up ResiCast as a systemd service, ensuring that the application runs automatically in the background and restarts if it crashes. This command creates a systemd service file tailored to your environment and starts the service. 
+
+### How It Works
+
+When you run `make init`, the following steps are performed:
+
+1. **Creating the Systemd Service File:**
+   - A new service file named `resicast.service` is generated under `/etc/systemd/system/`.
+   - The file includes configurations such as the service description, the user under which the service runs, and the working directory.
+
+2. **Setting Up the Service:**
+   - The `ExecStart` command specifies the path to `uvicorn` within your Python virtual environment, ensuring the FastAPI application starts with the specified host and port.
+   - The service is configured to restart automatically if it crashes, with a delay of 3 seconds between restarts.
+
+3. **Reloading and Enabling the Service:**
+   - After creating the service file, the systemd daemon is reloaded to recognize the new service.
+   - The ResiCast service is then enabled to start on boot and immediately started.
+
+### Usage
+
+To initialize the ResiCast service, simply run:
+
+```bash
+make init
+```
+
+### Example Output
+
+Running `make init` will produce output similar to the following:
+
+```plaintext
+Creating systemd service for ResiCast...
+Reloading systemd daemon...
+Enabling and starting ResiCast service...
+ResiCast service initialized successfully.
+```
+
+Or with Custom Port: 
+```bash
+make init PORT=8010
+```
+
+After running this command, ResiCast will be running as a systemd service, and you can manage it using standard systemd commands like `sudo systemctl status resicast.service`, `sudo systemctl restart resicast.service`, and `sudo systemctl stop resicast.service`.
+
 ## Accessing the Web UI
 
 Once the server is running, you can access the web user interface (UI) through your web browser. Open your web browser and navigate to:
