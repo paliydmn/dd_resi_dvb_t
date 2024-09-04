@@ -44,12 +44,12 @@ This command will:
 - Activate the virtual environment (platform-specific).
 - Install the required Python packages listed in `requirements.txt`.
 
-#### 2. Run the Server
+#### 2. Run the Server in dev mode
 
 To start the FastAPI server, run:
 
 ```sh
-make run
+make run_dev
 ```
 
 This command will:
@@ -57,10 +57,18 @@ This command will:
 - Ensure the virtual environment is activated.
 - Start the FastAPI server using `uvicorn`.
 
+**Run the server with Custom PORT**
+
+```sh
+make run_dev PORT=<port_number>
+```
+Where `<port_number>`, for instance `8200`. 
+
 ## Accessing the Web UI
 
 Once the server is running, you can access the web user interface (UI) through your web browser. Open your web browser and navigate to:
-
+**Default port**
+ - default port is `8008`, if port is not indicated custome one in `settings.py`, `make run_dev` or `make init` commands. 
 ```
 http://<localhost/server_IP>:8008
 ```
@@ -71,9 +79,9 @@ This will bring up the home page of the web UI where you can interact with the v
 
 ### Location
 
-Log files for FFmpeg processes are stored in the `app/logs` directory. Each log file is named according to the adapter ID, following the format `ffmpeg_a<adapter_id>.log`. For example, the log file for Adapter #1 would be located at `app/logs/ffmpeg_a1.log`.
+Log files for FFmpeg processes are stored in the `resicast/logs/` directory. Each log file is named according to the <adapter name>_<adapter id>, following the format `ff_<adapter_name>_<adapter_id>.log`. 
 
-Server logs are loacted at `app/logs/app.log` file.
+Server logs are loacted at `logs/resicast.log` file.
 
 ### Viewing Logs
 
@@ -82,14 +90,15 @@ To view the log files:
 1. **Navigate to the Logs Directory**: Open your terminal or file explorer and go to the `app/logs` directory within your project.
 
 2. **Open the Log File**: Use a text editor or viewer of your choice to open the log file corresponding to the adapter you are interested in. For example:
-   - **For Adapter #1**: `tail -f ffmpeg_a1.log`
-   - **For Adapter #2**: `less ffmpeg_a2.log`
+   - **For Adapter #1**: `tail -f ff_name_id.log`
+   - **For Adapter #2**: `less ff_name_id.log`
 
 3. **Monitor Logs**: Logs are continuously updated with output from FFmpeg. The files include detailed information about the FFmpeg process, including both standard output and error messages.
 
 ### Log Rotation
 
-Log files are managed with rotation enabled. Each log file will be rotated when it reaches a size of 10 MB, and up to 5 backup copies will be kept. Older log files are automatically archived to prevent excessive disk usage.
+Log files are managed with rotation enabled. Each log file will be rotated when it reaches a size of 1 MB, and up to 3 backup copies will be kept. Older log files are automatically archived to prevent excessive disk usage.
+You may set up the log settings at `resicast/settings.py` file (retsart the service or server after settings change)
 
 ---
 
