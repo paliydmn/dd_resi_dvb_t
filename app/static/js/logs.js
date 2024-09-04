@@ -40,7 +40,7 @@ function viewLogFile(fileName) {
         .then(response => response.text())
         .then(data => {
             data = data.trim().replace(/^"|"$/g, '');
-            logContent.innerHTML = data.replace(/\\n/g, '<br>');
+            logContent.innerHTML = data.replace(/\\n/g, '<br>') + "\n";
             openWebSocket(fileName, logContent);
         })
         .catch(error => {
