@@ -41,9 +41,6 @@ Currently, the Info page displays temperature readings from the sensors on the R
 
 ---
 
-This guide provides a clear and concise explanation, making it easy for users to understand how to use the ResiCast application effectively.
-
-
 # Setup Instructions
 
 ### Prerequisites
