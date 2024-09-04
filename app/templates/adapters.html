@@ -16,8 +16,8 @@
 <div id="new-adapter-modal">
     <form id="adapter-form" onsubmit="handleFormSubmit(event)">
         <label for="adapter-name">Adapter Name:</label>
-        <input id="adapter-name" name="adapter-name" required></input><br>
-        
+        <input id="adapter-name" name="adapter-name" required="" pattern="[a-zA-Z0-9_\-]+" title="Only letters, numbers, underscores, and dashes are allowed."></input><br>
+
         <label for="adapter-number">Adapter Number:</label>
         <select id="adapter-number" name="adapter-number" required></select><br>
 
