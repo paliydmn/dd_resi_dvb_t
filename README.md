@@ -213,7 +213,7 @@ This project uses FFmpeg, a free software project that is licensed under the GNU
 
 ### FFmpeg Licensing
 
-FFmpeg is licensed under the following licenses:
+[FFmpeg](https://github.com/FFmpeg/FFmpeg) is licensed under the following licenses:
 - **LGPL v2.1**: The LGPL license applies to the FFmpeg libraries. You can find the full text of the LGPL license [here](https://www.gnu.org/licenses/lgpl-2.1.html).
 - **GPL v2**: The GPL license applies to FFmpeg components. You can find the full text of the GPL license [here](https://www.gnu.org/licenses/gpl-2.0.html).
 
