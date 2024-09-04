@@ -1,11 +1,50 @@
-# Project README
+# ResiCast README
 
 ## Overview
+**ResiCast** is a sophisticated wrapper around FFmpeg designed to streamline the process of generating FFmpeg commands for each Adapter, selecting TV programs, and multiplexing the output to the DD RESI SDR DVB-T/T2 Modulator. 
+It utilizes a Python virtual environment to manage dependencies and run a FastAPI server. The provided Makefile simplifies the setup and running of the project.
 
-Project is based on FFMPEG utility. Developed for managing UDP MPEGTS streams to write to the DD RESI DVB-T/T2 Modulator. 
-This project utilizes a Python virtual environment to manage dependencies and run a FastAPI server. The provided Makefile simplifies the setup and running of the project.
+## Adapters Page
 
-## Setup Instructions
+### Create Adapter
+
+On the Adapters page, you can create a new Adapter by filling out a simple form. You'll need to:
+
+1. **Enter an adapter name.**
+2. **Select an available adapter and modulator.**
+3. **Provide a UDP link for `MPTS` or links `SPTS` type** containing the MPEG transport stream.
+
+> Most of my testing has been conducted using UDP links to `SPTS` (Single Program Transport Stream) from the [Astra Cesbo](https://www.cesbo.com/) application. 
+
+### Scan and Select programs
+
+Once the Adapter is created, you can scan it to discover all available TV Programs from the UDP inputs. The scanning process may take some time.
+
+After scanning, it's crucial to select and save the desired TV programs. Note that you don't need to add a UDP link for channels you don't wish to select TV programs from.
+
+> **Important:** Currently, the RESI SDR card supports modulation only at 8MHz and DVB-T standard, with a maximum bitrate of 31Mb. It’s essential to ensure that the total input bitrate of all SPTS UDP URLs is less than 31Mb. For satellite streams, exercise caution when adding streams exceeding 20Mb to the Modulator, as the bitrate of specific programs can spike significantly.
+
+Additionally, you can add an 'MPTS' (Multiprogram Transport Stream) UDP URL. 
+This allows multiple TV programs to be retrieved from a single URL. However, be aware of potential issues with programs that have different video/audio codecs and problems with subtitles. After scanning MPTS adapters, you can select only the necessary TV programs and streams (video/audio/subtitles).
+
+## Modulators Page
+
+On the Modulators page, you can configure the frequency and output power (in dBμV) for each Modulator. Changes to the Modulator settings can only be applied when all adapters are stopped.
+
+## Logs Page
+
+The Logs page provides a quick, real-time overview of logs. All logs are stored in the `/resicast/logs/` directory for easy access.
+
+## Info Page
+
+Currently, the Info page displays temperature readings from the sensors on the RESI SDR card, offering a quick way to monitor the card's thermal status.
+
+---
+
+This guide provides a clear and concise explanation, making it easy for users to understand how to use the ResiCast application effectively.
+
+
+# Setup Instructions
 
 ### Prerequisites
 
