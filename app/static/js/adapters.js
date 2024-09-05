@@ -107,7 +107,7 @@ function createSingleUrlAdapter(event) {
             hideNewAdapterForm();
             loadAdapters(); // Reload the adapters list
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => showPopup(error, "error"));
 }
 
 function createMultiUrlAdapter(event) {
@@ -150,7 +150,7 @@ function createMultiUrlAdapter(event) {
             hideNewAdapterForm();
             loadAdapters(); // Reload the adapters list
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => showPopup(error, "error"));
 }
 
 function resetNewAdapterForm() {
@@ -183,7 +183,10 @@ function scanAdapter(adapterId) {
             const programs = data.programs;
             // Hide the spinner after receiving data
             scanSection.removeChild(spinner);
-
+            if (!programs || Object.keys(programs).length === 0) {
+                showPopup(data.msg, data.status);
+                return;
+            }
             const adapterDiv = document.getElementById(`adapter-${adapterId}`);
 
             // Hide other controls
@@ -232,7 +235,7 @@ function scanAdapter(adapterId) {
         .catch(error => {
             console.error('Error:', error)
             // Hide the spinner if an error occurs
-            showPopup(data.msg, data.status);
+            showPopup(error, "error")
             updateAdapter(adapterId)
             scanSection.removeChild(spinner);
         });
@@ -320,7 +323,7 @@ function saveSelection(adapterId) {
             showPopup(data.msg, data.status);
             updateAdapter(adapterId)
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => showPopup(error, "error"));
 }
 
 function cancelSelection(adapterId) {
@@ -360,7 +363,7 @@ function startFFmpeg(adapterId) {
             updateAdapter(adapterId)
         })
         .catch(error => {
-            alert(`Start Adapter Error: ${error}`);
+            showPopup(`Start Adapter Error: ${error}`, "error");
             adapterSection.removeChild(spinner);
             console.error('Error:', error)
         });
@@ -387,7 +390,7 @@ function stopFFmpeg(adapterId) {
         })
         .catch(error => {
             adapterSection.removeChild(spinner);
-            console.error('Error:', error)
+            showPopup(error, "error")
         });
 }
 
@@ -398,9 +401,9 @@ function deleteAdapter(adapterId) {
         .then(response => response.json())
         .then(data => {
             showPopup(data.msg, data.status);
-            updateAdapter(adapterId);
+            loadAdapters();
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => showPopup(error, "error"));
 }
 
 
@@ -488,7 +491,7 @@ function updateAdapter(adapterId) {
                 </form>
             `;
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => showPopup(error, "error"));
 }
 
 
@@ -579,7 +582,7 @@ function loadAdapters() {
                 adapterContainer.appendChild(adapterDiv);
             });
         })
-        .catch(error => console.error('Error:', error));
+        .catch(error => showPopup(error, "error"));
 }
 
 function toggleProgramDetails(programTitle) {
@@ -630,7 +633,7 @@ function fetchAvailableAdapters() {
                 modulatorSelect.add(option);
             });
         })
-        .catch(error => console.error('Error fetching available adapters:', error));
+        .catch(error => showPopup(`Error fetching available adapters: ${error}`,"error"));
 }
 
 // Call fetchAvailableAdapters when the modal is opened
@@ -662,7 +665,7 @@ function showPopup(message, status) {
     setTimeout(() => {
         popup.classList.add('hidden');
         popup.classList.remove('visible');
-    }, 5000);
+    }, 4000);
 
     // Allow clicking to close
     popup.addEventListener('click', () => {

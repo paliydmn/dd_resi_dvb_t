@@ -3,20 +3,21 @@
 {% block title %}Adapters{% endblock %}
 
 {% block content %}
-    <h1>Adapter Management</h1>
-    <button onclick="showNewAdapterForm()">New Adapter</button>
-    <button onclick="stopAllffmpegs()">Stop All</button>
-    <div id="adapter-container">
-        <!-- List of adapters will be populated here -->
-    </div>
-    <!-- Modal overlay -->
-    <div id="modal-overlay" style="display: none;"></div>
+<h1>Adapter Management</h1>
+<button onclick="showNewAdapterForm()">New Adapter</button>
+<button onclick="stopAllffmpegs()">Stop All</button>
+<div id="adapter-container">
+    <!-- List of adapters will be populated here -->
+</div>
+<!-- Modal overlay -->
+<div id="modal-overlay" style="display: none;"></div>
 
-    <!-- New Adapter Modal -->
+<!-- New Adapter Modal -->
 <div id="new-adapter-modal">
     <form id="adapter-form" onsubmit="handleFormSubmit(event)">
         <label for="adapter-name">Adapter Name:</label>
-        <input id="adapter-name" name="adapter-name" required="" pattern="[a-zA-Z0-9_\-]+" title="Only letters, numbers, underscores, and dashes are allowed."></input><br>
+        <input id="adapter-name" name="adapter-name" required="" pattern="[a-zA-Z0-9_\-]+"
+            title="Only letters, numbers, underscores, and dashes are allowed."></input><br>
 
         <label for="adapter-number">Adapter Number:</label>
         <select id="adapter-number" name="adapter-number" required></select><br>
@@ -40,17 +41,15 @@
         <button type="button" onclick="hideNewAdapterForm()">Cancel</button>
     </form>
 </div>
-    <h2>Existing Adapters</h2>
-    <div id="existing-adapters">
-        <!-- Existing adapters will be populated here -->
-    </div>
+<h2>Existing Adapters</h2>
+<div id="existing-adapters">
+    <!-- Existing adapters will be populated here -->
+</div>
 
-    <div id="alert-popup" class="popup hidden">
-        <div id="alert-header" class="popup-header"></div>
-        <div id="alert-message" class="popup-body"></div>
-    </div>
-    
+<div id="alert-popup" class="popup hidden">
+    <div id="alert-header" class="popup-header"></div>
+    <div id="alert-message" class="popup-body"></div>
+</div>
 
-
-    <script src="/static/js/adapters.js"></script>
+<script src="/static/js/adapters.js"></script>
 {% endblock %}
