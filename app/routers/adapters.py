@@ -74,12 +74,16 @@ def get_adapters():
 
 @router.get("/adapters/stop_all")
 def stop_all_adapters():
-    if stop_ffmpeg_processes():
-        running_processes.clear()
-        for a in adapters.values():
-            a.running = False
+    try:
+        if stop_ffmpeg_processes():
+            running_processes.clear()
+            for a in adapters.values():
+                a.running = False
+    except Exception as e:
+        return {"status": "error", "msg": f"FFmpeg process failed to stop. Error: {e}"}
+    
     save_adapters_to_file()
-    return {"message": "All FFmpeg processes are stopped!"}
+    return {"status": "success", "msg": "All FFmpeg processes are stopped!"}
 
 
 @router.get("/adapters/available", response_model=AvailableResources)
@@ -124,7 +128,7 @@ def create_MPTS_adapter(adapterConf: AdapterConfig):
     adapters[adapter_id] = adapterConf
     save_adapters_to_file()
     logger.info(f"MPTS Adapter created: {adapterConf}")
-    return {"id": adapter_id, "message": f"Adapter '{adapterConf.adapter_name}' created successfully"}
+    return {"status": "success", "msg": f"Adapter '{adapterConf.adapter_name}' created successfully"}
 
 
 @router.post("/adapters/createSA")
@@ -143,7 +147,7 @@ def create_SPTS_adapter(adapterConf: AdapterConfig):
     adapters[adapter_id] = adapterConf
     save_adapters_to_file()
     logger.info(f"SPTS Adapter created: {adapterConf}")
-    return {"id": adapter_id, "message": f"Adapter '{adapterConf.adapter_name}' created successfully"}
+    return {"status": "success", "msg": f"Adapter '{adapterConf.adapter_name}' created successfully"}
 
 
 @router.get("/adapters/{adapter_id}/scan")
@@ -225,7 +229,7 @@ def stop_ffmpeg(adapter_id: str):
 
     if not adapters[adapter_id].running:
         logger.info(f"Adapter {adapter_id} is already stopped.")
-        return {"message": "Adapter is already stopped"}
+        return {"status": "success", "msg": "Adapter is already stopped"}
 
     process = running_processes[adapter_id]
     try:

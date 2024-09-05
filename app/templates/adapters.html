@@ -40,14 +40,17 @@
         <button type="button" onclick="hideNewAdapterForm()">Cancel</button>
     </form>
 </div>
-
-    
-
-
     <h2>Existing Adapters</h2>
     <div id="existing-adapters">
         <!-- Existing adapters will be populated here -->
     </div>
+
+    <div id="alert-popup" class="popup hidden">
+        <div id="alert-header" class="popup-header"></div>
+        <div id="alert-message" class="popup-body"></div>
+    </div>
+    
+
 
     <script src="/static/js/adapters.js"></script>
 {% endblock %}

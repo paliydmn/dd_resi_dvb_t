@@ -6,7 +6,7 @@ function stopAllffmpegs() {
     fetch('/adapters/stop_all')
         .then(response => response.json())
         .then(data => {
-            alert(data.message);
+            showPopup(data.msg, data.status);
             loadAdapters(); // Reload the adapters list
         });
 }
@@ -103,7 +103,7 @@ function createSingleUrlAdapter(event) {
         })
         .then(response => response.json())
         .then(data => {
-            alert(data.message);
+            showPopup(data.msg, data.status);
             hideNewAdapterForm();
             loadAdapters(); // Reload the adapters list
         })
@@ -146,7 +146,7 @@ function createMultiUrlAdapter(event) {
         })
         .then(response => response.json())
         .then(data => {
-            alert(data.message);
+            showPopup(data.msg, data.status);
             hideNewAdapterForm();
             loadAdapters(); // Reload the adapters list
         })
@@ -232,7 +232,7 @@ function scanAdapter(adapterId) {
         .catch(error => {
             console.error('Error:', error)
             // Hide the spinner if an error occurs
-            alert("Scan Error. See log file.")
+            showPopup(data.msg, data.status);
             updateAdapter(adapterId)
             scanSection.removeChild(spinner);
         });
@@ -317,7 +317,7 @@ function saveSelection(adapterId) {
         })
         .then(response => response.json())
         .then(data => {
-            alert(data.msg);
+            showPopup(data.msg, data.status);
             updateAdapter(adapterId)
         })
         .catch(error => console.error('Error:', error));
@@ -356,13 +356,8 @@ function startFFmpeg(adapterId) {
         .then(response => response.json())
         .then(data => {
             adapterSection.removeChild(spinner);
-            if (data.status == "success") {
-                alert(data.msg);
-                updateAdapter(adapterId)
-            } else if (data.status == "error") {
-                alert(data.msg);
-                updateAdapter(adapterId)
-            }
+            showPopup(data.msg, data.status);
+            updateAdapter(adapterId)
         })
         .catch(error => {
             alert(`Start Adapter Error: ${error}`);
@@ -387,13 +382,8 @@ function stopFFmpeg(adapterId) {
         .then(response => response.json())
         .then(data => {
             adapterSection.removeChild(spinner);
-            if (data.status == "success") {
-                alert(data.msg);
-                updateAdapter(adapterId)
-            } else if (data.status == "error") {
-                alert(data.msg);
-                updateAdapter(adapterId)
-            }
+            showPopup(data.msg, data.status);
+            updateAdapter(adapterId)
         })
         .catch(error => {
             adapterSection.removeChild(spinner);
@@ -407,13 +397,8 @@ function deleteAdapter(adapterId) {
         })
         .then(response => response.json())
         .then(data => {
-            if (data.status == "success") {
-                alert(data.msg);
-                loadAdapters();
-            } else if (data.status == "error") {
-                alert(data.msg);
-                updateAdapter(adapterId);
-            }
+            showPopup(data.msg, data.status);
+            updateAdapter(adapterId);
         })
         .catch(error => console.error('Error:', error));
 }
@@ -650,3 +635,38 @@ function fetchAvailableAdapters() {
 
 // Call fetchAvailableAdapters when the modal is opened
 //document.getElementById('new-adapter-modal').addEventListener('show', fetchAvailableAdapters);
+
+function showPopup(message, status) {
+    const popup = document.getElementById('alert-popup');
+    const header = document.getElementById('alert-header');
+    const messageBody = document.getElementById('alert-message');
+
+    // Set message content
+    messageBody.innerHTML = message;
+
+    // Reset classes
+    popup.classList.remove('success', 'error', 'hidden', 'visible');
+
+    if (status === "success") {
+        header.innerHTML = "Success";
+        popup.classList.add('success');
+    } else if (status === "error") {
+        header.innerHTML = "Error";
+        popup.classList.add('error');
+    }
+
+    // Show the popup
+    popup.classList.add('visible');
+
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        popup.classList.add('hidden');
+        popup.classList.remove('visible');
+    }, 5000);
+
+    // Allow clicking to close
+    popup.addEventListener('click', () => {
+        popup.classList.add('hidden');
+        popup.classList.remove('visible');
+    });
+}
