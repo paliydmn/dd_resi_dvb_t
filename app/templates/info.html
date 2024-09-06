@@ -3,14 +3,15 @@
 {% block title %}Temperature Monitoring{% endblock %}
 
 {% block content %}
+<h1 class="chart-title">Temperature Monitoring</h1>
 <div class="chart-container">
-    <h3 class="chart-title">Temperature Monitoring</h3>
+
     <canvas id="temperatureChart" class="chart"></canvas>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3"></script>
 <script src="/static/js/info.js"></script>
-<link rel="stylesheet" href="/static/style/main.css">
+<link rel="stylesheet" href="/static/style/info.css">
 
 {% endblock %}

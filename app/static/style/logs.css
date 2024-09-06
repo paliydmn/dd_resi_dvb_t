@@ -8,7 +8,6 @@ body {
 }
 
 .logs-content {
-    padding: 20px;
     max-width: 1200px;
     margin: 20px auto;
 }
@@ -96,4 +95,46 @@ input {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: baseline;
+}
+
+/* Mobile view adjustments */
+@media (max-width: 768px) {
+    .logs-content {
+        padding: 10px;
+        margin: 10px;
+    }
+
+    .logs-content h3 {
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+
+    #log-files-list {
+        margin-bottom: 15px;
+    }
+
+    #log-content {
+        height: 50vh; /* Adjust height for smaller screens */
+        font-size: 12px; /* Slightly smaller font for readability */
+    }
+
+    input {
+        width: 90%; /* Expand the input field to full width */
+        padding: 8px;
+        font-size: 14px;
+    }
+
+    #log-limit {
+        justify-content: center; /* Center align the input on mobile */
+        flex-direction: column;
+    }
+
+    label {
+        margin-right: 0; /* Remove right margin for label */
+        margin-bottom: 5px; /* Reduce spacing */
+    }
+
+    #log-files-list a {
+        font-size: 14px; /* Slightly reduce the font size */
+    }
 }

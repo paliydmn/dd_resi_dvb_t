@@ -1,12 +1,7 @@
 .chart-container {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    background-color: #f4f4f9;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin: 20px auto;
+
 }
 
 .chart-title {
@@ -24,4 +19,52 @@
     border-radius: 8px;
     background-color: #fff;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+
+    /* Adjust the logs content for mobile */
+    .logs-content {
+        padding: 10px;
+        margin: 10px;
+    }
+
+    .logs-content h3 {
+        font-size: 20px;
+    }
+
+    #log-content {
+        height: 50vh;
+        /* Adjusted height for mobile screens */
+        font-size: 12px;
+        /* Smaller font size for better readability */
+    }
+
+    input {
+        width: 100%;
+        /* Full width input field on mobile */
+        font-size: 14px;
+    }
+
+    #log-limit {
+        flex-direction: column;
+        /* Stack the content vertically */
+        align-items: flex-start;
+    }
+
+    /* Chart container adjustments */
+    .chart-container {
+        padding: 10px;
+        margin: 10px;
+    }
+
+    .chart-title {
+        font-size: 20px;
+    }
+
+    .chart {
+        width: 100%;
+        height: 300px;
+        /* Smaller height for mobile view */
+    }
 }
