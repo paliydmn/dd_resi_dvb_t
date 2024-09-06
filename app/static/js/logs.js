@@ -36,7 +36,7 @@ function viewLogFile(fileName) {
         currentSocket.close();
     }
 
-    fetch(`/logs/last_lines/${fileName}?lines=10`)
+    fetch(`/logs/last_lines/${fileName}?lines=20`)
         .then(response => response.text())
         .then(data => {
             data = data.trim().replace(/^"|"$/g, '');

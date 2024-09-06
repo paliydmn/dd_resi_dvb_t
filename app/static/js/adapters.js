@@ -187,13 +187,9 @@ function scanAdapter(adapterId) {
                 showPopup(data.msg, data.status);
                 return;
             }
-            const adapterDiv = document.getElementById(`adapter-${adapterId}`);
 
             // Hide other controls
-            adapterDiv.querySelector(`#scan-button-${adapterId}`).style.display = 'none';
-            adapterDiv.querySelector(`#start-form-${adapterId}`).style.display = 'none';
-            adapterDiv.querySelector(`#stop-form-${adapterId}`).style.display = 'none';
-            adapterDiv.querySelector(`#delete-form-${adapterId}`).style.display = 'none';
+            setAdapterControlDisplay(adapterId, false);
 
             // Display scan results and save/cancel buttons
             scanSection.innerHTML = `
@@ -326,16 +322,18 @@ function saveSelection(adapterId) {
         .catch(error => showPopup(error, "error"));
 }
 
+function setAdapterControlDisplay(id, isDisplay) {
+    const adapterDiv = document.getElementById(`adapter-${id}`);
+    adapterDiv.querySelector(`#scan-button-${id}`).style.display = isDisplay ? 'inline' : 'none';
+    adapterDiv.querySelector(`#start-form-${id}`).style.display = isDisplay ? 'inline' : 'none';
+    adapterDiv.querySelector(`#stop-form-${id}`).style.display = isDisplay ? 'inline' : 'none';
+    adapterDiv.querySelector(`#delete-form-${id}`).style.display = isDisplay ? 'inline' : 'none';
+}
+
 function cancelSelection(adapterId) {
     const scanSection = document.getElementById(`scan-section-${adapterId}`);
-    const adapterDiv = document.getElementById(`adapter-${adapterId}`);
-
     // Restore other controls
-    adapterDiv.querySelector(`#scan-button-${adapterId}`).style.display = 'inline';
-    adapterDiv.querySelector(`#start-form-${adapterId}`).style.display = 'inline';
-    adapterDiv.querySelector(`#stop-form-${adapterId}`).style.display = 'inline';
-    adapterDiv.querySelector(`#delete-form-${adapterId}`).style.display = 'inline';
-
+    setAdapterControlDisplay(adapterId, true);
     // Clear scan results
     scanSection.innerHTML = '';
 }
@@ -633,7 +631,7 @@ function fetchAvailableAdapters() {
                 modulatorSelect.add(option);
             });
         })
-        .catch(error => showPopup(`Error fetching available adapters: ${error}`,"error"));
+        .catch(error => showPopup(`Error fetching available adapters: ${error}`, "error"));
 }
 
 // Call fetchAvailableAdapters when the modal is opened

@@ -226,7 +226,7 @@ def start_ffmpeg(adapter_id: str):
 def stop_ffmpeg(adapter_id: str):
     if adapter_id not in running_processes:
         logger.warning(f"FFmpeg process not found for adapter {adapter_id}.")
-        raise HTTPException(status_code=404, detail="FFmpeg process not found")
+        return {"status": "error", "msg": "FFmpeg process not found"}
 
     if not adapters[adapter_id].running:
         logger.info(f"Adapter {adapter_id} is already stopped.")
