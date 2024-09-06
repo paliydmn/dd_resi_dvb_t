@@ -1,11 +1,9 @@
-/* styles.css */
-
 /* Global Styles */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
     color: #333;
-    margin: 10px;
+    margin: 0;
     padding: 0;
 }
 
@@ -77,6 +75,18 @@ nav ul li a:hover {
 
 
 /* General modal styles */
+.button-container {
+    margin-bottom: 20px;
+}
+
+.left-button {
+    margin-right: 50px;
+}
+
+.right-button {
+    margin-left: auto;
+}
+
 #new-adapter-modal {
     display: none;
     /* Change to 'none' to hide the modal by default */
@@ -144,8 +154,10 @@ nav ul li a:hover {
 }
 
 #add-new-spts-url button[type="button"]:hover {
-    background-color: #2980b9;  /* Darker blue on hover */
+    background-color: #2980b9;
+    /* Darker blue on hover */
 }
+
 /* Styles for the input wrapper to keep the input and button aligned */
 .url-input-wrapper {
     display: flex;
@@ -164,8 +176,10 @@ nav ul li a:hover {
 }
 
 #add-new-spts-url button[type="button"]:hover {
-    background-color: #2980b9;  /* Darker blue on hover */
+    background-color: #2980b9;
+    /* Darker blue on hover */
 }
+
 /* Styles the remove button */
 .remove-url-button {
     margin-left: 10px;
@@ -382,7 +396,7 @@ form button {
 }
 
 .video-stream::before {
-    content: "📺 "; 
+    content: "📺 ";
     position: absolute;
     left: -15px;
     top: -5px;
@@ -401,6 +415,7 @@ form button {
     left: -15px;
     top: -5px;
 }
+
 .subtitle-stream {
     font-weight: normal;
     margin: 5px 0;
@@ -432,8 +447,13 @@ form button {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .spinner-overlay {
@@ -577,7 +597,8 @@ form button {
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
     opacity: 0;
     transition: opacity 0.5s ease, transform 0.5s ease;
-    z-index: 1000; /* Ensures it is above other content */
+    z-index: 1000;
+    /* Ensures it is above other content */
 }
 
 .popup-header {
@@ -590,11 +611,13 @@ form button {
 }
 
 .popup.success .popup-header {
-    background-color: #2980b9; /* Success */
+    background-color: #2980b9;
+    /* Success */
 }
 
 .popup.error .popup-header {
-    background-color: #c82333; /* Error */
+    background-color: #c82333;
+    /* Error */
 }
 
 .popup-body {
@@ -617,4 +640,3 @@ form button {
     transform: translate(-50%, -50%);
     pointer-events: all;
 }
-

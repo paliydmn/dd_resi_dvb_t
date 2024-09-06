@@ -4,8 +4,11 @@
 
 {% block content %}
 <h1>Adapter Management</h1>
-<button onclick="showNewAdapterForm()">New Adapter</button>
-<button onclick="stopAllffmpegs()">Stop All</button>
+<div class="button-container">
+    <button onclick="showNewAdapterForm()" class="left-button">New Adapter</button>
+    <button onclick="stopAllffmpegs()" class="right-button">Stop All</button>
+</div>
+
 <div id="adapter-container">
     <!-- List of adapters will be populated here -->
 </div>
