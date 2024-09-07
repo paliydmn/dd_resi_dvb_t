@@ -1,5 +1,9 @@
-import { showPopup } from './popup.js';
-import { updateAdapters } from '../adapters.js';
+import {
+    showPopup
+} from './popup.js';
+import {
+    updateAdapters
+} from '../adapters.js';
 
 export function stopAllffmpegs() {
     fetch('/adapters/stop_all')
@@ -29,6 +33,7 @@ export function scanAdapter(adapterId) {
             scanSection.removeChild(spinner);
             if (!programs || Object.keys(programs).length === 0) {
                 showPopup(data.msg, data.status);
+                toggleMenu(adapterId+"-menu")
                 return;
             }
 
@@ -81,6 +86,105 @@ export function scanAdapter(adapterId) {
         });
 }
 
+function setAdapterControlDisplay(id, isDisplay) {
+    const adapterDiv = document.getElementById(`adapter-${id}`);
+    adapterDiv.querySelector(`#scan-button-${id}`).style.display = isDisplay ? 'inline' : 'none';
+    adapterDiv.querySelector(`#start-form-${id}`).style.display = isDisplay ? 'inline' : 'none';
+    adapterDiv.querySelector(`#stop-form-${id}`).style.display = isDisplay ? 'inline' : 'none';
+    adapterDiv.querySelector(`#delete-form-${id}`).style.display = isDisplay ? 'inline' : 'none';
+}
+
+function cancelSelection(adapterId) {
+    const scanSection = document.getElementById(`scan-section-${adapterId}`);
+    // Restore other controls
+    setAdapterControlDisplay(adapterId, true);
+    // Clear scan results
+    scanSection.innerHTML = '';
+}
+
+function updateChannelSelection(programId) {
+    const channelCheckbox = document.getElementById(`channel-${programId}`);
+    const streamCheckboxes = document.querySelectorAll(`[data-channel="${programId}"]`);
+
+    // Set all stream checkboxes based on channel checkbox state
+    streamCheckboxes.forEach(cb => cb.checked = channelCheckbox.checked);
+}
+
+function updateStreamSelection(programId) {
+    const channelCheckbox = document.getElementById(`channel-${programId}`);
+    const streamCheckboxes = document.querySelectorAll(`[data-channel="${programId}"]`);
+
+    // Update the channel checkbox based on the stream checkboxes
+    const allStreamsSelected = Array.from(streamCheckboxes).every(cb => cb.checked);
+    const anyStreamSelected = Array.from(streamCheckboxes).some(cb => cb.checked);
+
+    if (allStreamsSelected) {
+        channelCheckbox.checked = true;
+    } else if (!anyStreamSelected) {
+        channelCheckbox.checked = false;
+    }
+}
+
+function toggleChannel(event, programId) {
+    event.preventDefault(); // Prevent default behavior of the label
+    const channelCheckbox = document.getElementById(`channel-${programId}`);
+    channelCheckbox.checked = !channelCheckbox.checked;
+    updateChannelSelection(programId);
+}
+
+function toggleStream(event, streamId) {
+    event.preventDefault(); // Prevent default behavior of the label
+    const streamCheckbox = document.getElementById(`video-${streamId}`) || document.getElementById(`audio-${streamId}`) || document.getElementById(`subtitle-${streamId}`);
+    streamCheckbox.checked = !streamCheckbox.checked;
+    const channelId = streamCheckbox.getAttribute('data-channel');
+    updateStreamSelection(channelId);
+}
+
+
+function saveSelection(adapterId) {
+    const selectedChannels = {};
+
+    // Collect selected streams
+    const streamCheckboxes = document.querySelectorAll('input[type="checkbox"][data-id]');
+    streamCheckboxes.forEach(cb => {
+        if (cb.checked) {
+            const streamId = cb.dataset.id;
+            if (!cb.dataset.channel)
+                return;
+            const channelId = cb.dataset.channel;
+            if (!selectedChannels[channelId]) {
+                selectedChannels[channelId] = {
+                    video: [],
+                    audio: [],
+                    subtitle: []
+                };
+            }
+            if (cb.id.startsWith('video-')) {
+                selectedChannels[channelId].video.push(streamId);
+            } else if (cb.id.startsWith('audio-')) {
+                selectedChannels[channelId].audio.push(streamId);
+            } else if (cb.id.startsWith('subtitle-')) {
+                selectedChannels[channelId].subtitle.push(streamId);
+            }
+        }
+    });
+
+    fetch(`/adapters/${adapterId}/save`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                channels: selectedChannels
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            showPopup(data.msg, data.status);
+            updateAdapters(adapterId)
+        })
+        .catch(error => showPopup(error, "error"));
+}
 
 export function startFFmpeg(adapterId) {
     const adapterSection = document.getElementById(`adapter-${adapterId}`);
