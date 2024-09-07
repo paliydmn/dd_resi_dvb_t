@@ -7,7 +7,7 @@ from app.utils.logger import get_ffmpeg_logger, delete_log_file
 from app.utils.config_loader import adapters, save_adapters_to_file, get_modulators_config
 from app.utils.ffmpeg_utils import get_ffprobe_data, construct_programs_dict, construct_ffmpeg_command
 from app.utils.signal_handler import stop_ffmpeg_processes
-from app.models.models import AdapterConfig, Program, Stream, AvailableResources, SaveSelection
+from app.models.models import AdapterConfig, Program, Stream, AvailableResources, SaveSelection, UdpUrlConfig
 from settings import settings
 import threading
 import logging
@@ -17,12 +17,10 @@ import time
 import signal
 import uuid
 
-
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
 running_processes = {}
-
 
 @router.get("/adapters/", response_class=HTMLResponse)
 async def adapters_page(request: Request):
@@ -32,12 +30,8 @@ async def adapters_page(request: Request):
 
 @router.get("/get_adapter/{adapter_id}")
 def get_adapter_by_id(adapter_id: str):
-    # Ensure descriptions are up-to-date
     set_description()
-
-    # Retrieve the adapter by ID
     adapter = adapters.get(adapter_id)
-
     if adapter is None:
         raise HTTPException(status_code=404, detail="Adapter not found")
 
@@ -81,7 +75,7 @@ def stop_all_adapters():
                 a.running = False
     except Exception as e:
         return {"status": "error", "msg": f"FFmpeg process failed to stop. Error: {e}"}
-    
+
     save_adapters_to_file()
     return {"status": "success", "msg": "All FFmpeg processes are stopped!"}
 
@@ -95,7 +89,7 @@ def get_available_adapters():
         output = subprocess.check_output(
             "find /dev/dvb/ -type c -name 'mod*'", shell=True).decode('utf-8')
         if output:
-           
+
             lines = output.strip().split('\n')
             adapters = {
                 int(line.split('/')[3].replace("adapter", "")) for line in lines}
@@ -107,46 +101,32 @@ def get_available_adapters():
         logger.error(f"Error fetching available adapters: {e}")
         return {"adapters": [], "modulators": []}
 
+
 def generate_uid():
     uid = str(uuid.uuid4()).replace('-', '')[:4].upper()
     return uid
 
 
-@router.post("/adapters/createMA")
-def create_MPTS_adapter(adapterConf: AdapterConfig):
-    # Validate that the type is MPTS
-    if adapterConf.type != "MPTS":
+@router.post("/adapters/createAdapter")
+def create_adapter(adapterConf: AdapterConfig):
+    if adapterConf.type == "MPTS":
+        # Validate that only one URL is provided for MPTS
+        if len(adapterConf.udp_urls) != 1:
+            raise HTTPException(
+                status_code=400, detail="MPTS adapter should have exactly one UDP URL.")
+    elif adapterConf.type == "SPTS":
+        # Validate that at least one URL is provided for SPTS
+        if not adapterConf.udp_urls or len(adapterConf.udp_urls) == 0:
+            raise HTTPException(
+                status_code=400, detail="SPTS adapter must have at least one UDP URL.")
+    else:
         raise HTTPException(
-            status_code=400, detail="Invalid adapter type for this route. Expected MPTS.")
-
-    # Validate that only one URL is provided for MPTS
-    if len(adapterConf.udp_urls) != 1:
-        raise HTTPException(
-            status_code=400, detail="MPTS adapter should have exactly one UDP URL.")
+            status_code=400, detail="Invalid adapter type. Expected 'MPTS' or 'SPTS'.")
 
     adapter_id = generate_uid()
     adapters[adapter_id] = adapterConf
     save_adapters_to_file()
-    logger.info(f"MPTS Adapter created: {adapterConf}")
-    return {"status": "success", "msg": f"Adapter '{adapterConf.adapter_name}' created successfully"}
-
-
-@router.post("/adapters/createSA")
-def create_SPTS_adapter(adapterConf: AdapterConfig):
-    # Validate that the type is SPTS
-    if adapterConf.type != "SPTS":
-        raise HTTPException(
-            status_code=400, detail="Invalid adapter type for this route. Expected SPTS.")
-
-    # Validate that at least one URL is provided for SPTS
-    if not adapterConf.udp_urls or len(adapterConf.udp_urls) == 0:
-        raise HTTPException(
-            status_code=400, detail="SPTS adapter must have at least one UDP URL.")
-
-    adapter_id = generate_uid()
-    adapters[adapter_id] = adapterConf
-    save_adapters_to_file()
-    logger.info(f"SPTS Adapter created: {adapterConf}")
+    logger.info(f"{adapterConf.type} Adapter created: {adapterConf}")
     return {"status": "success", "msg": f"Adapter '{adapterConf.adapter_name}' created successfully"}
 
 
@@ -156,12 +136,13 @@ def scan_adapter(adapter_id: str):
         raise HTTPException(status_code=404, detail="Adapter not found")
     adapter = adapters[adapter_id]
 
-    ffprobe_data = get_ffprobe_data(adapter.type, adapter.udp_urls)
+    udp_urls = [udp_url_config.udp_url for udp_url_config in adapter.udp_urls]
+    ffprobe_data = get_ffprobe_data(adapter.type, udp_urls)
 
     # Check if ffprobe_data is an error message or valid data
     if isinstance(ffprobe_data, str):
         return {"status": "error", "msg": f"{ffprobe_data}"}
-        #raise HTTPException(status_code=500, detail=ffprobe_data)
+        # raise HTTPException(status_code=500, detail=ffprobe_data)
 
     programs = construct_programs_dict(ffprobe_data)
     adapters[adapter_id].programs = programs
@@ -240,7 +221,8 @@ def stop_ffmpeg(adapter_id: str):
         # Wait for the process to terminate gracefully
         process.wait(timeout=5)
     except subprocess.TimeoutExpired:
-        logger.warning(f"FFmpeg process {adapter_id} did not terminate, sending SIGKILL")
+        logger.warning(f"FFmpeg process {
+                       adapter_id} did not terminate, sending SIGKILL")
         # Forcefully kill the process if it doesn't stop
         os.killpg(os.getpgid(process.pid), signal.SIGKILL)
         process.wait()  # Wait for the process to terminate
@@ -248,16 +230,17 @@ def stop_ffmpeg(adapter_id: str):
     # Confirm the process is terminated
     if process.poll() is None:
         logger.error(f"FFmpeg process {adapter_id} could not be stopped.")
-        raise HTTPException(status_code=500, detail="FFmpeg process could not be stopped")
+        raise HTTPException(
+            status_code=500, detail="FFmpeg process could not be stopped")
 
     # Cleanup
     del running_processes[adapter_id]
     adapters[adapter_id].running = False
     logger.info(f"Stopped FFmpeg for adapter {adapter_id}.")
     save_adapters_to_file()
-    #sleep 2 seconds to be sure the process is stopped
+    # sleep 2 seconds to be sure the process is stopped
     time.sleep(2)
-    return  {"status": "success", "msg" : f"Adapter {adapters[adapter_id].adapter_name} successfully stopped."}
+    return {"status": "success", "msg": f"Adapter {adapters[adapter_id].adapter_name} successfully stopped."}
 
 
 @router.delete("/adapters/{adapter_id}/")
@@ -274,7 +257,7 @@ def delete_adapter(adapter_id: str):
     del_res = delete_log_file(name=name, id=adapter_id)
     logger.info(del_res)
     save_adapters_to_file()
-    return  {"status": "success", "msg" : f"Adapter {name} successfully deleted."}
+    return {"status": "success", "msg": f"Adapter {name} successfully deleted."}
 
 
 @router.post("/adapters/{adapter_id}/save")
@@ -311,4 +294,4 @@ def save_selection(adapter_id: str, selection: SaveSelection):
     save_adapters_to_file()
     logger.info(f"Saved selection for adapter {adapter_id}.")
     # Respond with success message
-    return  {"status": "success", "msg" : f"Adapter {adapter.adapter_name} successfully saved."}
+    return {"status": "success", "msg": f"Adapter {adapter.adapter_name} successfully saved."}

@@ -31,6 +31,13 @@
             "justMyCode": false,
             "args": [],
             "program": "d:\\Work\\dd projects\\utility_python\\app2\\dd_resi_dvb_t\\app\\routers\\adapters.py"
+        },
+        {
+            "type": "node",
+            "name": "debug adapters.js",
+            "request": "launch",
+            "args": [],
+            "program": "d:\\Work\\dd projects\\utility_python\\app2\\dd_resi_dvb_t\\app\\static\\js\\adapters.js"
         }
     ]
 }
