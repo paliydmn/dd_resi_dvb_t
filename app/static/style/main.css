@@ -740,7 +740,6 @@ form button {
 
 .menu-button:hover {
     background-color: #e0e0e0;
-    /* border-radius: 10%; */
     padding: 3px;
 }
 
@@ -767,4 +766,12 @@ form button {
 
 .adapter-control-buttons {
     margin-top: 10px;
+}
+
+.menu-dropdown {
+    display: none;
+}
+
+.menu-dropdown.show {
+    display: block;
 }
