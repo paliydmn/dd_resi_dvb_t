@@ -1,5 +1,9 @@
-import { showPopup } from '../utils/popup.js';
-import { updateAdapters } from '../../adapters.js';
+import {
+    showPopup
+} from '../utils/popup.js';
+import {
+    updateAdapters
+} from '../../adapters.js';
 
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -48,12 +52,27 @@ export function removeUrlInput(index) {
 }
 
 export function handleFormSubmit(event) {
-    event.preventDefault();
+    const form = document.getElementById('adapter-form');
+
+    // Check form validity
+    if (!form.checkValidity()) {
+        // Prevent form submission if any fields are invalid
+        event.preventDefault();
+        event.stopPropagation();
+        form.reportValidity();
+        return;
+    }
+
     const urlType = document.getElementById("url-type").value;
 
+    // Prevent default form submission to handle it via JavaScript
+    event.preventDefault();
+
     if (urlType === "mpts") {
+        // Handle MPTS URL
         createSingleUrlAdapter(event);
     } else if (urlType === "spts") {
+        // Handle SPTS URLs
         createMultiUrlAdapter(event);
     }
 }
