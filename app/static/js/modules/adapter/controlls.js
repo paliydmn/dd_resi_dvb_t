@@ -1,9 +1,9 @@
 import {
     showPopup
-} from './popup.js';
+} from '../utils/popup.js';
 import {
     updateAdapters
-} from '../adapters.js';
+} from '../../adapters.js';
 
 export function stopAllffmpegs() {
     fetch('/adapters/stop_all')

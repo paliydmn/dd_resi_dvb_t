@@ -1,5 +1,5 @@
-import { showPopup } from './popup.js';
-import { updateAdapters } from '../adapters.js';
+import { showPopup } from '../utils/popup.js';
+import { updateAdapters } from '../../adapters.js';
 
 
 document.addEventListener('DOMContentLoaded', function () {

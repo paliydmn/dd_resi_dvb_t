@@ -208,6 +208,8 @@ nav ul li a:hover {
     color: #333;
 }
 
+
+
 /* Button styling for adding new SPTS URL */
 #add-new-spts-url button[type="button"] {
     display: block;
@@ -223,6 +225,8 @@ nav ul li a:hover {
     cursor: pointer;
     transition: background-color 0.3s;
 }
+
+
 
 #add-new-spts-url button[type="button"]:hover {
     background-color: #2980b9;
@@ -277,7 +281,8 @@ nav ul li a:hover {
 }
 
 /* Button styling */
-#new-adapter-modal button {
+
+#new-adapter-modal button:enabled {
     padding: 10px 15px;
     border: none;
     border-radius: 5px;
@@ -287,6 +292,15 @@ nav ul li a:hover {
     cursor: pointer;
     margin-right: 10px;
     transition: background-color 0.3s;
+}
+
+#new-adapter-modal button:disabled {
+    background-color: #bdc3c7;
+    /* Gray background */
+    cursor: not-allowed;
+    /* Change cursor to not-allowed */
+    opacity: 0.6;
+    /* Reduce opacity */
 }
 
 #new-adapter-modal button[type="submit"] {
@@ -302,7 +316,6 @@ nav ul li a:hover {
 
 #new-adapter-modal button:hover {
     background-color: #0056b3;
-    /* Darker blue on hover */
 }
 
 #new-adapter-modal button[type="submit"]:hover {
@@ -311,7 +324,6 @@ nav ul li a:hover {
 
 #new-adapter-modal button[type="button"]:hover {
     background-color: #c82333;
-    /* Darker red on hover */
 }
 
 /* Form styling */
@@ -724,8 +736,10 @@ form button {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 20px; /* Increased width */
-    height: 20px; /* Increased height */
+    width: 20px;
+    /* Increased width */
+    height: 20px;
+    /* Increased height */
     position: relative;
     padding: 5px;
 }

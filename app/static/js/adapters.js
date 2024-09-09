@@ -5,7 +5,7 @@ import {
     deleteAdapter,
     toggleMenu,
     stopAllffmpegs
-} from './modules/a_controlls.js';
+} from './modules/adapter/controlls.js';
 
 document.addEventListener('DOMContentLoaded', function () {
     updateAdapters();
