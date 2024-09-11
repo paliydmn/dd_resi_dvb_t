@@ -23,6 +23,10 @@ class Settings(BaseSettings):
 
     #tools
     modconfig_app: str = "./tools/modconfig"
+
+    #Astra Cesbo API
+    astra_user: str = "dima"
+    astra_pwd: str = "8500170"
     
     
     class Config:

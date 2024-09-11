@@ -518,7 +518,7 @@ data = {
 ]}  # Add your full JSON structure here
 
 
-def filter_spts_streams(data):
+def filter_spts_streams():
     filtered_streams = []
 
     for stream in data["streams"]:
@@ -530,17 +530,20 @@ def filter_spts_streams(data):
 
             if udp_outputs:
                 filtered_streams.append({
-                    "name": stream.get("name"),
+                    "programName": stream.get("name"),
                     "id": stream.get("id"),
                     "input": stream.get("input"),
-                    "output": udp_outputs
+                    "udpUrl": udp_outputs[0]
                 })
+
+                        # return [{"id": stream["id"], "program_name": stream["programName"], "udp_url": stream["udpUrl"]} for stream in data]
+
 
     return filtered_streams
 
 
-# Parse the JSON and filter streams
-filtered = filter_spts_streams(data)
+# # Parse the JSON and filter streams
+# filtered = filter_spts_streams(data)
 
-# Print filtered streams
-print(json.dumps(filtered, indent=4))
+# # Print filtered streams
+# print(json.dumps(filtered, indent=4))

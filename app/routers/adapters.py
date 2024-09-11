@@ -7,6 +7,9 @@ from app.utils.logger import get_ffmpeg_logger, delete_log_file
 from app.utils.config_loader import adapters, save_adapters_to_file, get_modulators_config
 from app.utils.ffmpeg_utils import get_ffprobe_data, construct_programs_dict, construct_ffmpeg_command
 from app.utils.signal_handler import stop_ffmpeg_processes
+from app.utils.astra_streams_parser import filter_spts_streams
+
+
 from app.models.models import AdapterConfig, Program, Stream, AvailableResources, SaveSelection, UdpUrlConfig
 from settings import settings
 import threading
@@ -16,6 +19,7 @@ import os
 import time
 import signal
 import uuid
+import httpx
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -295,3 +299,56 @@ def save_selection(adapter_id: str, selection: SaveSelection):
     logger.info(f"Saved selection for adapter {adapter_id}.")
     # Respond with success message
     return {"status": "success", "msg": f"Adapter {adapter.adapter_name} successfully saved."}
+
+
+# @router.get("/adapter/astraApi/info")
+# async def get_astra_spts_info():
+#     # try:
+#         # Replace this URL with the actual third-party API endpoint
+#         # response = requests.get("https://third-party-api.com/astra/spts-streams")
+#         # response.raise_for_status()
+#         # data = response.json()
+#         data= filter_spts_streams()
+#         # Return the list of SPTS streams (or adapt this to match the actual response structure)
+#         return [{"id": stream["id"], "program_name": stream["programName"], "udp_url": stream["udpUrl"]} for stream in data]
+#     # except requests.RequestException as e:
+#     #     raise HTTPException(status_code=500, detail="Failed to fetch Astra SPTS streams.")
+
+
+@router.get("/adapter/astraApi/info")
+async def get_astra_spts_info():
+    url = "http://192.168.0.20:8000/api/stream-info"
+    auth = (settings.astra_user, settings.astra_pwd)  # Basic Auth credentials
+
+    try:
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, auth=auth)
+
+        if response.status_code == 200:
+            data = response.json()
+            return filter_spts_streams(data)
+        else:
+            raise HTTPException(status_code=response.status_code, detail="Failed to fetch stream info from Astra API")
+    
+    except httpx.RequestError as e:
+        raise HTTPException(status_code=500, detail=f"Request error: {e}")
+    
+
+def filter_spts_streams(data):
+    filtered_streams = []
+
+    for stream in data["streams"]:
+        # Check if the stream type is "spts" and is enabled
+        if stream.get("type") == "spts" and stream.get("enable") is True:
+            # Check if there is at least one UDP URL in the output
+            outputs = stream.get("output", [])
+            udp_outputs = [url for url in outputs if url.startswith("udp://")]
+
+            if udp_outputs:
+                filtered_streams.append({
+                    "id": stream.get("id"),
+                    "program_name": stream.get("name"),
+                    "input": stream.get("input"),
+                    "udp_url": udp_outputs[0]
+                })
+    return filtered_streams

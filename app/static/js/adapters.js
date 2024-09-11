@@ -9,6 +9,7 @@ import {
 
 document.addEventListener('DOMContentLoaded', function () {
     updateAdapters();
+    
     document.getElementById('stop-all-ffmpegs').addEventListener('click', stopAllffmpegs);
     document.getElementById('existing-adapters').addEventListener('click', function (event) {
         const target = event.target;
@@ -34,6 +35,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+
+
 
 export function updateAdapters(adapterId = null) {
     const url = adapterId ? `/get_adapter/${adapterId}/` : '/get_adapters/';

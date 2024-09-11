@@ -32,6 +32,7 @@
         <select id="url-type" name="url-type" required>
             <option value="mpts">MPTS URL</option>
             <option value="spts">SPTS URLs</option>
+            <option value="astra_spts">SPTS Astra</option>
         </select><br>
 
         <div id="url-input-container">
@@ -44,6 +45,19 @@
         <button id="new-adapter-modal-cancel" type="button">Cancel</button>
     </form>
 </div>
+<!-- Astra SPTS Modal -->
+<div id="astra-spts-modal" style="display: none;">
+    <h2>Select Astra SPTS Streams</h2>
+    <form id="astra-spts-form">
+        <div id="astra-spts-list">
+            <!-- SPTS streams will be dynamically populated here -->
+        </div>
+        <button id="astra-spts-add-button" type="button">Add</button>
+        <button id="astra-spts-cancel-button" type="button">Cancel</button>
+    </form>
+</div>
+
+
 <h2>Existing Adapters</h2>
 <div id="existing-adapters">
     <!-- Existing adapters will be populated here -->
