@@ -112,11 +112,10 @@ export function scanAdapter(adapterId) {
 }
 
 function setAdapterControlDisplay(id, isDisplay) {
+    toggleMenu(id + "-menu")
     const adapterDiv = document.getElementById(`adapter-${id}`);
-    adapterDiv.querySelector(`#scan-button-${id}`).style.display = isDisplay ? 'inline' : 'none';
-    adapterDiv.querySelector(`#start-form-${id}`).style.display = isDisplay ? 'inline' : 'none';
-    adapterDiv.querySelector(`#stop-form-${id}`).style.display = isDisplay ? 'inline' : 'none';
-    adapterDiv.querySelector(`#delete-form-${id}`).style.display = isDisplay ? 'inline' : 'none';
+    adapterDiv.querySelector(`.start-ffmpeg`).style.display = isDisplay ? 'inline' : 'none';
+    adapterDiv.querySelector(`.stop-ffmpeg`).style.display = isDisplay ? 'inline' : 'none';
 }
 
 function cancelSelection(adapterId) {
