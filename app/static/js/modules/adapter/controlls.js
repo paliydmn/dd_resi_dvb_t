@@ -33,7 +33,7 @@ export function scanAdapter(adapterId) {
             scanSection.removeChild(spinner);
             if (!programs || Object.keys(programs).length === 0) {
                 showPopup(data.msg, data.status);
-                toggleMenu(adapterId+"-menu")
+                toggleMenu(adapterId + "-menu")
                 return;
             }
 
@@ -46,36 +46,61 @@ export function scanAdapter(adapterId) {
                 <ul>
                     ${Object.entries(programs).map(([programId, program]) => `
                         <li>
-                            <input type="checkbox" id="channel-${programId}" data-id="${programId}" onchange="updateChannelSelection(${programId})" />
-                            <label for="channel-${programId}" onclick="toggleChannel(event, ${programId})">${program.title}</label><br>
+                            <input type="checkbox" id="channel-${programId}" data-id="${programId}" />
+                            <label for="channel-${programId}">${program.title}</label><br>
                             Streams:
                             <ul>
                                 ${program.streams.video.map(stream => `
                                     <li>
-                                        <input type="checkbox" id="video-${stream.id}" data-channel="${programId}" data-id="${stream.id}" onchange="updateStreamSelection(${programId})"/> 
-                                        <label for="video-${stream.id}" onclick="toggleStream(event, '${stream.id}')">Video: ID: ${stream.id} (${stream.codec})</label>
+                                        <input type="checkbox" id="video-${stream.id}" data-channel="${programId}" data-id="${stream.id}" /> 
+                                        <label for="video-${stream.id}">Video: ID: ${stream.id} (${stream.codec})</label>
                                     </li>
                                 `).join('')}
                                 ${program.streams.audio.map(stream => `
                                     <li>
-                                        <input type="checkbox" id="audio-${stream.id}" data-channel="${programId}" data-id="${stream.id}" onchange="updateStreamSelection(${programId})"/> 
-                                        <label for="audio-${stream.id}" onclick="toggleStream(event, '${stream.id}')">Audio: ID: ${stream.id} (${stream.codec})</label>
+                                        <input type="checkbox" id="audio-${stream.id}" data-channel="${programId}" data-id="${stream.id}" /> 
+                                        <label for="audio-${stream.id}">Audio: ID: ${stream.id} (${stream.codec})</label>
                                     </li>
                                 `).join('')}
                             ${program.streams.subtitle.length > 0 ? 
                                 program.streams.subtitle.map(stream => `
                                     <li>
-                                        <input type="checkbox" id="subtitle-${stream.id}" data-channel="${programId}" data-id="${stream.id}" onchange="updateStreamSelection(${programId})"/> 
-                                        <label for="subtitle-${stream.id}" onclick="toggleStream(event, '${stream.id}')">Subtitle: ID: ${stream.id} (${stream.codec})</label>
+                                        <input type="checkbox" id="subtitle-${stream.id}" data-channel="${programId}" data-id="${stream.id}" /> 
+                                        <label for="subtitle-${stream.id}">Subtitle: ID: ${stream.id} (${stream.codec})</label>
                                     </li>
                                 `).join('') : ''}
                             </ul>
                         </li>
                     `).join('')}
                 </ul>
-                <button onclick="saveSelection('${adapterId}')">Save Selected</button>
-                <button onclick="cancelSelection('${adapterId}')">Cancel</button>
-            `;
+                <button id="save-selection-${adapterId}">Save Selected</button>
+                <button id="cancel-selection-${adapterId}">Cancel</button>
+                `;
+
+            // Add event listeners to the checkboxes and labels
+            Object.entries(programs).forEach(([programId, program]) => {
+                document.getElementById(`channel-${programId}`).addEventListener('change', () => updateChannelSelection(programId));
+                document.querySelector(`label[for="channel-${programId}"]`).addEventListener('click', (event) => toggleChannel(event, programId));
+
+                program.streams.video.forEach(stream => {
+                    document.getElementById(`video-${stream.id}`).addEventListener('change', () => updateStreamSelection(programId));
+                    document.querySelector(`label[for="video-${stream.id}"]`).addEventListener('click', (event) => toggleStream(event, stream.id));
+                });
+
+                program.streams.audio.forEach(stream => {
+                    document.getElementById(`audio-${stream.id}`).addEventListener('change', () => updateStreamSelection(programId));
+                    document.querySelector(`label[for="audio-${stream.id}"]`).addEventListener('click', (event) => toggleStream(event, stream.id));
+                });
+
+                program.streams.subtitle.forEach(stream => {
+                    document.getElementById(`subtitle-${stream.id}`).addEventListener('change', () => updateStreamSelection(programId));
+                    document.querySelector(`label[for="subtitle-${stream.id}"]`).addEventListener('click', (event) => toggleStream(event, stream.id));
+                });
+            });
+
+            // Add event listeners to the buttons
+            document.getElementById(`save-selection-${adapterId}`).addEventListener('click', () => saveSelection(adapterId));
+            document.getElementById(`cancel-selection-${adapterId}`).addEventListener('click', () => cancelSelection(adapterId));
         })
         .catch(error => {
             console.error('Error:', error)

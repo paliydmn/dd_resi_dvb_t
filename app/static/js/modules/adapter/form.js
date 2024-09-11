@@ -15,21 +15,24 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('new-adapter-modal-submit').addEventListener('click', handleFormSubmit);
     document.getElementById('new-adapter-modal-cancel').addEventListener('click', hideNewAdapterForm);
 
-
-    window.addEventListener('message', function (event) {
-        if (event.data.response === 'stream-list') {
-            window.addEventListener('message', function (event) {
-                if (event.data.response === 'stream-list') {
-                    const streams = event.data.streams;
-                    astraStreams = filterSptsStreams(streams);
-                    console.log(astraStreams);
-                }
-            });
-
-        }
-    });
+    document.getElementById('url-type').addEventListener('change', toggleUrlInputs);
+    window.addEventListener('message', handleStreamListMessage);
 });
 
+async function handleStreamListMessage() {
+    return new Promise((resolve, reject) => {
+        function messageHandler(event) {
+            if (event.data.response === 'stream-list') {
+                const streams = event.data.streams;
+                const astraStreams = filterSptsStreams(streams);
+                console.log(astraStreams);
+                window.removeEventListener('message', messageHandler);
+                resolve(astraStreams);
+            }
+        }
+        window.addEventListener('message', messageHandler);
+    });
+}
 
 export function showNewAdapterForm() {
     document.getElementById('new-adapter-modal').style.display = 'block';
@@ -134,45 +137,6 @@ function resetNewAdapterForm() {
     document.getElementById('url-type').value = 'mpts';
 }
 
-// function createAdapter(event, type, udpUrls) {
-//     event.preventDefault();
-//     const adapterNumber = document.getElementById('adapter-number').value;
-//     const modulatorNumber = document.getElementById('modulator-number').value;
-//     const adapterName = document.getElementById('adapter-name').value;
-
-//     // Create UdpUrlConfig objects
-//     const udpUrlConfigs = udpUrls.map(url => ({
-//         udp_url: url,
-//         astra_stream_id: null // or any other logic to set astra_stream_id
-//     }));
-
-//     // Create AdapterConfig object
-//     const adapterConfig = {
-//         adapter_number: adapterNumber,
-//         modulator_number: modulatorNumber,
-//         type: type,
-//         adapter_name: adapterName,
-//         udp_urls: udpUrlConfigs,
-//         programs: {}, // Assuming no programs are selected initially
-//         running: false,
-//         description: null // or any other logic to set description
-//     };
-
-//     fetch('/adapters/createAdapter', {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json'
-//             },
-//             body: JSON.stringify(adapterConfig)
-//         })
-//         .then(response => response.json())
-//         .then(data => {
-//             showPopup(data.msg, data.status);
-//             hideNewAdapterForm();
-//             updateAdapters(); // Reload the adapters list
-//         })
-//         .catch(error => showPopup(error, "error"));
-// }
 
 function createAdapter(event, type, udpUrls) {
     event.preventDefault();
@@ -220,25 +184,6 @@ function createSingleUrlAdapter(event) {
     createAdapter(event, 'MPTS', [udpUrl]);
 }
 
-// function createMultiUrlAdapter(event) {
-//     const urlInputs = document.querySelectorAll('.udp-url-input');
-//     const udpUrls = [];
-
-//     urlInputs.forEach(input => {
-//         if (input.value.trim() !== "") {
-//             udpUrls.push(input.value.trim());
-//         }
-//     });
-
-//     // Check for duplicate URLs
-//     const duplicateUrls = udpUrls.filter((url, index) => udpUrls.indexOf(url) !== index);
-//     if (duplicateUrls.length > 0) {
-//         alert('Duplicate URLs found: ' + duplicateUrls.join(', ') + '. Please ensure all URLs are unique.');
-//         return;
-//     }
-
-//     createAdapter(event, 'SPTS', udpUrls);
-// }
 function createMultiUrlAdapter(event) {
     const urlInputs = document.querySelectorAll('.udp-url-input');
     const udpUrls = [];
@@ -324,27 +269,6 @@ function toggleUrlInputs() {
     }
 }
 
-// function toggleUrlInputs() {
-//     const urlType = document.getElementById('url-type').value;
-//     const urlContainer = document.getElementById('url-input-container');
-
-//     if (urlType === 'astra_spts') {
-//         // Show the Astra SPTS modal
-//         showAstraSptsForm();
-//     } else {
-//         urlContainer.innerHTML = ''; // Clear previous inputs
-//         if (urlType === 'mpts' || urlType === 'spts') {
-//             addUrlInput(); // Show the usual UDP URL input field(s)
-//         }
-//     }
-// }
-
-
-////////////////////////////////////////////////////////////////
-document.getElementById('url-type').addEventListener('change', toggleUrlInputs);
-
-
-
 function showAstraSptsForm() {
     // Show modal for Astra SPTS streams
     document.getElementById('astra-spts-modal').style.display = 'block';
@@ -376,15 +300,8 @@ function showAstraSptsForm() {
                     showPopup(error, "error")
                 });
         }
-    }, 1000);
-    
-    // Fetch Astra SPTS streams from the backend
-    // fetch('/adapter/astraApi/info')
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         populateAstraSptsList(data);
-    //     })
-    //     .catch(error => showPopup(error, "error"));
+    }, 2000);
+
 }
 
 function populateAstraSptsList(data) {
@@ -424,46 +341,6 @@ function addSelectedSptsStreams() {
 
     hideAstraSptsForm();
 }
-
-
-// function addSelectedSptsStreams() {
-//     const selectedStreams = document.querySelectorAll('input[name="spts-stream"]:checked');
-//     const urlContainer = document.getElementById('url-input-container');
-//     urlContainer.innerHTML = ''; // Clear the current URL inputs
-
-//     // Add selected streams as individual URL fields
-//     selectedStreams.forEach((stream, index) => {
-//         const streamId = stream.id.split('-')[1]; // Extract the stream ID from the input's ID
-//         const newInput = document.createElement('div');
-//         newInput.classList.add('url-input-wrapper');
-//         newInput.innerHTML = `
-//             <label for="udp-url-${index + 1}">UDP URL ${index + 1} (ID: ${streamId}):</label>
-//             <input type="text" id="udp-url-${index + 1}" name="udp-url" class="udp-url-input" value="${stream.value}" required readonly>
-//         `;
-//         urlContainer.appendChild(newInput);
-//     });
-
-//     hideAstraSptsForm();
-// }
-
-// function addSelectedSptsStreams() {
-//     const selectedStreams = document.querySelectorAll('input[name="spts-stream"]:checked');
-//     const urlContainer = document.getElementById('url-input-container');
-//     urlContainer.innerHTML = ''; // Clear the current URL inputs
-
-//     // Add selected streams as individual URL fields
-//     selectedStreams.forEach((stream, index) => {
-//         const newInput = document.createElement('div');
-//         newInput.classList.add('url-input-wrapper');
-//         newInput.innerHTML = `
-//             <label for="udp-url-${index + 1}">UDP URL ${index + 1}:</label>
-//             <input type="text" id="udp-url-${index + 1}" name="udp-url" class="udp-url-input" value="${stream.value}" required readonly>
-//         `;
-//         urlContainer.appendChild(newInput);
-//     });
-
-//     hideAstraSptsForm();
-// }
 
 function hideAstraSptsForm() {
     document.getElementById('astra-spts-modal').style.display = 'none';
