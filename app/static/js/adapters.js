@@ -147,6 +147,7 @@ function updateAdapterDiv(adapterId, adapter) {
             <p>Selected channels:</p>
             <ul id="selected-channels-list">
                 ${selectedChannelsHtml}
+            <div id="total-bitrate">No Data</div>
             </ul>
         </div>
         <div id="scan-section-${adapterId}">
@@ -177,4 +178,98 @@ function updateAdapterDiv(adapterId, adapter) {
     if (!document.getElementById(`adapter-${adapterId}`)) {
         document.getElementById('existing-adapters').appendChild(adapterDiv);
     }
+    window.parent.postMessage({
+        request: 'stream-list'
+    }, '*');
 }
+
+// Listen for incoming messages
+window.addEventListener('message', function(event) {
+    if (event.data.event === 'stream-event') {
+        const data = event.data.data;
+        const programs = document.querySelectorAll('[data-stream-id]');
+        programs.forEach(li => { 
+                if(li.getAttribute('data-stream-id') === data.channel_id){
+                     const programLink = li.querySelector('a.toggle-program-details');
+                        
+                        if (programLink) {
+                            // Update the text content with the bitrate
+                            programLink.textContent = `${programLink.textContent.split(' - ')[0]} - ${Math.round(data.bitrate)} kbit/s`;                        }
+                    }
+            })
+        }
+
+     if (event.data.response === 'stream-list') {
+         const astraStreams = event.data.streams; // Assuming the data comes this way
+         // Select all divs with an id starting with 'adapter-'
+            document.querySelectorAll('div[id^="adapter-"]').forEach(div => {
+              // Extract the part of the ID after 'adapter-'
+              const id = div.id.match(/^adapter-(.*)$/)[1];
+              addStreamIdsToProgramList(id, astraStreams);
+            });
+         
+     }
+});
+
+function addStreamIdsToProgramList(adapterId, astraStreams) {
+    const programList = document.querySelectorAll(`#adapter-${adapterId} ul#selected-channels-list li`);
+    
+    programList.forEach(li => {
+        const programNameLink = li.querySelector('a.toggle-program-details');
+        const programName = programNameLink.dataset.programTitle.split('-')[0].trim(); // Get the program name
+        const udpUrls = Array.from(document.getElementById(`${adapterId}-urls`).getElementsByTagName("li"))
+            .map(li => li.textContent.trim().split(' ')[0])
+            .filter(link => link.startsWith('udp://'));
+        
+        // Find the matching stream from astraStreams
+        const matchingStream = astraStreams.find(stream => {
+            if(stream.output && stream.enable && stream.type === 'spts'){
+                let strUdpUrls = stream.output.filter(url => url.startsWith('udp://'));
+                return stream.name === programName && strUdpUrls.some(url => udpUrls.includes(url));
+            }
+        });
+
+        if (matchingStream) {
+            li.setAttribute('data-stream-id', matchingStream.id); // Add the ID as a data attribute
+        }
+    });
+}
+
+
+function setTotalBitrate(adapterId) {
+    const adapterDiv = document.getElementById(`adapter-${adapterId}`);
+    if (!adapterDiv) return;
+
+    const channelsList = adapterDiv.querySelectorAll('#selected-channels-list li a.toggle-program-details');
+    let totalBitrate = 0;
+
+    channelsList.forEach(channel => {
+        const bitrateText = channel.textContent.match(/- (\d+) kbit\/s/);
+        if (bitrateText) {
+            totalBitrate += parseInt(bitrateText[1], 10);
+        }
+    });
+
+    if (totalBitrate === 0) return; // Skip if no programs have a bitrate
+
+    const totalBitrateDiv = adapterDiv.querySelector('#total-bitrate');
+    totalBitrateDiv.textContent = totalBitrate + ' kbit/s';
+
+    // Set color based on the total bitrate
+    if (totalBitrate < 25000) {
+        totalBitrateDiv.style.color = 'green';
+    } else if (totalBitrate > 29000) {
+        totalBitrateDiv.style.color = 'red';
+    } else {
+        totalBitrateDiv.style.color = 'orange';
+    }
+}
+
+
+const adapterIds = ['3CB4', '82FC', '298E']; // Example adapter IDs
+
+setInterval(function() {
+    adapterIds.forEach(adapterId => {
+        setTotalBitrate(adapterId);
+    });
+}, 1000);

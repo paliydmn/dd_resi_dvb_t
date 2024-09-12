@@ -19,18 +19,23 @@ document.addEventListener('DOMContentLoaded', function () {
     window.addEventListener('message', handleStreamListMessage);
 });
 
-async function handleStreamListMessage() {
-    return new Promise((resolve, reject) => {
-        function messageHandler(event) {
-            if (event.data.response === 'stream-list') {
-                const streams = event.data.streams;
-                const astraStreams = filterSptsStreams(streams);
-                console.log(astraStreams);
-                window.removeEventListener('message', messageHandler);
-                resolve(astraStreams);
-            }
+async function handleStreamListMessage(event) {
+    // Only handle the event if the response is 'stream-list'
+    if (event.data.response === 'stream-list') {
+        try {
+            astraStreams = await getStreamList(event.data.streams);
+            console.log(astraStreams);
+        } catch (error) {
+            console.error('Error fetching stream list:', error);
         }
-        window.addEventListener('message', messageHandler);
+    }
+}
+
+// Helper function to return the stream list as a promise
+function getStreamList(streams) {
+    return new Promise((resolve) => {
+        const astraStreams = filterSptsStreams(streams);
+        resolve(astraStreams);
     });
 }
 
@@ -277,26 +282,26 @@ function showAstraSptsForm() {
     window.parent.postMessage({
         request: 'stream-list'
     }, '*');
-    const astraSptsSection = document.getElementById(`astra-spts-modal`);
-
+    const astraSptsList = document.getElementById(`astra-spts-list`);
     // Add a spinner to indicate loading
     const spinner = document.createElement('div');
     spinner.className = 'spinner';
     spinner.innerHTML = `<div class="loading-spinner"></div>`;
-    astraSptsSection.appendChild(spinner);
+    astraSptsList.appendChild(spinner);
     setTimeout(() => {
         if (astraStreams.length > 0) {
-            astraSptsSection.removeChild(spinner);
+            astraSptsList.removeChild(spinner);
             populateAstraSptsList(astraStreams);
+            astraStreams = [];
         } else {
             fetch('/adapter/astraApi/info')
                 .then(response => response.json())
                 .then(data => {
-                    astraSptsSection.removeChild(spinner);
+                    astraSptsList.removeChild(spinner);
                     populateAstraSptsList(data);
                 })
                 .catch(error => {
-                    astraSptsSection.removeChild(spinner);
+                    astraSptsList.removeChild(spinner);
                     showPopup(error, "error")
                 });
         }
@@ -338,11 +343,12 @@ function addSelectedSptsStreams() {
         `;
         urlContainer.appendChild(newInput);
     });
-
+    
     hideAstraSptsForm();
 }
 
 function hideAstraSptsForm() {
+    document.getElementById(`astra-spts-list`).innerHTML = '';
     document.getElementById('astra-spts-modal').style.display = 'none';
     document.getElementById('modal-overlay').style.display = 'none';
 }
