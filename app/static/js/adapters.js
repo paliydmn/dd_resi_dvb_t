@@ -7,6 +7,8 @@ import {
     stopAllffmpegs
 } from './modules/adapter/controlls.js';
 
+window.adapterIds = [];
+
 document.addEventListener('DOMContentLoaded', function () {
     updateAdapters();
     
@@ -52,8 +54,13 @@ export function updateAdapters(adapterId = null) {
 
                 Object.entries(data).forEach(([id, adapter]) => {
                     updateAdapterDiv(id, adapter);
+                    if (!window.adapterIds.includes(id)) {
+                        window.adapterIds.push(id);
+                    }
                 });
             }
+            // Request the stream list after updating the adapters to set Bitrate
+            window.parent.postMessage({request: 'stream-list'}, '*');
         })
         .catch(error => showPopup(error, "error"));
 }
@@ -178,9 +185,6 @@ function updateAdapterDiv(adapterId, adapter) {
     if (!document.getElementById(`adapter-${adapterId}`)) {
         document.getElementById('existing-adapters').appendChild(adapterDiv);
     }
-    window.parent.postMessage({
-        request: 'stream-list'
-    }, '*');
 }
 
 // Listen for incoming messages
@@ -194,7 +198,7 @@ window.addEventListener('message', function(event) {
                         
                         if (programLink) {
                             // Update the text content with the bitrate
-                            programLink.textContent = `${programLink.textContent.split(' - ')[0]} - ${Math.round(data.bitrate)} kbit/s`;                        }
+                            programLink.textContent = `${programLink.textContent.split(' - ')[0]} - ${Math.round(data.bitrate)} Kbit/s`;                        }
                     }
             })
         }
@@ -244,7 +248,7 @@ function setTotalBitrate(adapterId) {
     let totalBitrate = 0;
 
     channelsList.forEach(channel => {
-        const bitrateText = channel.textContent.match(/- (\d+) kbit\/s/);
+        const bitrateText = channel.textContent.match(/- (\d+) Kbit\/s/);
         if (bitrateText) {
             totalBitrate += parseInt(bitrateText[1], 10);
         }
@@ -253,7 +257,7 @@ function setTotalBitrate(adapterId) {
     if (totalBitrate === 0) return; // Skip if no programs have a bitrate
 
     const totalBitrateDiv = adapterDiv.querySelector('#total-bitrate');
-    totalBitrateDiv.textContent = totalBitrate + ' kbit/s';
+    totalBitrateDiv.textContent = totalBitrate + ' Kbit/s';
 
     // Set color based on the total bitrate
     if (totalBitrate < 25000) {
@@ -265,11 +269,8 @@ function setTotalBitrate(adapterId) {
     }
 }
 
-
-const adapterIds = ['3CB4', '82FC', '298E']; // Example adapter IDs
-
 setInterval(function() {
-    adapterIds.forEach(adapterId => {
-        setTotalBitrate(adapterId);
+    window.adapterIds.forEach(id => {
+        setTotalBitrate(id);
     });
 }, 1000);

@@ -816,3 +816,9 @@ form button {
 .menu-dropdown.show {
     display: block;
 }
+
+
+#total-bitrate {
+    margin-right: 5px;
+    margin-top: 5px;
+}
