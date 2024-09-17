@@ -24,7 +24,6 @@ async function handleStreamListMessage(event) {
     if (event.data.response === 'stream-list') {
         try {
             astraStreams = await getStreamList(event.data.streams);
-            console.log(astraStreams);
         } catch (error) {
             console.error('Error fetching stream list:', error);
         }

@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function () {
             const menuId = target.getAttribute('data-menu-id');
             toggleMenu(menuId);
         } else if (target.classList.contains('toggle-program-details')) {
-            const programTitle = target.getAttribute('data-program-title');
+            const programTitle = target.getAttribute('data-program');
             toggleProgramDetails(programTitle);
         } else if (target.classList.contains('toggle-url-list')) {
             const urlListId = target.getAttribute('data-url-list-id');
@@ -99,7 +99,7 @@ function updateAdapterDiv(adapterId, adapter) {
     const selectedChannelsHtml = selectedPrograms.length ?
         selectedPrograms.map(program => `
             <li>
-                <a href="javascript:void(0);" class="toggle-program-details" data-program-title="${program.title}-${adapterId}">
+                <a href="javascript:void(0);" class="toggle-program-details" data-program="${program.title}-${adapterId}" data-program-title="${program.title}">
                     ${program.title}
                 </a>
                 <div id="program-details-${program.title}-${adapterId}" class="program-details" style="display:none; margin-left: 20px;">
@@ -154,7 +154,7 @@ function updateAdapterDiv(adapterId, adapter) {
             <p>Selected channels:</p>
             <ul id="selected-channels-list">
                 ${selectedChannelsHtml}
-            <div id="total-bitrate">No Data</div>
+            <div id="total-bitrate"></div>
             </ul>
         </div>
         <div id="scan-section-${adapterId}">
@@ -220,7 +220,7 @@ function addStreamIdsToProgramList(adapterId, astraStreams) {
     
     programList.forEach(li => {
         const programNameLink = li.querySelector('a.toggle-program-details');
-        const programName = programNameLink.dataset.programTitle.split('-')[0].trim(); // Get the program name
+        const programName = programNameLink.dataset.programTitle; // Get the program name
         const udpUrls = Array.from(document.getElementById(`${adapterId}-urls`).getElementsByTagName("li"))
             .map(li => li.textContent.trim().split(' ')[0])
             .filter(link => link.startsWith('udp://'));
@@ -251,6 +251,11 @@ function setTotalBitrate(adapterId) {
         const bitrateText = channel.textContent.match(/- (\d+) Kbit\/s/);
         if (bitrateText) {
             totalBitrate += parseInt(bitrateText[1], 10);
+            if (bitrateText[1] === "0") {
+                channel.style.color = 'red';
+            }else {
+                channel.style.color = '#3498db';
+            }
         }
     });
 
