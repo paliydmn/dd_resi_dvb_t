@@ -1,584 +1,66 @@
+import {
+    startFFmpeg,
+    stopFFmpeg,
+    scanAdapter,
+    deleteAdapter,
+    toggleMenu,
+    stopAllffmpegs
+} from './modules/adapter/controlls.js';
+
+window.adapterIds = [];
+
 document.addEventListener('DOMContentLoaded', function () {
-    loadAdapters();
+    updateAdapters();
+    
+    document.getElementById('stop-all-ffmpegs').addEventListener('click', stopAllffmpegs);
+    document.getElementById('existing-adapters').addEventListener('click', function (event) {
+        const target = event.target;
+        const adapterId = target.getAttribute('data-adapter-id');
+
+        if (target.classList.contains('start-ffmpeg')) {
+            startFFmpeg(adapterId);
+        } else if (target.classList.contains('stop-ffmpeg')) {
+            stopFFmpeg(adapterId);
+        } else if (target.classList.contains('scan-adapter')) {
+            scanAdapter(adapterId);
+        } else if (target.classList.contains('delete-adapter')) {
+            deleteAdapter(adapterId);
+        } else if (target.classList.contains('menu-button')) {
+            const menuId = target.getAttribute('data-menu-id');
+            toggleMenu(menuId);
+        } else if (target.classList.contains('toggle-program-details')) {
+            const programTitle = target.getAttribute('data-program');
+            toggleProgramDetails(programTitle);
+        } else if (target.classList.contains('toggle-url-list')) {
+            const urlListId = target.getAttribute('data-url-list-id');
+            toggleUrlList(urlListId);
+        }
+    });
 });
 
-function stopAllffmpegs() {
-    fetch('/adapters/stop_all')
+
+
+export function updateAdapters(adapterId = null) {
+    const url = adapterId ? `/get_adapter/${adapterId}/` : '/get_adapters/';
+
+    fetch(url)
         .then(response => response.json())
         .then(data => {
-            showPopup(data.msg, data.status);
-            loadAdapters(); // Reload the adapters list
-        });
-}
+            if (adapterId) {
+                updateAdapterDiv(adapterId, data);
+            } else {
+                const adapterContainer = document.getElementById('existing-adapters');
+                adapterContainer.innerHTML = ''; // Clear the container
 
-function showNewAdapterForm() {
-    document.getElementById('new-adapter-modal').style.display = 'block';
-    document.getElementById('modal-overlay').style.display = 'block';
-    fetchAvailableAdapters(); // Call this function when the modal is shown
-}
-
-function hideNewAdapterForm() {
-    document.getElementById('new-adapter-modal').style.display = 'none';
-    document.getElementById('modal-overlay').style.display = 'none';
-    resetNewAdapterForm()
-}
-
-
-function toggleUrlInputs() {
-    const urlType = document.getElementById("url-type").value;
-    const urlContainer = document.getElementById("url-input-container");
-
-    if (urlType === "spts") {
-        urlContainer.innerHTML = `
-            <div id="url-input-1" class="url-input-wrapper">
-                <label for="udp-url-1">UDP URL 1:</label>
-                <input type="text" id="udp-url-1" name="udp-url" class="udp-url-input" required><br>
-            </div>
-            <div id="add-new-spts-url">
-                <button type="button" onclick="addUrlInput()">Add SPTS URL</button>
-            </div>
-        `;
-    } else {
-        urlContainer.innerHTML = `
-            <label for="udp-url">UDP URL:</label>
-            <input type="text" id="udp-url" name="udp-url" class="udp-url-input" required><br>
-        `;
-    }
-}
-
-
-function addUrlInput() {
-    const urlContainer = document.getElementById("url-input-container");
-    const inputCount = urlContainer.querySelectorAll('input[type="text"]').length;
-
-    const newInput = document.createElement("div");
-    newInput.setAttribute("id", `url-input-${inputCount + 1}`);
-    newInput.classList.add("url-input-wrapper");
-    newInput.innerHTML = `
-        <label for="udp-url-${inputCount + 1}">UDP URL ${inputCount + 1}:</label>
-        <input type="text" id="udp-url-${inputCount + 1}" name="udp-url" class="udp-url-input" required>
-        <button type="button" onclick="removeUrlInput(${inputCount + 1})" class="remove-url-button">-</button><br>
-    `;
-    urlContainer.insertBefore(newInput, document.getElementById("add-new-spts-url"));
-}
-
-
-function removeUrlInput(index) {
-    const urlInput = document.getElementById(`url-input-${index}`);
-    urlInput.remove();
-}
-
-function handleFormSubmit(event) {
-    event.preventDefault();
-    const urlType = document.getElementById("url-type").value;
-
-    if (urlType === "mpts") {
-        createSingleUrlAdapter(event);
-    } else if (urlType === "spts") {
-        createMultiUrlAdapter(event);
-    }
-}
-
-
-function createSingleUrlAdapter(event) {
-    //logic for handling a single MPTS URL adapter
-    event.preventDefault();
-    const adapterNumber = document.getElementById('adapter-number').value;
-    const modulatorNumber = document.getElementById('modulator-number').value;
-    const adapterName = document.getElementById('adapter-name').value;
-    const udpUrl = document.getElementById('udp-url').value;
-
-    fetch('/adapters/createMA', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                adapter_number: parseInt(adapterNumber),
-                modulator_number: parseInt(modulatorNumber),
-                type: 'MPTS', // Specify the type as MPTS
-                adapter_name: adapterName,
-                udp_urls: [udpUrl] // Send a single URL as an array
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            showPopup(data.msg, data.status);
-            hideNewAdapterForm();
-            loadAdapters(); // Reload the adapters list
-        })
-        .catch(error => showPopup(error, "error"));
-}
-
-function createMultiUrlAdapter(event) {
-    event.preventDefault();
-    const adapterNumber = document.getElementById('adapter-number').value;
-    const modulatorNumber = document.getElementById('modulator-number').value;
-    const adapterName = document.getElementById('adapter-name').value;
-    const urlInputs = document.querySelectorAll('.udp-url-input');
-    const udpUrls = [];
-
-    urlInputs.forEach(input => {
-        if (input.value.trim() !== "") {
-            udpUrls.push(input.value.trim());
-        }
-    });
-
-    // Check for duplicate URLs
-    const duplicateUrls = udpUrls.filter((url, index) => udpUrls.indexOf(url) !== index);
-    if (duplicateUrls.length > 0) {
-        alert('Duplicate URLs found: ' + duplicateUrls.join(', ') + '. Please ensure all URLs are unique.');
-        return;
-    }
-
-    fetch('/adapters/createSA', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                adapter_number: parseInt(adapterNumber),
-                modulator_number: parseInt(modulatorNumber),
-                type: 'SPTS', // Specify the type as SPTS
-                adapter_name: adapterName,
-                udp_urls: udpUrls // Send the list of URLs
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            showPopup(data.msg, data.status);
-            hideNewAdapterForm();
-            loadAdapters(); // Reload the adapters list
-        })
-        .catch(error => showPopup(error, "error"));
-}
-
-function resetNewAdapterForm() {
-    // Reset the form
-    document.getElementById('adapter-form').reset();
-
-    // Clear any dynamically added URL input fields if needed
-    const urlInputContainer = document.getElementById('url-input-container');
-    urlInputContainer.innerHTML = `
-            <label for="udp-url">UDP URL:</label>
-            <input type="text" id="udp-url" name="udp-url" class="udp-url-input" required><br>
-        `;
-    // Reset the URL Type to the default value (optional)
-    document.getElementById('url-type').value = 'mpts';
-}
-
-function scanAdapter(adapterId) {
-    const scanSection = document.getElementById(`scan-section-${adapterId}`);
-
-    // Add a spinner to indicate loading
-    const spinner = document.createElement('div');
-    spinner.className = 'spinner';
-    spinner.innerHTML = `<div class="loading-spinner"></div>`;
-    scanSection.appendChild(spinner);
-
-    // Fetch scan results and display them in the scan section
-    fetch(`/adapters/${adapterId}/scan`)
-        .then(response => response.json())
-        .then(data => {
-            const programs = data.programs;
-            // Hide the spinner after receiving data
-            scanSection.removeChild(spinner);
-            if (!programs || Object.keys(programs).length === 0) {
-                showPopup(data.msg, data.status);
-                return;
+                Object.entries(data).forEach(([id, adapter]) => {
+                    updateAdapterDiv(id, adapter);
+                    if (!window.adapterIds.includes(id)) {
+                        window.adapterIds.push(id);
+                    }
+                });
             }
-
-            // Hide other controls
-            setAdapterControlDisplay(adapterId, false);
-
-            // Display scan results and save/cancel buttons
-            scanSection.innerHTML = `
-                <h3>Available Channels and Streams</h3>
-                <ul>
-                    ${Object.entries(programs).map(([programId, program]) => `
-                        <li>
-                            <input type="checkbox" id="channel-${programId}" data-id="${programId}" onchange="updateChannelSelection(${programId})" />
-                            <label for="channel-${programId}" onclick="toggleChannel(event, ${programId})">${program.title}</label><br>
-                            Streams:
-                            <ul>
-                                ${program.streams.video.map(stream => `
-                                    <li>
-                                        <input type="checkbox" id="video-${stream.id}" data-channel="${programId}" data-id="${stream.id}" onchange="updateStreamSelection(${programId})"/> 
-                                        <label for="video-${stream.id}" onclick="toggleStream(event, '${stream.id}')">Video: ID: ${stream.id} (${stream.codec})</label>
-                                    </li>
-                                `).join('')}
-                                ${program.streams.audio.map(stream => `
-                                    <li>
-                                        <input type="checkbox" id="audio-${stream.id}" data-channel="${programId}" data-id="${stream.id}" onchange="updateStreamSelection(${programId})"/> 
-                                        <label for="audio-${stream.id}" onclick="toggleStream(event, '${stream.id}')">Audio: ID: ${stream.id} (${stream.codec})</label>
-                                    </li>
-                                `).join('')}
-                            ${program.streams.subtitle.length > 0 ? 
-                                program.streams.subtitle.map(stream => `
-                                    <li>
-                                        <input type="checkbox" id="subtitle-${stream.id}" data-channel="${programId}" data-id="${stream.id}" onchange="updateStreamSelection(${programId})"/> 
-                                        <label for="subtitle-${stream.id}" onclick="toggleStream(event, '${stream.id}')">Subtitle: ID: ${stream.id} (${stream.codec})</label>
-                                    </li>
-                                `).join('') : ''}
-                            </ul>
-                        </li>
-                    `).join('')}
-                </ul>
-                <button onclick="saveSelection('${adapterId}')">Save Selected</button>
-                <button onclick="cancelSelection('${adapterId}')">Cancel</button>
-            `;
-        })
-        .catch(error => {
-            console.error('Error:', error)
-            // Hide the spinner if an error occurs
-            showPopup(error, "error")
-            updateAdapter(adapterId)
-            scanSection.removeChild(spinner);
-        });
-}
-
-function updateChannelSelection(programId) {
-    const channelCheckbox = document.getElementById(`channel-${programId}`);
-    const streamCheckboxes = document.querySelectorAll(`[data-channel="${programId}"]`);
-
-    // Set all stream checkboxes based on channel checkbox state
-    streamCheckboxes.forEach(cb => cb.checked = channelCheckbox.checked);
-}
-
-function updateStreamSelection(programId) {
-    const channelCheckbox = document.getElementById(`channel-${programId}`);
-    const streamCheckboxes = document.querySelectorAll(`[data-channel="${programId}"]`);
-
-    // Update the channel checkbox based on the stream checkboxes
-    const allStreamsSelected = Array.from(streamCheckboxes).every(cb => cb.checked);
-    const anyStreamSelected = Array.from(streamCheckboxes).some(cb => cb.checked);
-
-    if (allStreamsSelected) {
-        channelCheckbox.checked = true;
-    } else if (!anyStreamSelected) {
-        channelCheckbox.checked = false;
-    }
-}
-
-function toggleChannel(event, programId) {
-    event.preventDefault(); // Prevent default behavior of the label
-    const channelCheckbox = document.getElementById(`channel-${programId}`);
-    channelCheckbox.checked = !channelCheckbox.checked;
-    updateChannelSelection(programId);
-}
-
-function toggleStream(event, streamId) {
-    event.preventDefault(); // Prevent default behavior of the label
-    const streamCheckbox = document.getElementById(`video-${streamId}`) || document.getElementById(`audio-${streamId}`) || document.getElementById(`subtitle-${streamId}`);
-    streamCheckbox.checked = !streamCheckbox.checked;
-    const channelId = streamCheckbox.getAttribute('data-channel');
-    updateStreamSelection(channelId);
-}
-
-
-function saveSelection(adapterId) {
-    const selectedChannels = {};
-
-    // Collect selected streams
-    const streamCheckboxes = document.querySelectorAll('input[type="checkbox"][data-id]');
-    streamCheckboxes.forEach(cb => {
-        if (cb.checked) {
-            const streamId = cb.dataset.id;
-            if (!cb.dataset.channel)
-                return;
-            const channelId = cb.dataset.channel;
-            if (!selectedChannels[channelId]) {
-                selectedChannels[channelId] = {
-                    video: [],
-                    audio: [],
-                    subtitle: []
-                };
-            }
-            if (cb.id.startsWith('video-')) {
-                selectedChannels[channelId].video.push(streamId);
-            } else if (cb.id.startsWith('audio-')) {
-                selectedChannels[channelId].audio.push(streamId);
-            } else if (cb.id.startsWith('subtitle-')) {
-                selectedChannels[channelId].subtitle.push(streamId);
-            }
-        }
-    });
-
-    console.log(`SELECTED: \n${selectedChannels}`)
-    fetch(`/adapters/${adapterId}/save`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                channels: selectedChannels
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            showPopup(data.msg, data.status);
-            updateAdapter(adapterId)
-        })
-        .catch(error => showPopup(error, "error"));
-}
-
-function setAdapterControlDisplay(id, isDisplay) {
-    const adapterDiv = document.getElementById(`adapter-${id}`);
-    adapterDiv.querySelector(`#scan-button-${id}`).style.display = isDisplay ? 'inline' : 'none';
-    adapterDiv.querySelector(`#start-form-${id}`).style.display = isDisplay ? 'inline' : 'none';
-    adapterDiv.querySelector(`#stop-form-${id}`).style.display = isDisplay ? 'inline' : 'none';
-    adapterDiv.querySelector(`#delete-form-${id}`).style.display = isDisplay ? 'inline' : 'none';
-}
-
-function cancelSelection(adapterId) {
-    const scanSection = document.getElementById(`scan-section-${adapterId}`);
-    // Restore other controls
-    setAdapterControlDisplay(adapterId, true);
-    // Clear scan results
-    scanSection.innerHTML = '';
-}
-
-function startFFmpeg(adapterId) {
-    const adapterSection = document.getElementById(`adapter-${adapterId}`);
-    adapterSection.style.position = 'relative';
-
-    // Add a spinner to indicate loading
-    const spinner = document.createElement('div');
-    spinner.className = 'spinner-overlay';
-    spinner.innerHTML = `<div class="loading-spinner"></div>`;
-    adapterSection.appendChild(spinner);
-
-    fetch(`/adapters/${adapterId}/start`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            adapterSection.removeChild(spinner);
-            showPopup(data.msg, data.status);
-            updateAdapter(adapterId)
-        })
-        .catch(error => {
-            showPopup(`Start Adapter Error: ${error}`, "error");
-            adapterSection.removeChild(spinner);
-            console.error('Error:', error)
-        });
-}
-
-function stopFFmpeg(adapterId) {
-    const adapterSection = document.getElementById(`adapter-${adapterId}`);
-    adapterSection.style.position = 'relative';
-
-    // Add a spinner to indicate loading
-    const spinner = document.createElement('div');
-    spinner.className = 'spinner-overlay';
-    spinner.innerHTML = `<div class="loading-spinner"></div>`;
-    adapterSection.appendChild(spinner);
-
-    fetch(`/adapters/${adapterId}/stop`, {
-            method: 'POST'
-        })
-        .then(response => response.json())
-        .then(data => {
-            adapterSection.removeChild(spinner);
-            showPopup(data.msg, data.status);
-            updateAdapter(adapterId)
-        })
-        .catch(error => {
-            adapterSection.removeChild(spinner);
-            showPopup(error, "error")
-        });
-}
-
-function deleteAdapter(adapterId) {
-    fetch(`/adapters/${adapterId}/`, {
-            method: 'DELETE'
-        })
-        .then(response => response.json())
-        .then(data => {
-            showPopup(data.msg, data.status);
-            loadAdapters();
-        })
-        .catch(error => showPopup(error, "error"));
-}
-
-
-function updateAdapter(adapterId) {
-    fetch(`/get_adapter/${adapterId}/`)
-        .then(response => response.json())
-        .then(adapter => {
-            const adapterDiv = document.getElementById(`adapter-${adapterId}`);
-            if (!adapterDiv) {
-                console.error(`Adapter with ID ${adapterId} not found.`);
-                return;
-            }
-
-            // Display selected channels
-            const selectedPrograms = adapter.programs ?
-                Object.entries(adapter.programs)
-                .filter(([_, program]) => program.selected)
-                .map(([_, program]) => program) : [];
-
-            const status = adapter.running ? '<span style="color: green;">Running</span>' : '<span style="color: red;">Stopped</span>';
-
-            const selectedChannelsHtml = selectedPrograms.length ?
-                selectedPrograms.map(program => `
-                    <li>
-                        <a href="javascript:void(0);" onclick="toggleProgramDetails('${program.title}-${adapterId}')">
-                            ${program.title}
-                        </a>
-                        <div id="program-details-${program.title}-${adapterId}" class="program-details" style="display:none; margin-left: 20px;">
-                            <div class="video-stream"><strong>Video:</strong> 
-                                ${program.streams.video
-                                    .filter(v => v.selected)
-                                    .map(v => `${v.codec}`).join(', ')
-                                }
-                            </div>
-                            <div class="audio-stream"><strong>Audio:</strong> 
-                                ${program.streams.audio
-                                    .filter(a => a.selected)
-                                    .map(a => `${a.codec}`).join(', ')
-                                }
-                            </div>
-                            ${program.streams.subtitle.some(s => s.selected) ? `
-                            <div class="subtitle-stream"><strong>Subtitle:</strong> 
-                                ${program.streams.subtitle
-                                    .filter(s => s.selected)
-                                    .map(s => `${s.codec}`).join(', ')
-                                }
-                            </div>
-                            ` : ''}
-                        </div>
-                    </li>
-                `).join('') : '<li>None</li>';
-
-            // Adapter type and UDP URLs (with Expand/Collapse for SPTS)
-            const udpUrlsHtml = adapter.type === 'SPTS' ? `
-                <div>
-                    <a href="javascript:void(0);" onclick="toggleUrlList('${adapterId}-urls')">UDP URLs:  &#11206;</a>
-                    <ul id="${adapterId}-urls" style="display:none;">
-                        ${adapter.udp_urls.map(url => `<li>${url}</li>`).join('')}
-                    </ul>
-                </div>` : `<div id="udp-url">UDP link: ${adapter.udp_urls}</div>`;
-
-            adapterDiv.innerHTML = `
-                <h3>${adapter.adapter_name}: (Adapter${adapter.adapter_number}/mod${adapter.modulator_number}) ${status}</h3>
-                <div><strong>Type:</strong> ${adapter.type.toUpperCase()}</div>
-                ${udpUrlsHtml}
-                <div id="udp-url">Frequency: ${adapter.description}</div>
-                <div class="selected-channels">
-                    <p>Selected channels:</p>
-                    <ul id="selected-channels-list">
-                        ${selectedChannelsHtml}
-                    </ul>
-                </div>
-                <div id="scan-section-${adapterId}">
-                    <!-- Scan results will be loaded here -->
-                </div>
-                <button onclick="scanAdapter('${adapterId}')" id="scan-button-${adapterId}" ${adapter.running ? 'disabled' : ''}>Scan</button>
-                <form method="post" action="/adapters/${adapterId}/start" id="start-form-${adapterId}" style="display:inline;">
-                    <button type="button" onclick="startFFmpeg('${adapterId}')" ${adapter.running ? 'disabled' : ''}>Start</button>
-                </form>
-                <form method="post" action="/adapters/${adapterId}/stop" id="stop-form-${adapterId}" style="display:inline;">
-                    <button type="button" onclick="stopFFmpeg('${adapterId}')" ${adapter.running ? '' : 'disabled'}>Stop</button>
-                </form>
-                <form method="post" action="/adapters/${adapterId}/delete" id="delete-form-${adapterId}" style="display:inline;">
-                    <button type="button" onclick="deleteAdapter('${adapterId}')">Delete</button>
-                </form>
-            `;
-        })
-        .catch(error => showPopup(error, "error"));
-}
-
-
-function loadAdapters() {
-    fetch('/get_adapters/')
-        .then(response => response.json())
-        .then(data => {
-            const adapterContainer = document.getElementById('existing-adapters');
-            adapterContainer.innerHTML = ''; // Clear the container
-
-            Object.entries(data).forEach(([adapterId, adapter]) => {
-                const adapterDiv = document.createElement('div');
-                adapterDiv.id = `adapter-${adapterId}`;
-
-                // Display selected channels
-                const selectedPrograms = adapter.programs ?
-                    Object.entries(adapter.programs)
-                    .filter(([_, program]) => program.selected)
-                    .map(([_, program]) => program) : [];
-
-                const status = adapter.running ? '<span style="color: green;">Running</span>' : '<span style="color: red;">Stopped</span>';
-
-                const selectedChannelsHtml = selectedPrograms.length ?
-                    selectedPrograms.map(program => `
-                        <li>
-                            <a href="javascript:void(0);" onclick="toggleProgramDetails('${program.title}-${adapterId}')">
-                                ${program.title}
-                            </a>
-                            <div id="program-details-${program.title}-${adapterId}" class="program-details" style="display:none; margin-left: 20px;">
-                                <div class="video-stream"><strong>Video:</strong> 
-                                    ${program.streams.video
-                                        .filter(v => v.selected)
-                                        .map(v => `${v.codec}`).join(', ')
-                                    }
-                                </div>
-                                <div class="audio-stream"><strong>Audio:</strong> 
-                                    ${program.streams.audio
-                                        .filter(a => a.selected)
-                                        .map(a => `${a.codec}`).join(', ')
-                                    }
-                                </div>
-                                ${program.streams.subtitle.some(s => s.selected) ? `
-                                <div class="subtitle-stream"><strong>Subtitle:</strong> 
-                                    ${program.streams.subtitle
-                                        .filter(s => s.selected)
-                                        .map(s => `${s.codec}`).join(', ')
-                                    }
-                                </div>
-                                ` : ''}
-                            </div>
-                        </li>
-                    `).join('') : '<li>None</li>';
-
-                // Adapter type and UDP URLs (with Expand/Collapse for SPTS)
-                const udpUrlsHtml = adapter.type === 'SPTS' ? `
-                    <div>
-                        <a href="javascript:void(0);" onclick="toggleUrlList('${adapterId}-urls')">UDP URLs:  &#11206;</a>
-                        <ul id="${adapterId}-urls" style="display:none;">
-                            ${adapter.udp_urls.map(url => `<li>${url}</li>`).join('')}
-                        </ul>
-                    </div>` : `<div id="udp-url">UDP link: ${adapter.udp_urls}</div>`;
-
-                adapterDiv.innerHTML = `
-                <h3>${adapter.adapter_name}: (Adapter${adapter.adapter_number}/mod${adapter.modulator_number}) ${status}</h3>
-                <div><strong>Type:</strong> ${adapter.type.toUpperCase()}</div>
-                ${udpUrlsHtml}
-                <div id="udp-url">Frequency: ${adapter.description}</div>
-                <div class="selected-channels">
-                    <p>Selected channels:</p>
-                    <ul id="selected-channels-list">
-                        ${selectedChannelsHtml}
-                    </ul>
-                </div>
-                <div id="scan-section-${adapterId}">
-                    <!-- Scan results will be loaded here -->
-                </div>
-                <button onclick="scanAdapter('${adapterId}')" id="scan-button-${adapterId}" ${adapter.running ? 'disabled' : ''}>Scan</button>
-                <form method="post" action="/adapters/${adapterId}/start" id="start-form-${adapterId}" style="display:inline;">
-                    <button type="button" onclick="startFFmpeg('${adapterId}')" ${adapter.running ? 'disabled' : ''}>Start</button>
-                </form>
-                <form method="post" action="/adapters/${adapterId}/stop" id="stop-form-${adapterId}" style="display:inline;">
-                    <button type="button" onclick="stopFFmpeg('${adapterId}')" ${adapter.running ? '' : 'disabled'}>Stop</button>
-                </form>
-                <form method="post" action="/adapters/${adapterId}/delete" id="delete-form-${adapterId}" style="display:inline;">
-                    <button type="button" onclick="deleteAdapter('${adapterId}')">Delete</button>
-                </form>
-            `;
-                adapterContainer.appendChild(adapterDiv);
-            });
+            // Request the stream list after updating the adapters to set Bitrate
+            window.parent.postMessage({request: 'stream-list'}, '*');
         })
         .catch(error => showPopup(error, "error"));
 }
@@ -601,73 +83,199 @@ function toggleUrlList(urlListId) {
     }
 }
 
+function updateAdapterDiv(adapterId, adapter) {
+    const adapterDiv = document.getElementById(`adapter-${adapterId}`) || document.createElement('div');
+    adapterDiv.id = `adapter-${adapterId}`;
+    adapterDiv.style.position = 'relative';
 
+    // Display selected channels
+    const selectedPrograms = adapter.programs ?
+        Object.entries(adapter.programs)
+        .filter(([_, program]) => program.selected)
+        .map(([_, program]) => program) : [];
 
-function fetchAvailableAdapters() {
-    console.log('Fetching available adapters');
-    fetch('/adapters/available')
-        .then(response => response.json())
-        .then(data => {
-            const adapterSelect = document.getElementById('adapter-number');
-            const modulatorSelect = document.getElementById('modulator-number');
+    const status = adapter.running ? '<span style="color: green;">Running</span>' : '<span style="color: red;">Stopped</span>';
 
-            // Clear existing options
-            adapterSelect.innerHTML = '';
-            modulatorSelect.innerHTML = '';
+    const selectedChannelsHtml = selectedPrograms.length ?
+        selectedPrograms.map(program => `
+            <li>
+                <a href="javascript:void(0);" class="toggle-program-details" data-program="${program.title}-${adapterId}" data-program-title="${program.title}">
+                    ${program.title}
+                </a>
+                <div id="program-details-${program.title}-${adapterId}" class="program-details" style="display:none; margin-left: 20px;">
+                    <div class="video-stream"><strong>Video:</strong> 
+                        ${program.streams.video
+                            .filter(v => v.selected)
+                            .map(v => `${v.codec}`).join(', ')
+                        }
+                    </div>
+                    <div class="audio-stream"><strong>Audio:</strong> 
+                        ${program.streams.audio
+                            .filter(a => a.selected)
+                            .map(a => `${a.codec}`).join(', ')
+                        }
+                    </div>
+                    ${program.streams.subtitle.some(s => s.selected) ? `
+                    <div class="subtitle-stream"><strong>Subtitle:</strong> 
+                        ${program.streams.subtitle
+                            .filter(s => s.selected)
+                            .map(s => `${s.codec}`).join(', ')
+                        }
+                    </div>
+                    ` : ''}
+                </div>
+            </li>
+        `).join('') : '<li>None</li>';
 
-            // Populate adapter numbers
-            data.adapters.forEach(adapter => {
-                const option = document.createElement('option');
-                option.value = adapter;
-                option.text = adapter;
-                adapterSelect.add(option);
-            });
+    // Adapter type and UDP URLs (with Expand/Collapse for SPTS)
+    const udpUrlsHtml = adapter.type === 'SPTS' ? `
+        <div>
+            <a href="javascript:void(0);" class="toggle-url-list" data-url-list-id="${adapterId}-urls">UDP URLs: &#11206;</a>
+            <ul id="${adapterId}-urls" style="display:none;">
+                ${adapter.udp_urls.map(urlConfig => `
+                    <li>
+                        ${urlConfig.udp_url}${urlConfig.astra_stream_id ? ` (Astra ID: ${urlConfig.astra_stream_id})` : ''}
+                    </li>
+                `).join('')}
+            </ul>
+        </div>` : `
+        <div id="udp-url">
+            UDP link: ${adapter.udp_urls.map(urlConfig => `
+                ${urlConfig.udp_url}${urlConfig.astra_stream_id ? ` (Astra ID: ${urlConfig.astra_stream_id})` : ''}
+            `).join(', ')}
+        </div>`;
 
-            // Populate modulator numbers
-            data.modulators.forEach(modulator => {
-                const option = document.createElement('option');
-                option.value = modulator;
-                option.text = modulator;
-                modulatorSelect.add(option);
-            });
-        })
-        .catch(error => showPopup(`Error fetching available adapters: ${error}`, "error"));
+    adapterDiv.innerHTML = `
+        <h3>${adapter.adapter_name}: (Adapter${adapter.adapter_number}/mod${adapter.modulator_number}) ${status}</h3>
+        <div><strong>Type:</strong> ${adapter.type.toUpperCase()}</div>
+        ${udpUrlsHtml}
+        <div id="udp-url">Frequency: ${adapter.description}</div>
+        <div class="selected-channels">
+            <p>Selected channels:</p>
+            <ul id="selected-channels-list">
+                ${selectedChannelsHtml}
+            <div id="total-bitrate"></div>
+            </ul>
+        </div>
+        <div id="scan-section-${adapterId}">
+            <!-- Scan results will be loaded here -->
+        </div>
+        
+        <!-- Duplicate Start/Stop buttons for faster control -->
+        <div class="adapter-control-buttons">
+            <button class="start-ffmpeg" data-adapter-id="${adapterId}" ${adapter.running ? 'disabled' : ''}>Start</button>
+            <button class="stop-ffmpeg" data-adapter-id="${adapterId}" ${adapter.running ? '' : 'disabled'}>Stop</button>
+        </div>
+        <!-- Menu with dropdown -->
+        <div class="adapter-menu">
+            <div class="menu-button" data-menu-id="${adapterId}-menu">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+            <div id="${adapterId}-menu" class="menu-dropdown" style="display: none;">
+                <button class="scan-adapter" data-adapter-id="${adapterId}">Scan</button>
+                <button class="start-ffmpeg" data-adapter-id="${adapterId}" ${adapter.running ? 'disabled' : ''}>Start</button>
+                <button class="stop-ffmpeg" data-adapter-id="${adapterId}" ${adapter.running ? '' : 'disabled'}>Stop</button>
+                <button class="delete-adapter" data-adapter-id="${adapterId}">Delete</button>
+            </div>
+        </div>
+    `;
+
+    if (!document.getElementById(`adapter-${adapterId}`)) {
+        document.getElementById('existing-adapters').appendChild(adapterDiv);
+    }
 }
 
-// Call fetchAvailableAdapters when the modal is opened
-//document.getElementById('new-adapter-modal').addEventListener('show', fetchAvailableAdapters);
+// Listen for incoming messages
+window.addEventListener('message', function(event) {
+    if (event.data.event === 'stream-event') {
+        const data = event.data.data;
+        const programs = document.querySelectorAll('[data-stream-id]');
+        programs.forEach(li => { 
+                if(li.getAttribute('data-stream-id') === data.channel_id){
+                     const programLink = li.querySelector('a.toggle-program-details');
+                        
+                        if (programLink) {
+                            // Update the text content with the bitrate
+                            programLink.textContent = `${programLink.textContent.split(' - ')[0]} - ${Math.round(data.bitrate)} Kbit/s`;                        }
+                    }
+            })
+        }
 
-function showPopup(message, status) {
-    const popup = document.getElementById('alert-popup');
-    const header = document.getElementById('alert-header');
-    const messageBody = document.getElementById('alert-message');
+     if (event.data.response === 'stream-list') {
+         const astraStreams = event.data.streams; // Assuming the data comes this way
+         // Select all divs with an id starting with 'adapter-'
+            document.querySelectorAll('div[id^="adapter-"]').forEach(div => {
+              // Extract the part of the ID after 'adapter-'
+              const id = div.id.match(/^adapter-(.*)$/)[1];
+              addStreamIdsToProgramList(id, astraStreams);
+            });
+         
+     }
+});
 
-    // Set message content
-    messageBody.innerHTML = message;
+function addStreamIdsToProgramList(adapterId, astraStreams) {
+    const programList = document.querySelectorAll(`#adapter-${adapterId} ul#selected-channels-list li`);
+    
+    programList.forEach(li => {
+        const programNameLink = li.querySelector('a.toggle-program-details');
+        const programName = programNameLink.dataset.programTitle; // Get the program name
+        const udpUrls = Array.from(document.getElementById(`${adapterId}-urls`).getElementsByTagName("li"))
+            .map(li => li.textContent.trim().split(' ')[0])
+            .filter(link => link.startsWith('udp://'));
+        
+        // Find the matching stream from astraStreams
+        const matchingStream = astraStreams.find(stream => {
+            if(stream.output && stream.enable && stream.type === 'spts'){
+                let strUdpUrls = stream.output.filter(url => url.startsWith('udp://'));
+                return stream.name === programName && strUdpUrls.some(url => udpUrls.includes(url));
+            }
+        });
 
-    // Reset classes
-    popup.classList.remove('success', 'error', 'hidden', 'visible');
-
-    if (status === "success") {
-        header.innerHTML = "Success";
-        popup.classList.add('success');
-    } else if (status === "error") {
-        header.innerHTML = "Error";
-        popup.classList.add('error');
-    }
-
-    // Show the popup
-    popup.classList.add('visible');
-
-    // Auto-hide after 5 seconds
-    setTimeout(() => {
-        popup.classList.add('hidden');
-        popup.classList.remove('visible');
-    }, 4000);
-
-    // Allow clicking to close
-    popup.addEventListener('click', () => {
-        popup.classList.add('hidden');
-        popup.classList.remove('visible');
+        if (matchingStream) {
+            li.setAttribute('data-stream-id', matchingStream.id); // Add the ID as a data attribute
+        }
     });
 }
+
+
+function setTotalBitrate(adapterId) {
+    const adapterDiv = document.getElementById(`adapter-${adapterId}`);
+    if (!adapterDiv) return;
+
+    const channelsList = adapterDiv.querySelectorAll('#selected-channels-list li a.toggle-program-details');
+    let totalBitrate = 0;
+
+    channelsList.forEach(channel => {
+        const bitrateText = channel.textContent.match(/- (\d+) Kbit\/s/);
+        if (bitrateText) {
+            totalBitrate += parseInt(bitrateText[1], 10);
+            if (bitrateText[1] === "0") {
+                channel.style.color = 'red';
+            }else {
+                channel.style.color = '#3498db';
+            }
+        }
+    });
+
+    if (totalBitrate === 0) return; // Skip if no programs have a bitrate
+
+    const totalBitrateDiv = adapterDiv.querySelector('#total-bitrate');
+    totalBitrateDiv.textContent = totalBitrate + ' Kbit/s';
+
+    // Set color based on the total bitrate
+    if (totalBitrate < 25000) {
+        totalBitrateDiv.style.color = 'green';
+    } else if (totalBitrate > 29000) {
+        totalBitrateDiv.style.color = 'red';
+    } else {
+        totalBitrateDiv.style.color = 'orange';
+    }
+}
+
+setInterval(function() {
+    window.adapterIds.forEach(id => {
+        setTotalBitrate(id);
+    });
+}, 1000);

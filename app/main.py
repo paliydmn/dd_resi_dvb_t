@@ -18,6 +18,9 @@ from settings import settings
 
 from app.utils import logger
 
+import mimetypes
+mimetypes.add_type("application/javascript", ".js", True)
+
 ADAPTER_CONF_FILE = settings.adapter_conf_file
 
 app = FastAPI()

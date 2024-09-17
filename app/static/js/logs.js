@@ -12,7 +12,6 @@ function loadLogFiles() {
     fetch('/logs/list/')
         .then(response => response.json())
         .then(logFiles => {
-            console.log('Log Files:', logFiles);
             const logFilesList = document.getElementById('log-files-list');
             logFilesList.innerHTML = '';
 

@@ -5,8 +5,8 @@
 {% block content %}
 <h1>Adapter Management</h1>
 <div class="button-container">
-    <button onclick="showNewAdapterForm()" class="left-button">New Adapter</button>
-    <button onclick="stopAllffmpegs()" class="right-button">Stop All</button>
+    <button id="new-adapter-form" class="left-button">New Adapter</button>
+    <button id="stop-all-ffmpegs" class="right-button">Stop All</button>
 </div>
 
 <div id="adapter-container">
@@ -17,9 +17,9 @@
 
 <!-- New Adapter Modal -->
 <div id="new-adapter-modal">
-    <form id="adapter-form" onsubmit="handleFormSubmit(event)">
+    <form id="adapter-form">
         <label for="adapter-name">Adapter Name:</label>
-        <input id="adapter-name" name="adapter-name" required="" pattern="[a-zA-Z0-9_\-]+"
+        <input id="adapter-name" name="adapter-name" required="" pattern="[a-zA-Z0-9_\- ]+"
             title="Only letters, numbers, underscores, and dashes are allowed."></input><br>
 
         <label for="adapter-number">Adapter Number:</label>
@@ -29,9 +29,10 @@
         <select id="modulator-number" name="modulator-number" required></select><br>
 
         <label for="url-type">URL Type:</label>
-        <select id="url-type" name="url-type" required onchange="toggleUrlInputs()">
-            <option value="mpts">MPTS URL</option>
+        <select id="url-type" name="url-type" required>
+            <option value="astra_spts">SPTS Astra</option>
             <option value="spts">SPTS URLs</option>
+            <option value="mpts">MPTS URL</option>
         </select><br>
 
         <div id="url-input-container">
@@ -40,10 +41,23 @@
             <input type="text" id="udp-url" name="udp-url" class="udp-url-input" required><br>
         </div>
 
-        <button type="submit">Save</button>
-        <button type="button" onclick="hideNewAdapterForm()">Cancel</button>
+        <button id="new-adapter-modal-submit" type="submit">Save</button>
+        <button id="new-adapter-modal-cancel" type="button">Cancel</button>
     </form>
 </div>
+<!-- Astra SPTS Modal -->
+<div id="astra-spts-modal" style="display: none;">
+    <h2>Select Astra SPTS Streams</h2>
+    <form id="astra-spts-form">
+        <div id="astra-spts-list">
+            <!-- SPTS streams will be dynamically populated here -->
+        </div>
+        <button id="astra-spts-add-button" type="button">Add</button>
+        <button id="astra-spts-cancel-button" type="button">Cancel</button>
+    </form>
+</div>
+
+
 <h2>Existing Adapters</h2>
 <div id="existing-adapters">
     <!-- Existing adapters will be populated here -->
@@ -54,5 +68,9 @@
     <div id="alert-message" class="popup-body"></div>
 </div>
 
-<script src="/static/js/adapters.js"></script>
+<script type="module" src="/static/js/modules/utils/popup.js"></script>
+<script type="module" src="/static/js/modules/adapter/controlls.js"></script>
+<script type="module" src="/static/js/modules/adapter/form.js"></script>
+
+<script type="module" src="/static/js/adapters.js"></script>
 {% endblock %}

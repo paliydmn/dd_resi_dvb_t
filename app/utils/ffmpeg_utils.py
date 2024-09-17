@@ -197,9 +197,9 @@ def construct_spts_ffmpeg_command(adapter: AdapterConfig) -> str:
     stream_index = 0
 
     # Ensure each UDP URL is correctly associated with its respective programs
-    for input_index, udp_url in enumerate(adapter.udp_urls):
+    for input_index, url in enumerate(adapter.udp_urls):
         base_command.append(f'-thread_queue_size 16384')
-        base_command.append(f'-i "{udp_url}?fifo_size=1000000&overrun_nonfatal=1&reconnect=1&reconnect_streamed=1&reconnect_delay_max=2"')
+        base_command.append(f'-i "{url.udp_url}?fifo_size=1000000&overrun_nonfatal=1&reconnect=1&reconnect_streamed=1&reconnect_delay_max=2"')
 
         # Get the corresponding program for the current UDP URL
         program_key = list(adapter.programs.keys())[input_index]
@@ -279,7 +279,7 @@ def construct_mpts_ffmpeg_command(udp_link: list, programs: dict, adapter_num: i
             program_cmd = f"-program program_num={program_num}:title=\"{title}\":{':'.join(stream_map_indices)}"
             program_cmds.append(program_cmd)
 
-    final_cmd = (f"ffmpeg  -copyts -start_at_zero -fflags +discardcorrupt+igndts+genpts -buffer_size 10000k -ignore_unknown -err_detect ignore_err -avoid_negative_ts make_zero -re -thread_queue_size 16384 -i \"{udp_link[0]}{udp_params}\" {base_options} "
+    final_cmd = (f"ffmpeg  -copyts -start_at_zero -fflags +discardcorrupt+igndts+genpts -buffer_size 10000k -ignore_unknown -err_detect ignore_err -avoid_negative_ts make_zero -re -thread_queue_size 16384 -i \"{udp_link[0].udp_url}{udp_params}\" {base_options} "
                  f"{' '.join(map_cmds)} {' '.join(program_cmds)} "
                  f" -c:v copy -c:a copy -c:s copy -muxrate 31668449 -max_interleave_delta 0 -mpegts_copyts 1 -fps_mode 0 -enc_time_base -1 -start_at_zero -copytb -1 -f mpegts -y /dev/dvb/adapter{adapter_num}/mod{modulator_num}")
 
