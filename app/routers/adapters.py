@@ -152,7 +152,8 @@ def scan_adapter(adapter_id: str):
         return {"status": "error", "msg": "ffprobe returned no data"}
     
     programs = construct_programs_dict(ffprobe_data)
-    #adapters[adapter_id].programs = programs
+    logger.info(f"Scanned adapter {adapter_id}: Programs: {programs}")
+    adapters[adapter_id].programs = programs
     logger.info(f"Scanned adapter {adapter_id}: {len(programs)} programs found.")
     return {"programs": programs}
 
