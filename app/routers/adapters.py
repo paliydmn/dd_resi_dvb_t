@@ -134,30 +134,6 @@ def create_adapter(adapterConf: AdapterConfig):
     return {"status": "success", "msg": f"Adapter '{adapterConf.adapter_name}' created successfully"}
 
 
-@router.get("/adapters/{adapter_id}/scan")
-def scan_adapter(adapter_id: str):
-    if adapter_id not in adapters:
-        raise HTTPException(status_code=404, detail="Adapter not found")
-    adapter = adapters[adapter_id]
-
-    udp_urls = [udp_url_config.udp_url for udp_url_config in adapter.udp_urls]
-    ffprobe_data = get_ffprobe_data(adapter.type, udp_urls)
-
-    # Check if ffprobe_data is an error message or valid data
-    if isinstance(ffprobe_data, str):
-        return {"status": "error", "msg": f"{ffprobe_data}"}
-        # raise HTTPException(status_code=500, detail=ffprobe_data)
-
-    if not ffprobe_data:  # This checks if the dict is empty
-        return {"status": "error", "msg": "ffprobe returned no data"}
-    
-    programs = construct_programs_dict(ffprobe_data)
-    logger.info(f"Scanned adapter {adapter_id}: Programs: {programs}")
-    adapters[adapter_id].programs = programs
-    logger.info(f"Scanned adapter {adapter_id}: {len(programs)} programs found.")
-    return {"programs": programs}
-
-
 @router.post("/adapters/{adapter_id}/start")
 def start_ffmpeg(adapter_id: str):
     if adapter_id in running_processes:
@@ -266,6 +242,31 @@ def delete_adapter(adapter_id: str):
     logger.info(del_res)
     save_adapters_to_file()
     return {"status": "success", "msg": f"Adapter {name} successfully deleted."}
+
+
+@router.get("/adapters/{adapter_id}/scan")
+def scan_adapter(adapter_id: str):
+    if adapter_id not in adapters:
+        raise HTTPException(status_code=404, detail="Adapter not found")
+    adapter = adapters[adapter_id]
+
+    udp_urls = [udp_url_config.udp_url for udp_url_config in adapter.udp_urls]
+    ffprobe_data = get_ffprobe_data(adapter.type, udp_urls)
+
+    # Check if ffprobe_data is an error message or valid data
+    if isinstance(ffprobe_data, str):
+        return {"status": "error", "msg": f"{ffprobe_data}"}
+        # raise HTTPException(status_code=500, detail=ffprobe_data)
+
+    if not ffprobe_data:  # This checks if the dict is empty
+        return {"status": "error", "msg": "ffprobe returned no data"}
+    
+    programs = construct_programs_dict(ffprobe_data)
+    logger.info(f"Scanned adapter {adapter_id}: Programs: {programs}")
+    if not adapter.programs:
+        adapter.programs = programs
+    logger.info(f"Scanned adapter {adapter_id}: {len(programs)} programs found.")
+    return {"programs": programs}
 
 
 @router.post("/adapters/{adapter_id}/save")
