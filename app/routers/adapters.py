@@ -255,8 +255,8 @@ def scan_adapter(adapter_id: str):
 
     # Check if ffprobe_data is an error message or valid data
     if isinstance(ffprobe_data, str):
-        return {"status": "error", "msg": f"{ffprobe_data}"}
-        # raise HTTPException(status_code=500, detail=ffprobe_data)
+        logger.error(f"Error during ffprobe data retrieval for adapter {adapter_id}: {ffprobe_data}")
+        return {"status": "error", "msg": "An internal error has occurred while processing the adapter data."}
 
     if not ffprobe_data:  # This checks if the dict is empty
         return {"status": "error", "msg": "ffprobe returned no data"}
