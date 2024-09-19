@@ -134,26 +134,6 @@ def create_adapter(adapterConf: AdapterConfig):
     return {"status": "success", "msg": f"Adapter '{adapterConf.adapter_name}' created successfully"}
 
 
-@router.get("/adapters/{adapter_id}/scan")
-def scan_adapter(adapter_id: str):
-    if adapter_id not in adapters:
-        raise HTTPException(status_code=404, detail="Adapter not found")
-    adapter = adapters[adapter_id]
-
-    udp_urls = [udp_url_config.udp_url for udp_url_config in adapter.udp_urls]
-    ffprobe_data = get_ffprobe_data(adapter.type, udp_urls)
-
-    # Check if ffprobe_data is an error message or valid data
-    if isinstance(ffprobe_data, str):
-        return {"status": "error", "msg": f"{ffprobe_data}"}
-        # raise HTTPException(status_code=500, detail=ffprobe_data)
-
-    programs = construct_programs_dict(ffprobe_data)
-    adapters[adapter_id].programs = programs
-    logger.info(f"Scanned adapter {adapter_id}: {len(programs)} programs found.")
-    return {"programs": programs}
-
-
 @router.post("/adapters/{adapter_id}/start")
 def start_ffmpeg(adapter_id: str):
     if adapter_id in running_processes:
@@ -264,6 +244,31 @@ def delete_adapter(adapter_id: str):
     return {"status": "success", "msg": f"Adapter {name} successfully deleted."}
 
 
+@router.get("/adapters/{adapter_id}/scan")
+def scan_adapter(adapter_id: str):
+    if adapter_id not in adapters:
+        raise HTTPException(status_code=404, detail="Adapter not found")
+    adapter = adapters[adapter_id]
+
+    udp_urls = [udp_url_config.udp_url for udp_url_config in adapter.udp_urls]
+    ffprobe_data = get_ffprobe_data(adapter.type, udp_urls)
+
+    # Check if ffprobe_data is an error message or valid data
+    if isinstance(ffprobe_data, str):
+        logger.error(f"Error during ffprobe data retrieval for adapter {adapter_id}: {ffprobe_data}")
+        return {"status": "error", "msg": "An internal error has occurred while processing the adapter data."}
+
+    if not ffprobe_data:  # This checks if the dict is empty
+        return {"status": "error", "msg": "ffprobe returned no data"}
+    
+    programs = construct_programs_dict(ffprobe_data)
+    logger.info(f"Scanned adapter {adapter_id}: Programs: {programs}")
+    if not adapter.programs:
+        adapter.programs = programs
+    logger.info(f"Scanned adapter {adapter_id}: {len(programs)} programs found.")
+    return {"programs": programs}
+
+
 @router.post("/adapters/{adapter_id}/save")
 def save_selection(adapter_id: str, selection: SaveSelection):
     if adapter_id not in adapters:
@@ -299,20 +304,6 @@ def save_selection(adapter_id: str, selection: SaveSelection):
     logger.info(f"Saved selection for adapter {adapter_id}.")
     # Respond with success message
     return {"status": "success", "msg": f"Adapter {adapter.adapter_name} successfully saved."}
-
-
-# @router.get("/adapter/astraApi/info")
-# async def get_astra_spts_info():
-#     # try:
-#         # Replace this URL with the actual third-party API endpoint
-#         # response = requests.get("https://third-party-api.com/astra/spts-streams")
-#         # response.raise_for_status()
-#         # data = response.json()
-#         data= filter_spts_streams()
-#         # Return the list of SPTS streams (or adapt this to match the actual response structure)
-#         return [{"id": stream["id"], "program_name": stream["programName"], "udp_url": stream["udpUrl"]} for stream in data]
-#     # except requests.RequestException as e:
-#     #     raise HTTPException(status_code=500, detail="Failed to fetch Astra SPTS streams.")
 
 
 @router.get("/adapter/astraApi/info")
