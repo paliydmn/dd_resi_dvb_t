@@ -152,7 +152,7 @@ def scan_adapter(adapter_id: str):
         return {"status": "error", "msg": "ffprobe returned no data"}
     
     programs = construct_programs_dict(ffprobe_data)
-    adapters[adapter_id].programs = programs
+    #adapters[adapter_id].programs = programs
     logger.info(f"Scanned adapter {adapter_id}: {len(programs)} programs found.")
     return {"programs": programs}
 
@@ -302,20 +302,6 @@ def save_selection(adapter_id: str, selection: SaveSelection):
     logger.info(f"Saved selection for adapter {adapter_id}.")
     # Respond with success message
     return {"status": "success", "msg": f"Adapter {adapter.adapter_name} successfully saved."}
-
-
-# @router.get("/adapter/astraApi/info")
-# async def get_astra_spts_info():
-#     # try:
-#         # Replace this URL with the actual third-party API endpoint
-#         # response = requests.get("https://third-party-api.com/astra/spts-streams")
-#         # response.raise_for_status()
-#         # data = response.json()
-#         data= filter_spts_streams()
-#         # Return the list of SPTS streams (or adapt this to match the actual response structure)
-#         return [{"id": stream["id"], "program_name": stream["programName"], "udp_url": stream["udpUrl"]} for stream in data]
-#     # except requests.RequestException as e:
-#     #     raise HTTPException(status_code=500, detail="Failed to fetch Astra SPTS streams.")
 
 
 @router.get("/adapter/astraApi/info")

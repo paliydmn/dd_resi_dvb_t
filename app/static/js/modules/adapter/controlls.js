@@ -17,7 +17,7 @@ export function stopAllffmpegs() {
 
 export function scanAdapter(adapterId) {
     const scanSection = document.getElementById(`scan-section-${adapterId}`);
-
+    toggleMenu(id + "-menu")
     // Add a spinner to indicate loading
     const spinner = document.createElement('div');
     spinner.className = 'spinner';
@@ -38,7 +38,6 @@ export function scanAdapter(adapterId) {
             scanSection.removeChild(spinner);
             if (!programs || Object.keys(programs).length === 0) {
                 showPopup(data.msg, data.status);
-                toggleMenu(adapterId + "-menu")
                 return;
             }
 
@@ -117,7 +116,7 @@ export function scanAdapter(adapterId) {
 }
 
 function setAdapterControlDisplay(id, isDisplay) {
-    toggleMenu(id + "-menu")
+   // toggleMenu(id + "-menu")
     const adapterDiv = document.getElementById(`adapter-${id}`);
     adapterDiv.querySelector(`.start-ffmpeg`).style.display = isDisplay ? 'inline' : 'none';
     adapterDiv.querySelector(`.stop-ffmpeg`).style.display = isDisplay ? 'inline' : 'none';
