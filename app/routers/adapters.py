@@ -148,6 +148,9 @@ def scan_adapter(adapter_id: str):
         return {"status": "error", "msg": f"{ffprobe_data}"}
         # raise HTTPException(status_code=500, detail=ffprobe_data)
 
+    if not ffprobe_data:  # This checks if the dict is empty
+        return {"status": "error", "msg": "ffprobe returned no data"}
+    
     programs = construct_programs_dict(ffprobe_data)
     adapters[adapter_id].programs = programs
     logger.info(f"Scanned adapter {adapter_id}: {len(programs)} programs found.")
