@@ -15,9 +15,9 @@ export function stopAllffmpegs() {
         .catch(error => showPopup(error, "error"));
 }
 
-export function scanAdapter(adapterId) {
-    const scanSection = document.getElementById(`scan-section-${adapterId}`);
-    toggleMenu(id + "-menu")
+export function scanAdapter(aId) {
+    const scanSection = document.getElementById(`scan-section-${aId}`);
+    toggleMenu(aId + "-menu")
     // Add a spinner to indicate loading
     const spinner = document.createElement('div');
     spinner.className = 'spinner';
@@ -25,7 +25,7 @@ export function scanAdapter(adapterId) {
     scanSection.appendChild(spinner);
 
     // Fetch scan results and display them in the scan section
-    fetch(`/adapters/${adapterId}/scan`)
+    fetch(`/adapters/${aId}/scan`)
         .then(response => response.json())
         .then(data => {
             if (data.status === 'error') {
@@ -42,7 +42,7 @@ export function scanAdapter(adapterId) {
             }
 
             // Hide other controls
-            setAdapterControlDisplay(adapterId, false);
+            setAdapterControlDisplay(aId, false);
 
             // Display scan results and save/cancel buttons
             scanSection.innerHTML = `
@@ -77,8 +77,8 @@ export function scanAdapter(adapterId) {
                         </li>
                     `).join('')}
                 </ul>
-                <button id="save-selection-${adapterId}">Save Selected</button>
-                <button id="cancel-selection-${adapterId}">Cancel</button>
+                <button id="save-selection-${aId}">Save Selected</button>
+                <button id="cancel-selection-${aId}">Cancel</button>
                 `;
 
             // Add event listeners to the checkboxes and labels
@@ -103,14 +103,14 @@ export function scanAdapter(adapterId) {
             });
 
             // Add event listeners to the buttons
-            document.getElementById(`save-selection-${adapterId}`).addEventListener('click', () => saveSelection(adapterId));
-            document.getElementById(`cancel-selection-${adapterId}`).addEventListener('click', () => cancelSelection(adapterId));
+            document.getElementById(`save-selection-${aId}`).addEventListener('click', () => saveSelection(aId));
+            document.getElementById(`cancel-selection-${aId}`).addEventListener('click', () => cancelSelection(aId));
         })
         .catch(error => {
             console.error('Error:', error)
             // Hide the spinner if an error occurs
             showPopup(error, "error")
-            updateAdapters(adapterId)
+            updateAdapters(aId)
             scanSection.removeChild(spinner);
         });
 }
@@ -122,10 +122,10 @@ function setAdapterControlDisplay(id, isDisplay) {
     adapterDiv.querySelector(`.stop-ffmpeg`).style.display = isDisplay ? 'inline' : 'none';
 }
 
-function cancelSelection(adapterId) {
-    const scanSection = document.getElementById(`scan-section-${adapterId}`);
+function cancelSelection(aId) {
+    const scanSection = document.getElementById(`scan-section-${aId}`);
     // Restore other controls
-    setAdapterControlDisplay(adapterId, true);
+    setAdapterControlDisplay(aId, true);
     // Clear scan results
     scanSection.innerHTML = '';
 }
@@ -169,7 +169,7 @@ function toggleStream(event, streamId) {
 }
 
 
-function saveSelection(adapterId) {
+function saveSelection(aId) {
     const selectedChannels = {};
 
     // Collect selected streams
@@ -197,7 +197,7 @@ function saveSelection(adapterId) {
         }
     });
 
-    fetch(`/adapters/${adapterId}/save`, {
+    fetch(`/adapters/${aId}/save`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -209,13 +209,13 @@ function saveSelection(adapterId) {
         .then(response => response.json())
         .then(data => {
             showPopup(data.msg, data.status);
-            updateAdapters(adapterId)
+            updateAdapters(aId)
         })
         .catch(error => showPopup(error, "error"));
 }
 
-export function startFFmpeg(adapterId) {
-    const adapterSection = document.getElementById(`adapter-${adapterId}`);
+export function startFFmpeg(aId) {
+    const adapterSection = document.getElementById(`adapter-${aId}`);
     adapterSection.style.position = 'relative';
 
     // Add a spinner to indicate loading
@@ -224,7 +224,7 @@ export function startFFmpeg(adapterId) {
     spinner.innerHTML = `<div class="loading-spinner"></div>`;
     adapterSection.appendChild(spinner);
 
-    fetch(`/adapters/${adapterId}/start`, {
+    fetch(`/adapters/${aId}/start`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -234,7 +234,7 @@ export function startFFmpeg(adapterId) {
         .then(data => {
             adapterSection.removeChild(spinner);
             showPopup(data.msg, data.status);
-            updateAdapters(adapterId)
+            updateAdapters(aId)
         })
         .catch(error => {
             showPopup(`Start Adapter Error: ${error}`, "error");
@@ -244,8 +244,8 @@ export function startFFmpeg(adapterId) {
 }
 
 
-export function stopFFmpeg(adapterId) {
-    const adapterSection = document.getElementById(`adapter-${adapterId}`);
+export function stopFFmpeg(aId) {
+    const adapterSection = document.getElementById(`adapter-${aId}`);
     adapterSection.style.position = 'relative';
 
     // Add a spinner to indicate loading
@@ -254,14 +254,14 @@ export function stopFFmpeg(adapterId) {
     spinner.innerHTML = `<div class="loading-spinner"></div>`;
     adapterSection.appendChild(spinner);
 
-    fetch(`/adapters/${adapterId}/stop`, {
+    fetch(`/adapters/${aId}/stop`, {
             method: 'POST'
         })
         .then(response => response.json())
         .then(data => {
             adapterSection.removeChild(spinner);
             showPopup(data.msg, data.status);
-            updateAdapters(adapterId)
+            updateAdapters(aId)
         })
         .catch(error => {
             adapterSection.removeChild(spinner);
@@ -269,8 +269,8 @@ export function stopFFmpeg(adapterId) {
         });
 }
 
-export function deleteAdapter(adapterId) {
-    fetch(`/adapters/${adapterId}/`, {
+export function deleteAdapter(aId) {
+    fetch(`/adapters/${aId}/`, {
             method: 'DELETE'
         })
         .then(response => response.json())

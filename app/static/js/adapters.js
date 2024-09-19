@@ -15,16 +15,16 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('stop-all-ffmpegs').addEventListener('click', stopAllffmpegs);
     document.getElementById('existing-adapters').addEventListener('click', function (event) {
         const target = event.target;
-        const adapterId = target.getAttribute('data-adapter-id');
+        const aId = target.getAttribute('data-adapter-id');
 
         if (target.classList.contains('start-ffmpeg')) {
-            startFFmpeg(adapterId);
+            startFFmpeg(aId);
         } else if (target.classList.contains('stop-ffmpeg')) {
-            stopFFmpeg(adapterId);
+            stopFFmpeg(aId);
         } else if (target.classList.contains('scan-adapter')) {
-            scanAdapter(adapterId);
+            scanAdapter(aId);
         } else if (target.classList.contains('delete-adapter')) {
-            deleteAdapter(adapterId);
+            deleteAdapter(aId);
         } else if (target.classList.contains('menu-button')) {
             const menuId = target.getAttribute('data-menu-id');
             toggleMenu(menuId);
@@ -40,14 +40,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-export function updateAdapters(adapterId = null) {
-    const url = adapterId ? `/get_adapter/${adapterId}/` : '/get_adapters/';
+export function updateAdapters(aId = null) {
+    const url = aId ? `/get_adapter/${aId}/` : '/get_adapters/';
 
     fetch(url)
         .then(response => response.json())
         .then(data => {
-            if (adapterId) {
-                updateAdapterDiv(adapterId, data);
+            if (aId) {
+                updateAdapterDiv(aId, data);
             } else {
                 const adapterContainer = document.getElementById('existing-adapters');
                 adapterContainer.innerHTML = ''; // Clear the container
@@ -83,9 +83,9 @@ function toggleUrlList(urlListId) {
     }
 }
 
-function updateAdapterDiv(adapterId, adapter) {
-    const adapterDiv = document.getElementById(`adapter-${adapterId}`) || document.createElement('div');
-    adapterDiv.id = `adapter-${adapterId}`;
+function updateAdapterDiv(aId, adapter) {
+    const adapterDiv = document.getElementById(`adapter-${aId}`) || document.createElement('div');
+    adapterDiv.id = `adapter-${aId}`;
     adapterDiv.style.position = 'relative';
 
     // Display selected channels
@@ -99,10 +99,10 @@ function updateAdapterDiv(adapterId, adapter) {
     const selectedChannelsHtml = selectedPrograms.length ?
         selectedPrograms.map(program => `
             <li>
-                <a href="javascript:void(0);" class="toggle-program-details" data-program="${program.title}-${adapterId}" data-program-title="${program.title}">
+                <a href="javascript:void(0);" class="toggle-program-details" data-program="${program.title}-${aId}" data-program-title="${program.title}">
                     ${program.title}
                 </a>
-                <div id="program-details-${program.title}-${adapterId}" class="program-details" style="display:none; margin-left: 20px;">
+                <div id="program-details-${program.title}-${aId}" class="program-details" style="display:none; margin-left: 20px;">
                     <div class="video-stream"><strong>Video:</strong> 
                         ${program.streams.video
                             .filter(v => v.selected)
@@ -130,8 +130,8 @@ function updateAdapterDiv(adapterId, adapter) {
     // Adapter type and UDP URLs (with Expand/Collapse for SPTS)
     const udpUrlsHtml = adapter.type === 'SPTS' ? `
         <div>
-            <a href="javascript:void(0);" class="toggle-url-list" data-url-list-id="${adapterId}-urls">UDP URLs: &#11206;</a>
-            <ul id="${adapterId}-urls" style="display:none;">
+            <a href="javascript:void(0);" class="toggle-url-list" data-url-list-id="${aId}-urls">UDP URLs: &#11206;</a>
+            <ul id="${aId}-urls" style="display:none;">
                 ${adapter.udp_urls.map(urlConfig => `
                     <li>
                         ${urlConfig.udp_url}${urlConfig.astra_stream_id ? ` (Astra ID: ${urlConfig.astra_stream_id})` : ''}
@@ -157,32 +157,32 @@ function updateAdapterDiv(adapterId, adapter) {
             <div id="total-bitrate"></div>
             </ul>
         </div>
-        <div id="scan-section-${adapterId}">
+        <div id="scan-section-${aId}">
             <!-- Scan results will be loaded here -->
         </div>
         
         <!-- Duplicate Start/Stop buttons for faster control -->
         <div class="adapter-control-buttons">
-            <button class="start-ffmpeg" data-adapter-id="${adapterId}" ${adapter.running ? 'disabled' : ''}>Start</button>
-            <button class="stop-ffmpeg" data-adapter-id="${adapterId}" ${adapter.running ? '' : 'disabled'}>Stop</button>
+            <button class="start-ffmpeg" data-adapter-id="${aId}" ${adapter.running ? 'disabled' : ''}>Start</button>
+            <button class="stop-ffmpeg" data-adapter-id="${aId}" ${adapter.running ? '' : 'disabled'}>Stop</button>
         </div>
         <!-- Menu with dropdown -->
         <div class="adapter-menu">
-            <div class="menu-button" data-menu-id="${adapterId}-menu">
+            <div class="menu-button" data-menu-id="${aId}-menu">
                 <div class="dot"></div>
                 <div class="dot"></div>
                 <div class="dot"></div>
             </div>
-            <div id="${adapterId}-menu" class="menu-dropdown" style="display: none;">
-                <button class="scan-adapter" data-adapter-id="${adapterId}">Scan</button>
-                <button class="start-ffmpeg" data-adapter-id="${adapterId}" ${adapter.running ? 'disabled' : ''}>Start</button>
-                <button class="stop-ffmpeg" data-adapter-id="${adapterId}" ${adapter.running ? '' : 'disabled'}>Stop</button>
-                <button class="delete-adapter" data-adapter-id="${adapterId}">Delete</button>
+            <div id="${aId}-menu" class="menu-dropdown" style="display: none;">
+                <button class="scan-adapter" data-adapter-id="${aId}">Scan</button>
+                <button class="start-ffmpeg" data-adapter-id="${aId}" ${adapter.running ? 'disabled' : ''}>Start</button>
+                <button class="stop-ffmpeg" data-adapter-id="${aId}" ${adapter.running ? '' : 'disabled'}>Stop</button>
+                <button class="delete-adapter" data-adapter-id="${aId}">Delete</button>
             </div>
         </div>
     `;
 
-    if (!document.getElementById(`adapter-${adapterId}`)) {
+    if (!document.getElementById(`adapter-${aId}`)) {
         document.getElementById('existing-adapters').appendChild(adapterDiv);
     }
 }
@@ -215,13 +215,13 @@ window.addEventListener('message', function(event) {
      }
 });
 
-function addStreamIdsToProgramList(adapterId, astraStreams) {
-    const programList = document.querySelectorAll(`#adapter-${adapterId} ul#selected-channels-list li`);
+function addStreamIdsToProgramList(aId, astraStreams) {
+    const programList = document.querySelectorAll(`#adapter-${aId} ul#selected-channels-list li`);
     
     programList.forEach(li => {
         const programNameLink = li.querySelector('a.toggle-program-details');
         const programName = programNameLink.dataset.programTitle; // Get the program name
-        const udpUrls = Array.from(document.getElementById(`${adapterId}-urls`).getElementsByTagName("li"))
+        const udpUrls = Array.from(document.getElementById(`${aId}-urls`).getElementsByTagName("li"))
             .map(li => li.textContent.trim().split(' ')[0])
             .filter(link => link.startsWith('udp://'));
         
@@ -240,8 +240,8 @@ function addStreamIdsToProgramList(adapterId, astraStreams) {
 }
 
 
-function setTotalBitrate(adapterId) {
-    const adapterDiv = document.getElementById(`adapter-${adapterId}`);
+function setTotalBitrate(aId) {
+    const adapterDiv = document.getElementById(`adapter-${aId}`);
     if (!adapterDiv) return;
 
     const channelsList = adapterDiv.querySelectorAll('#selected-channels-list li a.toggle-program-details');
