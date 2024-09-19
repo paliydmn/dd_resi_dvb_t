@@ -28,6 +28,11 @@ export function scanAdapter(adapterId) {
     fetch(`/adapters/${adapterId}/scan`)
         .then(response => response.json())
         .then(data => {
+            if (data.status === 'error') {
+                showPopup(data.msg, data.status);
+                scanSection.removeChild(spinner);
+                return;
+            }
             const programs = data.programs;
             // Hide the spinner after receiving data
             scanSection.removeChild(spinner);
