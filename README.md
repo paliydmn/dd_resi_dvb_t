@@ -4,6 +4,15 @@
 **ResiCast** is a sophisticated wrapper around FFmpeg designed to streamline the process of generating FFmpeg commands for each Adapter, selecting TV programs, and multiplexing the output to the DD RESI SDR DVB-T/T2 Modulator. 
 It utilizes a Python virtual environment to manage dependencies and run a FastAPI server. The provided Makefile simplifies the setup and running of the project.
 
+> **Note**: The latest version of ResiCast includes integration with the Astra Cesbo app via the `resicast.lua` script. To add the ResiCast tab in the Astra web UI, simply start Astra with the `resicast.lua` script.
+> For example:
+> ```bash
+> /usr/bin/astra -c /etc/astra/astra.conf -p 8000 ~/resicast/resicast.lua
+> ```
+
+
+
+
 ## Adapters Page
 
 ### Create Adapter
