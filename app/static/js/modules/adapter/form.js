@@ -281,26 +281,27 @@ function showAstraSptsForm() {
     window.parent.postMessage({
         request: 'stream-list'
     }, '*');
-    const astraSptsList = document.getElementById(`astra-spts-list`);
+    const astraSptsForm = document.getElementById(`astra-spts-form`);
+
     // Add a spinner to indicate loading
     const spinner = document.createElement('div');
     spinner.className = 'spinner';
     spinner.innerHTML = `<div class="loading-spinner"></div>`;
-    astraSptsList.appendChild(spinner);
+    astraSptsForm.prepend(spinner);
     setTimeout(() => {
         if (astraStreams.length > 0) {
-            astraSptsList.removeChild(spinner);
+            astraSptsForm.removeChild(spinner);
             populateAstraSptsList(astraStreams);
             astraStreams = [];
         } else {
             fetch('/adapter/astraApi/info')
                 .then(response => response.json())
                 .then(data => {
-                    astraSptsList.removeChild(spinner);
+                    astraSptsForm.removeChild(spinner);
                     populateAstraSptsList(data);
                 })
                 .catch(error => {
-                    astraSptsList.removeChild(spinner);
+                    astraSptsForm.removeChild(spinner);
                     showPopup(error, "error")
                 });
         }
