@@ -4,8 +4,8 @@ astra_storage["/mod.js"] = astra_storage["/mod.js"] .. [[
 "use strict";
 
 window.ResiCastModule = {
-	label: "ResiCast",
-	link: "#/resicast",
+	label: 'ResiCast',
+	link: '#/resicast',
 	order: 5,
     frame: null,
 }
@@ -29,17 +29,32 @@ ResiCastModule.run = function() {
     });
 }
 
+ResiCastModule.postStreamEvent = function(event) {
+    const frame = ResiCastModule.frame;
+    if(!frame) {
+        return;
+    }
+
+    frame.contentWindow.postMessage({
+        event: 'stream-event',
+        data: event.data,
+    }, '*');
+}
+
 ResiCastModule.render = function() {
 	var self = this,
 		object = app.renderInit();
 
-    var frame = $.element("iframe")
-        .addAttr("src", "http://" + location.hostname + ":8008")
-        .addAttr("style", "width: 100%; height: calc(100vh - 31px); border: none; margin-left: -10px; margin-right: -10px;");
+    var frame = $.element('iframe')
+        .addAttr('src', 'http://' + location.hostname + ':8008/adapters/')
+        .addAttr('style', 'width: 100%; height: calc(100vh - 31px); border: none; margin-left: -10px; margin-right: -10px;');
+
+    app.on('stream_event', ResiCastModule.postStreamEvent);
 
     ResiCastModule.frame = frame;
     self.on('destroy', () => {
         ResiCastModule.frame = null
+        app.off('stream_event', ResiCastModule.postStreamEvent);
     });
 
     object.addChild(frame);
